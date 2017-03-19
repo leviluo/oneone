@@ -1,0 +1,149 @@
+.organizationHome{
+	min-width:1200px;
+	min-height:900px;
+	margin-bottom:10px;
+	.BasicInfo{
+		.BasicInfoTop{
+			height:40px;
+			background:#f0f8ff;
+			width:900px;
+			margin-bottom:10px;
+			&>button{
+				margin:5px;
+				height:30px;
+				line-height:30px;
+			}
+		}
+		box-shadow:2px 2px 4px 1px #e5e5e5;
+		float:left;
+		background:#fff;
+		min-height:900px;
+		margin-bottom:10px;
+		.BasicInfoContent{
+		 padding:10px 20px;
+		 width:900px;
+		 a{
+		 	color:#37a;
+		 	padding:3px 5px;
+		 	&:hover{
+		 		background:#efefef
+		 	}
+		 }
+		.head{
+			height:110px;
+			line-height:110px;
+			img{
+				border-radius:75px;
+				border:5px solid #efefef;
+				margin:0 10px;
+				float:left;
+			}
+			span{
+				float:left;
+				font-size:200%;
+				color:#333;
+			}
+			button{
+				float:right;
+				margin-top:35px;
+			}
+		}
+		.content{
+			background:#fff4e8;
+			padding:10px;
+			margin-top:10px;
+			line-height:30px;
+			font-size:12px;
+			div:first-of-type{
+				span{
+					color:#ff7f00;
+				}
+				a{
+					color:#ff7f00;
+					cursor:pointer;
+					padding:2px;
+				}
+			}
+		}
+				}
+		.btn-orange{
+				border:none;
+		}
+		.articleTop{
+			margin-top:10px;
+			height:40px;
+			button{
+				height:35px;
+				line-height:35px;
+				float:right;
+				
+			}
+			span{
+				position:relative;
+				top:10px;
+				a:first-of-type{
+					color:white;
+					background:#37a
+				}
+			}
+		}
+		.articleList{
+			width:100%;
+			color:#444;
+			tr{
+				height:30px;
+				td{
+					border-bottom:1px dashed #e5e5e5;
+					text-align:center;
+				}
+				td:first-of-type{
+					text-align:left;
+				}
+				td:last-of-type{
+					text-align:right;
+				}
+			}
+			thead tr{
+				color:#999;
+			}
+		}
+	}
+	.members{
+		width:290px;
+		float:right;
+		margin-left:10px;
+		background:#fff;
+		box-shadow:2px 2px 4px 1px #e5e5e5;
+		div:first-of-type{
+			height:40px;
+			line-height:40px;
+			background:#f0f8ff;
+			margin:0 0 10px 0;
+			text-align:center;
+			font-size:110%;
+		}
+		&>div{
+			margin-top:10px;
+			height:500px;
+			a{
+				height:40px;
+				line-height:40px;
+				display:block;
+				color:#333;
+				border-top:1px solid #efefef;
+				img{
+					margin:5px;
+					float:left;
+					border-radius:15px;
+					border:2px solid #e5e5e5;
+				}
+				cursor:pointer;
+				&:hover{
+					color:#ff7f00;
+					background:#e5e5e5;
+				}
+			}
+		}
+	}
+	
+}

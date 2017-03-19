@@ -1,0 +1,76 @@
+.share{
+					height:40px;
+					float:right;
+					color:#666;
+				a{
+					width:30px;
+					height:30px;
+					display:block;
+					float:right;
+					margin-right:5px;
+					margin-top:5px;
+					&:hover{
+						cursor:pointer
+					}
+					&:first-of-type{
+						background-image:url("./asset/sharess.png");
+						background-size:100px;
+						background-position:50% 0%;
+				}
+					&:nth-of-type(2){
+						background-image:url("./asset/sharess.png");
+						background-size:103px;
+						background-position:0% 50%;
+				}
+					&:nth-of-type(3){
+						background-image:url("./asset/sharess.png");
+						background-size:102px;
+						background-position:100% 0%;
+				}
+					&:nth-of-type(4){
+						background-image:url("./asset/sharess.png");
+						background-size:100px;
+						background-position:100% 50%;;
+						position:relative;
+						div{
+							cursor:auto;
+							display:none;
+							position:absolute;
+							top:35px;
+							left:-80px;
+							height:200px;
+							width:200px;
+							background:white;
+							z-index:10;
+							border:1px solid #efefef;
+							color:#1c86ee;
+							img{
+								width:150px;
+								height:150px;
+								margin:25px 0 0 25px;
+								box-shadow:none;
+							}
+							span:first-of-type{
+								position:absolute;
+								left:170px;
+								top:-5px;
+								font-size:150%;
+								width:25px;
+								height:25px;
+								text-align:center;
+								cursor:pointer;
+								&:hover{
+								font-size:200%;
+								}
+							}
+							p{
+								margin:0;
+								height:30px;
+								position:relative;
+								top:-30px;
+								text-align:center;
+							}
+						}
+				}
+			}
+		}

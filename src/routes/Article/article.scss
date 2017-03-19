@@ -1,0 +1,138 @@
+#article{
+	min-height:900px;
+	min-width:1200px;
+	background:#fff;
+	margin-bottom:10px;
+	line-height:20px;
+	box-shadow:2px 2px 4px 1px #e5e5e5;
+	a{
+		 	color:#37a;
+		 	padding:3px;
+		 	&:hover{
+		 		background:#efefef
+		 	}
+		 }
+	&>div:first-of-type{
+		height:40px;
+		line-height:40px;
+		background:#f0f8ff;
+		button{
+			margin-left:5px;
+			margin-top:5px;
+			height:30px;
+			line-height:30px;
+		}
+	}
+	.articleContent{
+		padding:10px 20px;
+		.articleContentTop{
+			height:54px;
+			line-height:54px;
+			&>img{
+				border-radius:25px;
+				border:2px solid #e5e5e5;
+				float:left;
+				width:50px;
+
+			}
+			div{
+				float:left;
+				margin-left:10px;
+				span{
+				color:#999;
+				}
+			}
+			&>span{
+				float:right;
+				line-height:20px;
+				margin-top:15px;
+				a{
+					margin-left:5px;
+				}
+			}
+		}
+		.content{
+			background:#fff4e8;
+			padding:10px;
+			margin-top:10px;
+		}
+		.attachedImgs{
+			margin:10px 0;
+			.imgShow{
+				height:100px;
+				margin-top:10px;
+				span{
+				float:left
+				}
+				div{
+					width:100px;
+					overflow:hidden;
+					height:100px;
+					margin-right:10px;
+					float:left;
+					border:1px solid #efefef;
+					border-radius:5px;
+					background-position:center;
+					background-repeat:no-repeat;
+					background-size:cover;
+					cursor:pointer;
+					box-shadow:3px 3px 5px 1px #efefef;
+					}
+			}
+		}
+		.historyReplys{
+			margin-top:10px;
+			height:60px;
+			&>div{
+				clear:both;
+				border-top:1px dashed #e5e5e5;
+				padding:10px 0;
+				img{
+					width:50px;
+					border-radius:25px;
+					border:2px solid #e5e5e5;
+					float:left;
+				}
+				div{
+					float:left;
+					margin-left:10px;
+						font-size:13px;
+					span{
+						color:#999;
+					}
+					p{
+						background:#efefef;
+						margin:5px 0;
+						padding:2px 5px;
+						word-break:break-all;
+						max-width:1000px;
+					}
+				}
+			}
+		}
+		.reply{
+			clear:both;
+			padding-top:10px;
+			margin-top:10px;
+			margin-bottom:60px;
+			border-top:1px dashed #e5e5e5;
+			min-height:150px;
+
+			div{
+				word-break:break-all;
+				word-wrap:break-word;
+				background:#efefef;
+				padding:0 5px;
+			}
+			textarea{
+				width:100%;
+				margin:5px 0;
+			}
+			button{
+				float:right;
+				margin:5px 0;
+			}
+		}
+	}
+
+}

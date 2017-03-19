@@ -1,0 +1,28 @@
+#tips{
+	padding:5px;
+	background: rgba(0,0,0,0.2);
+	height:50px;
+	display:none;
+	z-index: 9999;
+	position: absolute;
+	border-radius: 7px;
+	div{
+		padding: 0 10px;
+		height: 40px;
+		line-Height:41px;
+		textAlign: center;
+		color: white;
+		border-radius:5px;
+		.close{
+			float:right;
+		    font-size: 120%;
+		    font-weight: bold;
+		    color:white;
+		    margin-left:10px
+	    }
+	    .close:hover{
+	    	cursor: pointer;
+	    	color: #efefef
+	    }
+	}
+}

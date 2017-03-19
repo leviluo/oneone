@@ -1,0 +1,132 @@
+.team{
+	background:#fff;
+	padding:20px 0;
+	h3{
+		color:#555;
+		border-bottom:1px dashed #ccc;
+		padding-bottom:20px;
+	}
+	hr{
+		border:1px solid #e5e5e5;
+	}
+	.attendTeam{
+
+	}
+	a{
+	 	color:#37a;
+	 	padding:2px;
+	 	&:hover{
+	 		background:#efefef
+	 	}
+	 }
+	.createTeam{
+		ul{
+			padding:0;
+			margin:0;
+			li{
+				border-top:1px solid #e5e5e5;
+				margin-bottom:20px;
+			}
+		}
+		.items{
+			border-bottom:1px dashed #e5e5e5;
+			&>div:first-of-type{
+				background:#efefef;
+				padding:5px;
+				margin-bottom:10px;
+				border-left:2px solid #ff7f00;
+				&>span{
+					float:right;
+					a{
+						margin-left:8px;
+					}
+					i{
+						font-size:12px;
+					}
+				}
+			}
+			padding:15px 0;
+			&>img{
+				border-radius:75px;
+				border:5px solid #efefef;
+				float:left;
+			}
+			ul{
+				margin-left:130px;
+				li{
+					border:none;
+					margin-bottom:15px;
+					line-height:25px;
+					span{
+						margin-right:10px;
+						color:#999;
+					}
+				}
+				.editLi{
+					canvas{
+					border-radius:75px;
+					border:5px solid #e5e5e5;
+					}
+					.modifyHead{
+						position:relative;
+						border:1px solid #ccc;
+						margin-bottom:10px;
+						input{
+							width:100%;
+							height:100%;
+						}
+					}
+					input{
+						width:200px;
+					}
+					textarea{
+						width:800px;
+					}
+					.submit{
+						margin-left:10px;
+						margin-top:10px;
+					}
+					select{
+						width:200px;
+					}
+				}
+			}
+		}
+		.addBtn{
+			clear:both;
+			padding:10px 0;
+		}
+		.addNew{
+			li{
+				canvas{
+					border-radius:75px;
+					border:5px solid #e5e5e5;
+				}
+				div{
+					padding-bottom:20px;
+					padding-left:20px;
+					.modifyHead{
+						position:relative;
+						border:1px solid #ccc;
+						input{
+							width:100%;
+							height:100%;
+						}
+					}
+					input{
+						width:200px;
+					}
+					textarea{
+						width:800px;
+					}
+					.submit{
+						margin-left:10px;
+					}
+					Select{
+						width:200px;
+					}
+				}
+			}
+		}
+	}
+}

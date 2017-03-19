@@ -1,0 +1,31 @@
+.myPost{
+	background:#fff;
+	maring-bottom:10px;
+	padding:20px 0;
+	a{
+	 	color:#37a;
+	 	padding:3px;
+	 	&:hover{
+	 		background:#efefef
+	 	}
+	 }
+	&>table{
+		width:100%;
+		tbody{
+			tr{
+				td{
+					height:35px;
+					line-height:25px;
+					text-align:center;
+					border-bottom:1px dashed #e5e5e5;
+					.noRead{
+						padding:0 6px;
+						background:#ff7f00;
+						color:white;
+						border-radius:10px;
+					}
+				}
+			}
+		}
+	}
+}

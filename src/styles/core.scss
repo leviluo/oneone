@@ -1,0 +1,167 @@
+:global {
+    @import 'base';
+    @import '~normalize.css/normalize';
+    // Some best-practice CSS that's useful for most apps
+    // Just remove them if they're not what you want
+    html {
+        box-sizing: border-box;
+    }
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #f0f0f0;
+        font-size: 14px;
+        font-family: "Hiragino Sans GB","Microsoft Yahei",SimSun,Arial,"Helvetica Neue",Helvetica;
+        color:#333;
+        a {
+            text-decoration: none;
+            &:hover {
+                cursor: pointer
+            }
+        }
+        table{
+            border-spacing:0;
+        }
+        .btn-orange{
+            height:30px;
+            line-height:30px;
+            border:1px solid #ff7f00;
+            background:none;
+            padding:0 10px;
+            border-radius:5px;
+            color:#ff7f00;
+            cursor:pointer
+        }
+        .lightColor{
+            color:#999
+        }
+        .smallFont{
+            font-size:10px;
+        }
+        .lightBackground{
+            background:#fff4e8;
+        }
+        .btn-white{
+            padding: 0 5px;
+            height: 30px;
+            line-height: 30px;
+            background: #efefef;
+            border:1px solid #ccc;
+            color:#666;
+            &:hover{
+                border:1px solid #ff7f00;
+                cursor:pointer
+            }
+        }
+        .btn-default{
+            padding: 0 5px;
+            line-height: 35px;
+            background: #efefef;
+            border-radius: 5px;
+            color:#37a; 
+            border:none;
+            padding:0 10px;
+            border:1px solid #ccc;
+            &:hover{
+                background: #e5e5e5;
+                cursor:pointer
+            }
+        }
+        .btn-addMore{
+            padding: 0 5px;
+            line-height: 35px;
+            background: #efefef;
+            border-radius: 5px;
+            width:90%;
+            height:60px;
+            font-size:20px;
+            letter-spacing:2px;
+            color:#37a; 
+            border:none;
+            padding:0 10px;
+            border:1px solid #ccc;
+            &:hover{
+                background: #e5e5e5;
+                cursor:pointer
+            }
+        }
+        .btn-primary {
+            padding: 0 5px;
+            height: 35px;
+            line-height: 35px;
+            background: #6495ED;
+            border: none;
+            color: white;
+            &:hover{
+                background: #3A5FCD;
+                cursor: pointer
+            }
+        }
+        .btn-success {
+            padding: 0 5px;
+            height: 35px;
+            line-height: 35px;
+            background: #00be5f;
+            border: none;
+            color: white;
+            border-radius:5px;
+            &:hover{
+                background: #00b259;
+                cursor: pointer
+            }
+        }
+        input[type="text"],input[type="password"]{
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+            margin: 0;
+            width: 100%;
+            height: 40px;
+            background: #efefef;
+            -webkit-tap-highlight-color: none;
+            border: none;
+            text-indent: 5px
+        }
+        input[type="radio"] {
+            font-size:14px;
+            width:20px;
+        }
+        input[type="file"]{
+            font-size:0;  /*input 的cursor有效*/
+            opacity:0;
+            filter:alpha(opacity=0);
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor:pointer
+        }
+        ul{
+            li {
+                list-style: none;
+            }
+        }
+        textarea{
+            border:1px solid #ccc;
+            background:#efefef;
+            padding:5px;
+
+        }
+        input,button,textarea,select{
+            outline:none; /* 去除蓝色边框 */
+        }
+        .pull-right{
+            float:right
+        }
+        .pull-left{
+            float:left
+        }
+        img{
+            box-shadow:2px 2px 5px 1px #ccc;
+        }
+    }
+    *,
+    *:before,
+    *:after {
+        box-sizing: inherit;
+    }
+}

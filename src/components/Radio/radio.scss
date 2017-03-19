@@ -1,0 +1,17 @@
+.radio{
+	height:35px;
+	margin:10px 0;
+	label{
+		width:20%;
+		display:inline-block;
+		margin-right:10px;
+		background:#F0F8FF;
+		text-align:center;
+		font-weight:normal;
+		height:35px;
+		line-height:35px;
+	}
+	input[type="radio"]{
+		cursor:pointer
+	}
+}

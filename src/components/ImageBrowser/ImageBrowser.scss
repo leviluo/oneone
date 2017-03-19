@@ -1,0 +1,126 @@
+.ImageBrowser{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	background:rgba(0,0,0,0.95);
+    z-index: 99;
+    min-width:1200px;
+    display:none;
+    img{
+            box-shadow:none;
+        }
+    .content{
+    	height:100%;
+    	&>div{
+    		float:left;
+    	}
+	    div:nth-of-type(2){
+	    	width:84%;
+	    	height:100%;
+	    	text-align:center;
+	    	position:relative;
+		    img{
+		    	position:absolute;
+	    		top:0;
+	    		left:0;
+	    		bottom:0;
+	    		right:0;
+	    		margin:auto;
+	    		max-width:100%;
+	    		max-height:80%;
+	    		border:2px solid #fff;
+		    }
+		    button{
+		    	font-size:200%;
+		    	cursor:pointer;
+		    	background:none;
+		    	border:3px solid #ccc;
+		    	color:#ccc;
+		    	width:60px;
+		    	height:60px;
+		    	line-height:20px;
+		    	text-align:center;
+		    	float:right;
+		    	border-radius:30px;
+		    	&:hover{
+	    			border:3px solid #efefef;
+	    		}
+		    }
+		    .like{
+		    	position:fixed;
+		    	bottom:25px;
+		    	left:calc(50% - 30px);
+		    }
+		    .photoLists{
+					 margin:10px auto;
+					 bottom:20px;
+					 padding:7px;
+					 background:rgba(255,255,255,0.2);
+					 border:3px solid #222;
+					 height:80px;
+					 text-align:center;
+				 	-webkit-user-select:none; 
+					 -moz-user-select:none; 
+					 -ms-user-select:none; 
+					 user-select:none;
+					 overflow:hidden;
+					.pageUp,.pageDown{
+						margin:0 10px;
+						width:30px;
+						height:60px;
+						line-height:52px;
+						color:white;
+						font-size:200%;
+						float:left;
+						background:#777;
+						cursor:pointer;
+						&:hover{
+							background:#999
+						}
+					}
+					.imgShows{
+							float:left;
+							padding:2px 2px 2px 2px; 
+							text-align:center;
+							background:#efefef;
+							margin:0 2px;
+							width:68px;
+							cursor:pointer;
+							background-position:center;
+							background-repeat:no-repeat;
+							background-size:cover;
+							height:60px;
+							&:hover{
+								border:2px solid #ff7f00;
+							}
+					 }
+				}
+	    }
+	    .page{
+	    	width:8%;
+	    	height:100%;
+	    	position:relative;
+	    	button{
+	    		color:#efefef;
+	    		background:none;
+	    		border:none;
+	    		font-size:300%;
+	    		cursor:pointer;
+	    		height:60px;
+	    		width:40px;
+	    		line-height:10px;
+	    		position:absolute;
+	    		top:0;
+	    		left:0;
+	    		bottom:0;
+	    		right:0;
+	    		margin:auto;
+	    		&:hover{
+	    			color:#fff;
+	    			background:#666;
+	    		}
+	    	}
+	    }
+    }
+}

@@ -1,0 +1,31 @@
+.pagedown{
+   float:right;
+   margin:15px;
+   li{
+    list-style-type: none;
+    float: left;
+    a{
+        padding:0 !important;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        display: block;
+        text-align: center;
+        margin-left: 5px;
+        color:#FF8C00;
+        text-decoration:none;
+        cursor:pointer;
+        background: #ccc;
+        border:1px solid #efefef;
+        &:hover{
+            color:white;
+            border:1px solid #FF8C00;
+        }
+    }
+     button {
+        margin-left: 5px;
+        line-height:30px;
+        height:30px
+     }
+   }
+}

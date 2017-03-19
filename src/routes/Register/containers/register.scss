@@ -1,0 +1,48 @@
+.registerContainer{
+	background:#fff;
+	padding-top:50px;
+	min-height:900px;
+	min-width:1200px;
+	margin-bottom:10px;
+	h2{
+	 text-align:center;
+	 color:#555
+	}
+	hr{
+	margin: 15px auto;
+	border:1px solid #ccc
+	}
+	div[name="content"]{
+	 width:300px;
+	 margin:0 auto;
+	 text-align:center;
+	 padding-bottom:30px;
+	 input:focus{
+	 	border:1px solid #1C86EE
+	 }
+	 input[name="code"]{
+	 	position:relative;
+	 	padding:0;
+	 	width:250px
+	 }
+	 .registerSex{
+	 text-align:left;
+	 height:40px;
+	 padding-top:20px;
+	 }
+	 .codebtn{
+	 	width:50px;
+	 }
+	 label{
+	 	width:80px;
+	 }
+	 button[type="submit"]{
+	 	width:100%;
+	 	margin-top:15px;
+	 }
+	}
+}
+
+.registerContent{
+
+}

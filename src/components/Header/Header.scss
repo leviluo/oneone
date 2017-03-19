@@ -1,0 +1,93 @@
+header{
+    height: 45px;
+    line-height: 45px;
+    background: #f0f8ff;
+    border-bottom: 1px solid #ccc;
+    min-width:1200px;
+    
+    nav {
+        margin: 0 auto;
+        padding:0 20px;
+        h1 {
+            margin: 0;
+            color: #1C86EE;
+            display: inline-block;
+            a{
+                background-image:url(./assert/logo.png);
+                background-repeat:no-repeat;
+                background-size: 50px;
+                background-position: center left;
+                padding-left:60px;
+                display:block;
+            }
+        }
+        h4 {
+            margin: 0 10px;
+            display: inline-block;
+            color: #1C86EE;
+        }
+        a {
+            color: #000
+        }
+        a:hover {
+            color: #1C86EE
+        }
+        .brand {
+            color: #1C86EE
+        }
+        .headerRight {
+            float: right;
+            display:inline-block;
+            height:45px;
+           
+            span{
+                margin-left:5px;
+                float:right;
+                color:#1C86EE;
+            }
+            a {
+                float:right;
+                margin: 0;
+                padding:0 10px;
+                color: #1C86EE;
+                height:44px;
+                line-height:44px;
+                display:block;
+            }
+            a:hover {
+                cursor: pointer;
+                background: #e5e5e5;
+            }
+
+        }
+            .item{
+                height:44px;
+                line-height:44px;
+                font-size:120%;
+                padding:0;
+                strong{
+                    color:#1C86EE;
+                    height:20px;
+                    width:100%;
+                    padding:0 10px;
+                    line-height:20px;
+                    margin-top:10px;
+                }
+                &:hover {
+                    cursor: pointer;
+                    background: #e5e5e5;
+                }
+                &:last-of-type span{
+                    border:none;
+                }
+                &:first-of-type{
+                    margin-left:10px;
+                }
+            }
+    }
+}
+
+.activeRoute {
+    font-weight: bold;
+    text-decoration: none;
+}

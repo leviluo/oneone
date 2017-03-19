@@ -1,0 +1,298 @@
+.basicInfo{
+		padding:20px 0;
+		color:#333;
+		a{
+		 	color:#37a;
+		 	padding:3px;
+		 	&:hover{
+		 		background:#efefef
+		 	}
+		 }
+		&>div:first-of-type{
+			background:#f0f8ff;
+			margin-bottom:50px;
+			div:first-of-type{
+				position:relative;
+				width:110px;
+				height:110px;
+				margin:0 auto;
+				border-radius:55px;
+				overflow:hidden;
+				img{
+					border-radius:55px;
+					margin:0 auto;
+					border:5px solid #ccc;
+				}
+				a{
+					width:110px;
+					height:110px;
+					line-height:110px;
+					margin:0px auto;
+					display:block;
+					text-align:center;
+					filter:alpha(opacity=0);
+					opacity:0;
+					font-size:150%;
+					color:white;
+					position:absolute;
+					top:0;
+					left:0;
+					input{
+						width:110px;
+						height:110px;
+						border-radius:50px
+					}
+					&:hover{
+						filter:alpha(opacity=0.3);
+						opacity:50;
+						background:rgba(0,0,0,0.6);
+					}
+				}
+			}
+			.follow{
+				text-align:center;
+				padding:10px;
+			}
+		}
+		&>ul{
+			width:100%;
+			padding:0;
+			&>li{
+				text-align:center;
+				position:relative;
+				margin:50px 0;
+				h3{
+					margin-bottom:30px;
+					text-align:center;
+					height:20px;
+					color:#444;
+					hr{
+						border:1px solid #efefef;
+					}
+					span{
+						position:relative;
+						top:-30px;
+						width:120px;
+						padding:5px;
+						height:40px;
+						line-height:30px;
+						display:block;
+						background:#fff;
+						margin:0 auto;
+						background:#efefef;
+						border-radius:20px;
+					}
+				}
+				p{
+					color:#666;
+					input{
+						width:150px;
+					}
+					button{
+						margin:0 5px;
+					}
+				}
+				.btn-normal{
+    				border-radius:5px;
+    				padding:0 10px;
+    				width:70px;
+    				top:-7px;
+    				position:absolute;
+    				left:calc(100% - 65px);
+    				background:#fff;
+				}
+				&>ul{
+					padding:0;
+					&>li{
+						clear:both;
+						text-align:left;
+						padding-left:30px;
+						padding-right:30px;
+						margin-top:20px;
+						margin-bottom:0;
+						textarea{
+							width:100%;
+						}
+						&>button{
+							float:right;
+							margin:5px;
+						}
+						span:first-of-type{
+							color:#666;
+						}
+						p:first-of-type{
+							width:50%;
+							position:relative;
+							top:50px;
+						}
+						.preSubmit{
+								background:#fff4e8;
+								margin-bottom:10px;
+								min-height:0;
+								margin-top:20px;
+								.add{
+									.imgList{
+										width:100px;
+										overflow:hidden;
+										height:100px;
+										margin:5px;
+										float:left;
+										border:2px solid #efefef;
+										border-radius:5px;
+										background-position:center;
+										background-repeat:no-repeat;
+										background-size:cover;
+										div{
+											width:100px;
+											height:100px;
+											text-align:center;
+											line-height:100px;
+											cursor:pointer;
+											background:rgba(0,0,0,0.3);
+											filter:alpha(opacity=0);
+											font-size:200%;
+											color:white;
+											opacity:0;
+											margin:0
+										}
+									}
+								}
+								.submit{
+									clear:both;
+									text-align:center;
+									padding:20px;
+								}
+						}
+
+						&>div{
+							min-height:150px;
+							&>ul{
+								padding:0;
+								width:730px;
+								padding:5px; 
+								float:left;
+								background:#fff4e8;
+								&:hover{
+									li{
+										width:60px;
+									}
+								}
+								box-shadow:3px 3px 8px 1px #ccc;
+								&>li{
+									width:90px;
+									float:left;
+									-ms-transition: all 0.3s;
+									-ms-transition: all 0.3s;           /*用来设置鼠标滑过的时间设置*/
+									-moz-transition: all 0.3s;
+									-webkit-transition: all 0.3s;           /*用来设置鼠标滑过的时间设置*/
+									-moz-transition: all 0.3s;
+									div{
+										height:140px;
+										width:182px;
+										border:1px solid #fff;
+										background-position:center;
+										background-repeat:no-repeat;
+										background-size:cover;
+									}
+									&:hover{
+										width:182px;
+									}
+									&:last-of-type:hover{
+										width:100px;
+									}
+									a{
+										width:182px;
+										height:140px;
+										line-height:140px;
+										background:rgba(0,0,0,0.3);
+										text-align:center;
+										display:block;
+										padding:0;
+										letter-spacing:2px;
+										color:#ff7f00;
+										font-size:110%;
+										&:hover{
+											background:rgba(0,0,0,0.2);
+										}
+									}	
+								}
+						}
+							.addDiv{
+									width:140px;
+									height:140px;
+									line-height:140px;
+									letter-spacing:2px;
+									color:#ff7f00;
+									font-size:110%;
+									border:1px dashed #e5e5e5;
+									text-align:center;
+									display:block;
+									float:right;
+									&:hover{
+										border:1px solid #ff7f00;
+										color:#ff7f00;
+										background:none
+									}
+									position:relative;
+									input{
+										width:100%;
+										height:140px;
+									}
+							}
+										
+						}
+					}
+					&>li:first-of-type{
+						padding-left:0px;
+						background:#efefef;
+						height:35px;
+						line-height:35px;
+						border-left:2px solid #ff7f00;
+						text-indent:10px;
+						padding-right:0px;
+						position:relative;
+						b{
+							font-size:110%;
+							color:#444;
+						}
+						a{
+							height:35px;
+							line-height:35px;
+							float:right;
+    						width:60px;
+    						text-align:center;
+    						text-indent:0;
+						}
+					}
+					.editLi{
+
+					}
+					border-bottom:1px dashed #e5e5e5;
+					padding-bottom:20px;
+				}
+			}
+				.addSpeciality{
+					table{
+					height:300px;
+						width:600px;
+						margin: 0 auto;
+						tbody{
+							tr{
+								td{
+									&:first-of-type{
+										strong{
+											padding:5px;
+											display:inline-block;
+											width:100px;
+										}
+									}
+									textarea{
+										width:100%;
+									}
+								}
+							}
+						}
+					}
+				}
+		}
+}
