@@ -9,7 +9,7 @@ import {Link} from 'react-router'
 import PageNavBar,{pageNavInit} from '../../components/PageNavBar'
 import Modal,{modalShow,modalHide} from '../../components/Modal'
 import Textarea from '../../components/Textarea'
-import tipShow from '../../components/Tips'
+import {tipShow} from '../../components/Tips'
 
 @connect(
   state=>({
@@ -128,6 +128,7 @@ export default class OrganizationsHome extends Component{
 
   postArticle = (e) =>{
     if (!this.state.isAttended && (this.props.auth.phone != this.state.BasicInfo.phone)) {
+      console.log(this.props.tipShow)
       this.props.tipShow({type:"error",msg:"请先加入这个社团才能发帖"})
       return
     }
@@ -176,7 +177,7 @@ export default class OrganizationsHome extends Component{
 
           <div className="articleTop">
              <span><a onClick={(e)=>this.changeType(e,0)}>活动</a>&nbsp;/&nbsp;<a onClick={(e)=>this.changeType(e,1)}>咨询</a></span>
-             <button className="btn-default" onClick={this.postArticle}><i className="fa fa-edit"></i>&nbsp;发布</button>
+             <button className="btn-default" onClick={this.postArticle}><i className="fa fa-edit"></i>发布</button>
           </div>
           
           <table className="articleList">

@@ -42,20 +42,28 @@ export default class HomeView extends React.Component{
     };
 
     componentWillMount =()=>{ //正常进入页面可以直接获取到memberId
-      if(this.props.mylocation.text[0])this.getData(this.state.currentPage,this.props.mylocation.text[0])
+      if(this.props.mylocation.text[0]){
+        this.getData(this.state.currentPage,this.props.mylocation.text[0])
+      }
     }
 
     componentWillReceiveProps=(nextProps)=>{ //刷新时获取memberId
-      if ((nextProps.mylocation.text[0] != this.props.mylocation.text[0]) && this.props.mylocation.text[0]) {
+      if ((nextProps.mylocation.text[0] != this.props.mylocation.text[0]) && this.props.mylocation.text[0]) { //在变换城市时
         this.setState({
-          updates:[]
+          updates:[],
         })
+        this.getData(this.state.currentPage,nextProps.mylocation.text[0])
       }
-      if(nextProps.mylocation.text[0])this.getData(this.state.currentPage,nextProps.mylocation.text[0])
+      if(nextProps.mylocation.text[0] && !this.state.isloaded){
+        console.log("333")
+        this.setState({
+          isloaded:true
+        })
+        this.getData(this.state.currentPage,nextProps.mylocation.text[0])
+      }
     }
 
     getData = (currentPage,location)=>{
-      console.log(location)
        getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`,window.encodeURIComponent(location)).then(({data})=>{
         if (data.status == 200) {
           if (data.data.length < this.state.averagenum) {

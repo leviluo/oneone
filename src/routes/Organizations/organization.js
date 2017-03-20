@@ -54,7 +54,7 @@ export default class MemberBrief extends Component{
   }
 
   getData = (currentPage)=>{
-      return getUpdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`,this.props.mylocation.text[0]).then(({data})=>{
+      return getUpdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`,window.encodeURIComponent(this.props.mylocation.text[0])).then(({data})=>{
         if (data.status == 200) {
                 this.setState({
                     updates:data.data

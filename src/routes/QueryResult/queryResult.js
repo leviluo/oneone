@@ -6,6 +6,7 @@ import {connect} from 'react-redux'
 import Select from '../../components/Select'
 import {query} from './modules'
 import PageNavBar,{pageNavInit} from '../../components/PageNavBar'
+import {tipShow} from '../../components/Tips'
 
 const optionsItems = [{key:1,value:"用户"},{key:2,value:"社团"},{key:3,value:"文章"}]
 
@@ -14,7 +15,7 @@ const optionsItems = [{key:1,value:"用户"},{key:2,value:"社团"},{key:3,value
     auth:state.auth,
     pagenavbar:state.pagenavbar
   }),
-{pageNavInit})
+{pageNavInit,tipShow})
 export default class queryResult extends Component{
 
   state = {
