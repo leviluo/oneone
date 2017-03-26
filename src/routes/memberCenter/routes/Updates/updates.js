@@ -37,14 +37,14 @@ export default class updates extends Component {
     };
 
     componentWillMount =()=>{ //正常进入页面可以直接获取到memberId
-      if (this.props.auth.memberId)this.getData(this.state.currentPage)
+      if (this.props.auth.memberId)this.getData(this.state.currentPage,this.props.auth.memberId)
     }
 
-    componentWillReceiveProps=()=>{ //刷新时获取memberId
-      if (this.props.auth.memberId)this.getData(this.state.currentPage)
+    componentWillReceiveProps=(nextProps)=>{ //刷新时获取memberId
+      if (nextProps.auth.memberId)this.getData(this.state.currentPage,nextProps.auth.memberId)
     }
 
-    getData = (currentPage)=>{
+    getData = (currentPage,memberId)=>{
        getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
         if (data.status == 200) {
           if (data.data.length < this.state.averagenum) {
@@ -88,7 +88,7 @@ export default class updates extends Component {
 
   render () {
     return (
-    <div className="updates">
+    <div id="updates">
         {this.state.updates.length == 0 && <div style={{textAlign:"center"}}>暂时没有任何动态哦~</div>}
         {this.state.updates.map((item,index)=>{
           var date = new Date(item.createAt)
@@ -97,9 +97,9 @@ export default class updates extends Component {
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
           return <div key={index} className="lists">
               <img width="50" src={`/originImg?from=member&name=${item.phone}`} alt=""/>
-              {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`}>{item.title}({item.titleType})</Link></div>}
+              {item.title && <div className="header pull-left"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`}>{item.title}({item.titleType})</Link></div>}
               {item.works && <div>
-                <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>
+                <div className="header">&nbsp;&nbsp;<span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>
                 <div className="photoLists">
                 {imgs.map((item,index)=>{
                   works.push(`/originImg?from=speciality&name=${item}`)

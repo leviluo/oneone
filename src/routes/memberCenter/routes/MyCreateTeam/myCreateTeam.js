@@ -278,7 +278,7 @@ export default class myCreateTeam extends Component {
       this.props.tipShow({type:"error",msg:"最多可创建5个社团"})
       return
     }
-    this.setState({isShowAdd:true})
+    this.setState({isShowAdd:this.state.isShowAdd ? false : true})
   }
 
   confirmDelete =()=>{

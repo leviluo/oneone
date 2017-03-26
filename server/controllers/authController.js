@@ -85,7 +85,7 @@ const authController = {
         this.session.user = this.session.user
         var result = await sqlStr("select * from member where phone = ?", [this.session.user])
         if (result.length > 0) {
-            this.body = { status: 200, nickname: result[0].nickname,phone: result[0].phone,memberId:result[0].id}
+            this.body = { status: 200, nickname: result[0].nickname,memberId:result[0].id}
             return
         } else {
             this.body = ""

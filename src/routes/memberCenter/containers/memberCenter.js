@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Helmet from 'react-helmet'
 import './membercenter.scss'
 import {Link} from 'react-router'
-import {isAuth} from '../../../reducers/auth'
+// import {isAuth} from '../../../reducers/auth'
 import { connect } from 'react-redux'
 import ImageBrowser from '../../../components/ImageBrowser'
 import {countMessage,countNotice,countReply,countRequest} from './modules'
@@ -26,10 +26,9 @@ import { tipShow } from '../../../components/Tips/modules/tips'
 
 @connect(
   state => ({
-    auth:state.auth,
     status:state.memberCenter
   }),
-  {isAuth,tipShow,countMessage,countNotice,countReply,countRequest}
+  {tipShow,countMessage,countNotice,countReply,countRequest}
 )
 export default class memberCenter extends Component {
 
@@ -42,7 +41,7 @@ export default class memberCenter extends Component {
       this.props.countNotice()
       this.props.countReply()
       this.props.countRequest()
-      if(!this.props.auth.isAuth)this.props.isAuth(this.context.router) 
+      // if(!this.props.auth.isAuth)this.props.isAuth(this.context.router) 
     }
 
     render(){
@@ -68,7 +67,9 @@ export default class memberCenter extends Component {
             </ul>
             </div>
             <div className="memberCenterContentRight">
+              <div>
               {this.props.children}
+              </div>
             </div>
             <ImageBrowser />
           </div>

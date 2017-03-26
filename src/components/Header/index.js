@@ -29,7 +29,7 @@ export default class Header extends Component{
   };
 
   render(){
-    // console.log(this.props)
+    // console.log(this.props.auth)
     const{auth} = this.props;
     return(
         <header>
@@ -45,7 +45,7 @@ export default class Header extends Component{
              <Link to='/register'>注册</Link>
              </span>}
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
-             <Link to="/memberCenter"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}的个人中心</Link></span>}
+             <Link to="/memberCenter"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link></span>}
              <Link to='/queryresult'><i className="fa fa-search"></i></Link>
              </div>
           </nav>

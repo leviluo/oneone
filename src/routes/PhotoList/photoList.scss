@@ -1,9 +1,9 @@
 .photoList{
 	background:#fff;
-	margin-bottom:10px;
 	padding-bottom:20px;
 	min-height:900px;
-	min-width:1200px;
+	width:1200px;
+    margin:0 auto;
 	box-shadow:2px 2px 4px 1px #e5e5e5;
 	&>div:first-of-type{
 		height:40px;

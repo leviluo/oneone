@@ -18,7 +18,7 @@ function merge(result,host,merge){
 
 const publicController = {
     catelogues:async function(next){
-        var result = await sqlStr("select specialities.name as childCatelogue,specialityCategory.name as parentCatelogue from specialities left join specialityCategory on specialityCategory.id = specialities.categoryId")
+        var result = await sqlStr("select specialities.name as childCatelogue,specialityCategory.name as parentCatelogue from specialityCategory left join specialities on specialityCategory.id = specialities.categoryId")
         var items = merge(result,'parentCatelogue','childCatelogue')
         this.body = {status:200,data:items}
     },

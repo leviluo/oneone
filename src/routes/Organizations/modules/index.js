@@ -13,6 +13,7 @@ export function getUpdates(limit,location){
 // ------------------------------------
 const RECEIVE_UPDATES = 'RECEIVE_UPDATES'
 const REQUEST_UPDATES = 'REQUEST_UPDATES'
+const averagenum = 2
 
 // ------------------------------------
 // Actions
@@ -40,7 +41,7 @@ export function fetchUpdates (limit,location) {
     return axios.get(`/public/getArticleUpdates?limit=${limit}&location=${location}`)
       .then(({data}) => {
       	dispatch(receiveUpdates({type:RECEIVE_UPDATES,payload:data}))
-
+        if(!getState().articleupdates.isloaded)dispatch({type:'PAGENUMS',payload:data.count/averagenum})
       })
   }
 }

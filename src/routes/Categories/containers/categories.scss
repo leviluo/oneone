@@ -1,12 +1,12 @@
 .category{
 	min-height:900px;
-	margin-bottom:10px;
-	min-width:1200px;
+    width:1200px;
+    margin:0 auto;
+	box-shadow:2px 2px 4px 1px #e5e5e5;
 	.categoryTop{
 		width:100%;
 		border-bottom:2px solid #F0F8FF;
 		background:	#fff;
-		 box-shadow:2px 2px 4px 1px #e5e5e5;
 		nav{
 			height:40px;
 			line-height:40px;

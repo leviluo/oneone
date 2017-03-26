@@ -44,7 +44,7 @@ const memberController = {
             // this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select m.address,m.sex,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where phone = ?",[this.session.user])
+        var result = await sqlStr("select m.address,m.sex,m.phone,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where phone = ?",[this.session.user])
         this.body = {status:200,data:result}
     },
     messageText:async function(next){

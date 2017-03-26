@@ -94,11 +94,21 @@ if (config.env === 'development') {
      })
   }
 
-  router.get('*', async function (next) {
+router.get('*', async function (next) {
+
     await next
+
     if (this.body || this.response.status == 200) return
+
+    if(/\/memberCenter/.test(this.request.url)){
+      if (!this.session.user) {
+        this.redirect('/login')
+        return
+      }
+    }
+    
     const filename = path.join(compiler.outputPath, 'index.html')
-    var data = await sendIndexHtml(filename)
+    const data = await sendIndexHtml(filename)
     this.res.writeHead(200, { "Content-Type": "text/html" });
     this.res.write(data, "binary");
     this.res.end();

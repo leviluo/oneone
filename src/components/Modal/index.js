@@ -4,9 +4,11 @@ import {connect} from 'react-redux'
 import * as actions from './modules/modal'
 import './Modal.scss'
 
+const hide = actions.modalHide
+
 @connect(
   state=>({modalStatus:state.modal}),
-{})
+{hide})
 export default class Modal extends Component{
 
   componentWillMount =()=>{
@@ -26,7 +28,6 @@ export default class Modal extends Component{
       this.showModal();
     }else{
       this.hideModal();
-      return false
     }
       return true
   }
@@ -66,7 +67,7 @@ export default class Modal extends Component{
         <div className='modal'>
           <div className="content">
             <div className="content-header">
-              <div className="close" onClick={this.hideModal}><div>×</div></div>
+              <div className="close" onClick={()=>this.props.hide()}><div>×</div></div>
               <h2>{header}</h2>
             </div>
             <div className="content-body">

@@ -1,8 +1,6 @@
-.myUpdates{
-	min-height:900px;
-	padding:10px 0;
+#myUpdates{
+	padding:20px 0;
 	.lists{
-		clear:both;
 		min-height:80px;
 		padding:20px 0;
 		border-bottom:1px dashed #e5e5e5;
@@ -19,14 +17,12 @@
 			float:left;
 		}
 		.header{
-			float:left;
 			height:50px;
 			line-height:50px;
 			margin-left:10px;
 			margin-bottom:10px;
 		}
 		.photoLists{
-			clear:both;
 			background:#efefef;
 			height:112px;
 			padding:3px;

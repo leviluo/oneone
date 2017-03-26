@@ -1,7 +1,5 @@
 .memberCentercontent{
 	min-height:900px;
-	margin-bottom:10px;
-	min-width:1200px;
 	.noRead{
 		padding:0 5px;
 		background:#ff7f00;
@@ -10,11 +8,12 @@
 		margin-left:5px;
 	}
 	.memberCenterContentLeft{
-		box-shadow:2px 2px 4px 1px #e5e5e5;
-		width:14%;
 		background:#fff;
-		text-align:center;
+		width:200px;
 		float:left;
+		text-align:center;
+		min-height:850px;
+		box-shadow:0 0 5px #ccc;
 		h4{
 			color:#1C86EE;
 			width:80%;
@@ -41,20 +40,22 @@
 				.active{
 					color:#1C86EE; 
 					background:#f0f8ff;
-					border-left:2px solid #1c86ee;
+					border-right:2px solid #1c86ee;
 				}
 			}
 		}
 	}
 	.memberCenterContentRight{
-		padding:10px;
-		background:#fff;
-		width:85%;
-		float:right;
+		margin-left:10px;	
 		margin-bottom:10px;
-		box-shadow:2px 2px 4px 1px #e5e5e5;
-		.text-center{
-			text-align:center
+		margin-left:210px;
+		min-height:900px;
+		background:#fff;
+		box-shadow:0 0 5px #ccc;
+		&>div{
+			margin:0 auto;
+			width:980px;
+
 		}
 	}
 }

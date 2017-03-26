@@ -513,7 +513,7 @@ export default class BasicInfo extends Component {
               </div>
             </div>
               <ul>
-                <li><h3><hr /><span>电话</span></h3><p>{this.props.auth.phone}</p></li>
+                <li><h3><hr /><span>电话</span></h3><p>{this.state.memberInfo.phone}</p></li>
                 <li><h3><hr /><span>性别</span></h3><p>{this.state.memberInfo.sex == 0 ? "男" : "女"}</p></li>
                 <li><h3><hr /><span>昵称</span></h3><p>{nickname}</p>{this.state.showNickname && <p><input type="text" ref="nickname" defaultValue={nickname} /> <button className="btn-default" onClick={()=>this.setState({showNickname:false})}>取消</button><button className="btn-success" onClick={this.saveNickname}>保存</button></p>}<a className="btn-normal" onClick={()=>this.setState({showNickname:true})}><i className="fa fa-edit"></i>修改</a></li>
                 <li><h3><hr /><span>个人简介</span></h3><p>{this.state.memberInfo.brief ? this.state.memberInfo.brief : "您还没有填写个人简介哦,快点填写一个吧！"}</p>{this.state.showBrief && <p><input type="text" ref="brief" defaultValue={this.state.memberInfo.brief} /> <button className="btn-default" onClick={()=>this.setState({showBrief:false})}>取消</button><button className="btn-success" onClick={this.saveBrief}>保存</button></p>}<a className="btn-normal" onClick={()=>this.setState({showBrief:true})}><i className="fa fa-edit"></i>修改</a></li>
