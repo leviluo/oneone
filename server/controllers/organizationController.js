@@ -4,23 +4,29 @@ const organizationController = {
     addOrganization:async function(next) {
        await next;
 
-       var resultcount = await sqlStr("select count(*) as count from organizations where createById=(select id from member where phone = ?)",[this.session.user])
+       var user = this.session.user;
+       var name = this.request.body.name[0].trim()
+       var brief = this.request.body.brief[0].trim()
+       var names = this.request.body.names[0]
+       var categoryId = this.request.body.categoryId[0]
+
+       var resultcount = await sqlStr("select count(*) as count from organizations where createById=(select id from member where phone = ?)",[user])
         if(resultcount[0].count > 4){
             this.body = { status: 500, msg: "最多可创建5个社团" }
             return
         }
 
-      if (!this.request.body.name[0] || this.request.body.name[0].length > 38) {
+      if (!name || name.length > 38) {
         this.body = { status: 500, msg: "名称不为空或者大于30位字符" }
         return
       }
 
-      if (!this.request.body.brief[0] || this.request.body.brief[0].length > 995) {
+      if (!brief || brief.length > 995) {
         this.body = { status: 500, msg: "简介不为空或者大于1000位字符" }
         return
       }
 
-        var resultrepeat = await sqlStr("select * from organizations where createById=(select id from member where phone = ?) and name=?",[this.session.user,this.request.body.name[0]])
+        var resultrepeat = await sqlStr("select * from organizations where createById=(select id from member where phone = ?) and name=?",[user,name])
 
         if(resultrepeat.length > 0){
             this.body = { status: 500, msg: "社团名称不能重复" }
@@ -28,8 +34,8 @@ const organizationController = {
         }
 
 
-      var result = await sqlStr("insert into organizations set name = ?,brief=?,head=?,createById=(select id from member where phone = ?),categoryId=?",[this.request.body.name[0],this.request.body.brief[0],this.request.body.names[0],this.session.user,this.request.body.categoryId[0]])
-      var resultt = await sqlStr("insert into memberOrganizations set memberId = (select id from member where phone = ?),organizationsId=(select id from organizations where name = ? and createById = (select id from member where phone = ?));",[this.session.user,this.request.body.name[0],this.session.user])
+      var result = await sqlStr("insert into organizations set name = ?,brief=?,head=?,createById=(select id from member where phone = ?),categoryId=?",[name,brief,names,user,categoryId])
+      var resultt = await sqlStr("insert into memberOrganizations set memberId = (select id from member where phone = ?),organizationsId=(select id from organizations where name = ? and createById = (select id from member where phone = ?));",[user,name,user])
  
       if (result.affectedRows == 1 && resultt.affectedRows == 1) {
           this.body = { status: 200}
@@ -41,17 +47,22 @@ const organizationController = {
     modifyOrganization:async function(next) {
        await next;
 
-       var resultrepeat = await sqlStr("select * from organizations where createById=(select id from member where phone = ?) and name=? and id != ?",[this.session.user,this.request.body.name[0],this.request.body.id[0]])
+       var name = this.request.body.name[0].trim()
+       var brief = this.request.body.brief[0].trim()
+       var names = this.request.body.names[0]
+       var id = this.request.body.id[0]
+
+       var resultrepeat = await sqlStr("select * from organizations where createById=(select id from member where phone = ?) and name=? and id != ?",[this.session.user,name,id])
 
       if(resultrepeat.length > 0){
           this.body = { status: 500, msg: "社团名称不能重复" }
           return
       }
 
-       if (this.request.body.names[0]) {
-       var result = await sqlStr("update organizations set name = ?,brief=?,head=? where id = ?",[this.request.body.name[0],this.request.body.brief[0],this.request.body.names[0],this.request.body.id[0]])
+       if (names) {
+       var result = await sqlStr("update organizations set name = ?,brief=?,head=? where id = ?",[name,brief,names,id])
        }else{
-       var result = await sqlStr("update organizations set name = ?,brief=? where id = ?",[this.request.body.name[0],this.request.body.brief[0],this.request.body.id[0]])
+       var result = await sqlStr("update organizations set name = ?,brief=? where id = ?",[name,brief,id])
        }
         if (result.affectedRows == 1 ) {
             this.body = { status: 200}

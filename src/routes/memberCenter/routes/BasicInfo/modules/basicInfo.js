@@ -51,7 +51,10 @@ export function addSpeciatity (that,items) {
     axios.post('/member/addSpeciality',items).then(({data}) => {
       if (data.status==200) {
           that.setState({showAddSpeciality:false})
-          that.props.fetchSpeciality()
+          items.id = data.result.insertId
+          items.work = null
+          items.memberId = that.props.auth.memberId
+          dispatch({type:"ADD_SPECIALITIES",value:items})
       }else if(data.status==600){
           that.props.dispatch({type:"AUTHOUT"})
           that.context.router.push('/login')

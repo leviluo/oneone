@@ -499,6 +499,7 @@ export default class BasicInfo extends Component {
     })
     let nickname = this.props.auth.nickname
     var headSrc = "/originImg?from=member&name="+this.props.auth.phone
+
     return (
     <div>
           <div className="basicInfo">

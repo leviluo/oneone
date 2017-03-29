@@ -31,7 +31,7 @@ const memberController = {
 
         var result = await sqlStr("insert into memberSpeciality set brief = ?,experience = ?,memberId=(select id from member where phone = ?),specialitiesId=(select id from specialities where name= ?)",[this.request.body.brief,this.request.body.experience,this.session.user,this.request.body.speciality])
         if (result.affectedRows == 1 ) {
-            this.body = { status: 200}
+            this.body = { status: 200,msg:"插入成功",result:{insertId:result.insertId}}
             return
         }else{
             this.body = { status: 500,msg:"插入数据失败"}
