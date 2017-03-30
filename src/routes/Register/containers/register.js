@@ -30,20 +30,27 @@ export default class Register extends Component {
   }
 
   submit =()=>{
+    var phone = this.refs.phone.value.trim()
+    var password = this.refs.password.value.trim()
+    var nickname = this.refs.nickname.value.trim()
 
     var pattern = /^[1][34578][0-9]{9}$/;
-    if (!pattern.test(this.refs.phone.value)) {
+    if (!pattern.test(phone)) {
         this.props.tipShow({type:"error",msg:'手机号格式不正确'})
         return;
     };
 
     pattern = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z_]{6,20}$/;
-    if (!pattern.test(this.refs.password.value)){
+
+    if (!pattern.test(password)){
       this.props.tipShow({type:"error",msg:"密码格式不正确"})
       return
     }
-    if (!this.refs.nickname.value || this.refs.nickname.value.length > 20) {
-      this.props.tipShow({type:"error",msg:"昵称格式不正确"})
+
+    var flag = nickname.StringFilter(1,20)
+
+    if (flag) {
+      this.props.tipShow({type:"error",msg:`昵称${flag}`})
       return
     }
 
@@ -52,18 +59,18 @@ export default class Register extends Component {
       return
     }
 
-    let address = this.props.mylocation.content ? this.props.mylocation.content.address :'';
+
+    let address = this.props.mylocation[0] ? this.props.mylocation[0] :'';
     var me = this
     fetchRegister({
-      phone:this.refs.phone.value,
-      password:this.refs.password.value,
-      nickname:this.refs.nickname.value,
+      phone:phone,
+      password:password,
+      nickname:nickname,
       code:this.refs.code.value,
       sex:this.state.sex,
       location:address
     }).then(({data}) => {
       if (data.status==200) {
-        console.log("0000")
           this.props.tipShow({type:"success",msg:"注册成功,3S后自动跳转个人中心"})
           setTimeout(()=>{
             me.props.login({phone:me.refs.phone.value,password:me.refs.password.value},me.context.router)
@@ -92,7 +99,7 @@ export default class Register extends Component {
         </div>
         <br />
         <div>
-            <input type="text" ref="nickname" placeholder="昵称(小于20个字符)"/>
+            <input type="text" ref="nickname" placeholder="昵称(1~20个字符)"/>
         </div>
         <div className="registerSex">
             性别:

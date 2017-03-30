@@ -4,54 +4,52 @@ var crypto = require('crypto'); //加载crypto库
 
 const authController = {
     register: async function(next) {
-        if (!this.request.body.phone || !this.request.body.password || !this.request.body.code || !this.request.body.nickname) {
-            this.body = { status: 500, msg: "缺少参数" }
-            return
-        };
+        var phone = this.request.body.phone.trim()
+        var password = this.request.body.password.trim()
+        var code = this.request.body.code.trim()
+        var nickname = this.request.body.nickname.trim()
+        var location = this.request.body.location.trim();
+        var sex = this.request.body.sex;
 
-        if (!/^[1][34578][0-9]{9}$/.test(this.request.body.phone)) {
+        if (!/^[1][34578][0-9]{9}$/.test(phone)) {
             this.body = { status: 500, msg: "手机号格式不正确" }
             return;
         };
 
-        if (!/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z_]{6,20}$/.test(this.request.body.password)) {
+        if (!/^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z_]{6,20}$/.test(password)) {
             this.body = { status: 500, msg: "密码格式不正确" }
             return;
         }
 
-        if (this.request.body.nickname.length > 20) {
-            this.body = { status: 500, msg: "昵称格式不正确" }
+        var flag = nickname.StringFilter(1,20)
+
+        if (flag) {
+            this.body = { status: 500, msg: `昵称${flag}` }
             return;
         }
 
-        delete this.request.body.code;
-
         var decipher = crypto.createHash('md5',"leviluo");
-        this.request.body.password = decipher.update(this.request.body.password).digest('hex')  
+        password = decipher.update(password).digest('hex')  
 
-        var result = await sqlStr("select * from member where phone = ?", [this.request.body.phone])
+        var result = await sqlStr("select * from member where phone = ?", [phone])
 
         if (result.length > 0) {
             this.body = { status: 500, msg: "此用户已注册"}
             return
         }
-        // this.request.body.head = `./server/upload/headImages/${this.request.body.phone}.jpg`
-        this.request.body.address = this.request.body.location;
-        var resultt = await insert("member", this.request.body)
+
+        var resultt = await sqlStr("insert into member set phone = ?,password = ?,location = ?,nickname=?,sex = ?", [phone,password,location,nickname,sex])
         if (resultt.affectedRows == 1) {
             this.body = { status: 200 }
             return
-        };
+        }else{
+            this.body = { status: 500, msg: "注册失败" }
+        }
         
     },
     login: async function(next) {
-        var phone = this.request.body.phone
-        var password = this.request.body.password
-
-        if (!phone || !password) {
-            this.body = { status: 500, msg: "缺少参数" }
-            return
-        };
+        var phone = this.request.body.phone.trim()
+        var password = this.request.body.password.trim()
 
         if (!/^[1][34578][0-9]{9}$/.test(this.request.body.phone)) {
             this.body = { status: 500, msg: "手机号格式不正确" }

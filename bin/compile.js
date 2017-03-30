@@ -3,7 +3,6 @@ const debug = require('debug')('app:bin:compile')
 const webpackCompiler = require('../build/webpack-compiler')
 const webpackConfig = require('../build/webpack.config')
 const config = require('../config')
-
 const paths = config.utils_paths
 
 const compile = () => {

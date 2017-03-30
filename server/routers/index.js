@@ -7,6 +7,7 @@ import organizationController from '../controllers/organizationController'
 
 // const paths = config.utils_paths
 
+
 export default function routers(router){
 
 	router.post("/register",authController.register,router.allowedMethods());

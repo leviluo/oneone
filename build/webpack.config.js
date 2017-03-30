@@ -1,8 +1,14 @@
-const webpack = require('webpack')
-const cssnano = require('cssnano')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const config = require('../config')
+// const webpack = require('webpack')
+// const cssnano = require('cssnano')
+// const HtmlWebpackPlugin = require('html-webpack-plugin')
+// const ExtractTextPlugin = require('extract-text-webpack-plugin')
+
+import config from '../config'
+import webpack from 'webpack'
+import cssnano from 'cssnano'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import ExtractTextPlugin from 'extract-text-webpack-plugin'
+
 const debug = require('debug')('app:webpack:config')
 
 const paths = config.utils_paths
@@ -190,4 +196,5 @@ if (!__DEV__) {
   )
 }
 
-module.exports = webpackConfig
+export default webpackConfig
+

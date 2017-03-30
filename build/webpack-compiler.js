@@ -1,6 +1,6 @@
 const webpack = require('webpack')
 const debug = require('debug')('app:build:webpack-compiler')
-const config = require('../config')
+import config from '../config'
 
 function webpackCompiler (webpackConfig, statsFormat) {
   statsFormat = statsFormat || config.compiler_stats
