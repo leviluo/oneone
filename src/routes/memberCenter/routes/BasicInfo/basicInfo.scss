@@ -1,4 +1,4 @@
-.basicInfo{
+#basicInfo{
 		padding:20px 0;
 		color:#333;
 		a{
@@ -113,17 +113,12 @@
 						textarea{
 							width:100%;
 						}
-						&>button{
-							float:right;
-							margin:5px;
+						&>a{
+							height:30px;
+							line-height:25px;
 						}
 						span:first-of-type{
 							color:#666;
-						}
-						p:first-of-type{
-							width:50%;
-							position:relative;
-							top:50px;
 						}
 						.preSubmit{
 								background:#fff4e8;
@@ -200,6 +195,7 @@
 									&:last-of-type:hover{
 										width:100px;
 									}
+
 									a{
 										width:182px;
 										height:140px;
@@ -257,15 +253,12 @@
 						}
 						a{
 							height:35px;
-							line-height:35px;
+							line-height:30px;
 							float:right;
     						width:60px;
     						text-align:center;
     						text-indent:0;
 						}
-					}
-					.editLi{
-
 					}
 					border-bottom:1px dashed #e5e5e5;
 					padding-bottom:20px;

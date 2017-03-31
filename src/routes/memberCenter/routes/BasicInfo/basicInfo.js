@@ -181,24 +181,20 @@ export default class BasicInfo extends Component {
 
   addSpeciatity=()=>{
 
-    var speciality = this.refs.speciality.getValue()
-    var brief = this.refs.brief.value
-    var experience = this.refs.experience.value
+    var speciality = this.refs.speciality.getValue().trim()
+    var brief = this.refs.brief.value.trim()
+    var experience = this.refs.experience.value.trim()
 
     if (!speciality) {
       this.props.tipShow({type:"error",msg:"选择一个专业"})
       return
     }
-    if (!brief || brief.length < 10 || brief.length >= 295) {
-      this.props.tipShow({type:"error",msg:"简介在10到300个字符之间"})
+    if (!brief || brief.length > 300) {
+      this.props.tipShow({type:"error",msg:"简介在1到300个字符之间"})
       return
     }
-    if (!experience) {
-      this.props.tipShow({type:"error",msg:"未填写工作经验"})
-      return
-    }
-    if (experience.length > 300) {
-      this.props.tipShow({type:"error",msg:"工作经验不能超过300个字符"})
+    if (!experience || experience.length > 300) {
+      this.props.tipShow({type:"error",msg:"相关经验在1~300个字符"})
       return
     }
     this.props.addSpeciatity(this,{speciality:speciality,brief:brief,experience:experience})
@@ -254,50 +250,47 @@ export default class BasicInfo extends Component {
   }
 
   saveNickname =(e)=>{
-    if (!this.refs.nickname.value) {
-      this.props.tipShow({type:'error',msg:"昵称不能为空"})
+    var nickname = this.refs.nickname.value.trim()
+    var flag = nickname.StringFilter(1,20)
+    if (flag) {
+      this.props.tipShow({type:'error',msg:`昵称${flag}`})
       return
     }
-    if (!this.refs.nickname.value.length > 19) {
-      this.props.tipShow({type:'error',msg:"昵称不能大于20个字符"})
-      return
-    }
-    modifyNickname({nickname:this.refs.nickname.value}).then(({data})=>{
+    modifyNickname({nickname:nickname}).then(({data})=>{
       if (data.status == 200) {
-        this.props.modifyname(this.refs.nickname.value)
+        this.props.modifyname(nickname)
         this.setState({
           showNickname:false
         })
       }else if (data.status==600) {
           this.props.dispatch({type:"AUTHOUT"})
             this.context.router.push('/login')
-        }{
-          this.props.tipShow({type:'error',msg:data.msg})
-        }
+      }else{
+        this.props.tipShow({type:'error',msg:data.msg})
+      }
     })
   }
 
   saveAddress =(e)=>{
-    if (!this.refs.address.value) {
-      this.props.tipShow({type:'error',msg:"昵称不能为空"})
+    var address = this.refs.address.value.trim()
+    var flag = address.StringFilter(1,100)
+    if (flag) {
+      this.props.tipShow({type:'error',msg:`地址${flag}`})
       return
     }
-    if (!this.refs.address.value.length > 19) {
-      this.props.tipShow({type:'error',msg:"地址不能大于100个字符"})
-      return
-    }
-    modifyAddress({address:this.refs.address.value}).then(({data})=>{
+    modifyAddress({address:address}).then(({data})=>{
       if (data.status == 200) {
+            this.state.memberInfo.address = address
             this.setState({
               showAddress:false,
-              address:this.refs.address.value
+              address:address
             })
       }else if (data.status==600) {
           this.props.dispatch({type:"AUTHOUT"})
             this.context.router.push('/login')
-        }{
-          this.props.tipShow({type:'error',msg:data.msg})
-        }
+      }else{
+        this.props.tipShow({type:'error',msg:data.msg})
+      }
     })
 
   }
@@ -309,21 +302,21 @@ export default class BasicInfo extends Component {
 
   saveSpeciality=(e,speciality)=>{
 
-    var brief = this.refs[speciality+'brief'].value
-    var experience = this.refs[speciality+'experience'].value
+    var brief = this.refs[speciality+'brief'].value.trim()
+    var experience = this.refs[speciality+'experience'].value.trim()
 
     if (!speciality) {
       this.props.tipShow({type:"error",msg:"专业不为空"})
       return
     }
 
-    if (!brief || brief.length < 10 || brief.length >= 295) {
-      this.props.tipShow({type:"error",msg:"简介在10到300个字符之间"})
+    if (!brief || brief.length > 300) {
+      this.props.tipShow({type:"error",msg:"简介在1到300个字符之间"})
       return
     }
- 
-    if (!experience) {
-      this.props.tipShow({type:"error",msg:"未填写工作经验"})
+
+    if (!experience || experience.length > 300) {
+      this.props.tipShow({type:"error",msg:"相关经验在1~300个字符"})
       return
     }
 
@@ -440,13 +433,15 @@ export default class BasicInfo extends Component {
   }
 
   saveBrief =()=>{
-    if (!this.refs.brief.value || this.refs.brief.value.length > 98) {
-      this.props.tipShow({type:"error",msg:"请填写简介在1到100个字符之间"})
+    var brief = this.refs.brief.value.trim()
+    var flag = brief.StringFilter(1,100)
+    if (flag) {
+      this.props.tipShow({type:"error",msg:`简介${flag}`})
       return
     }
-    modifyBrief({brief:this.refs.brief.value}).then(({data})=>{
+    modifyBrief({brief:brief}).then(({data})=>{
       if (data.status == 200) {
-        this.state.memberInfo.brief = this.refs.brief.value;
+        this.state.memberInfo.brief = brief;
         this.setState({
           showBrief:false
         })
@@ -502,7 +497,7 @@ export default class BasicInfo extends Component {
 
     return (
     <div>
-          <div className="basicInfo">
+          <div id="basicInfo">
             <div>
               <div>
                 <img id="memberinfoHeadImg" src={headSrc} />
@@ -528,9 +523,9 @@ export default class BasicInfo extends Component {
                     var ref= `add${item.speciality}`
                     return <ul key={index}>
                       <li><b>{item.speciality}</b><a onClick={(e)=>this.deleteSpeciality(e,item.speciality)}><i className="fa fa-trash"></i>删除</a><a onClick={(e)=>{this.state[item.speciality] = true;this.setState({})}}><i className="fa fa-edit"></i>修改</a></li>
-                      {!this.state[item.speciality] && <li><span>个人签名&nbsp;:&nbsp;</span><br/><br/>{item.brief}</li>}
-                      {!this.state[item.speciality] && <li><span>经验&nbsp;:&nbsp;</span><br/><br/>{item.experience}</li>}
-                      {!this.state[item.speciality] && <li><span>作品集&nbsp;:&nbsp;</span><br/><br/>
+                      {!this.state[item.speciality] && <li className="article"><strong>简介</strong><p dangerouslySetInnerHTML={{__html:item.brief}}></p></li>}
+                      {!this.state[item.speciality] && <li className="article"><strong>经验</strong><p dangerouslySetInnerHTML={{__html:item.experience}}></p></li>}
+                      {!this.state[item.speciality] && <li><strong>作品集</strong><br/><br/>
                         <div>
                         {item.work && <ul>
                           {item.work.split(',').map((item,index)=>{
@@ -546,11 +541,11 @@ export default class BasicInfo extends Component {
                         </div>
                         </li>}
                       {this.state[item.speciality] && <li className="editLi">
-                        <p>简介&nbsp;:&nbsp;</p><button className="btn-success" onClick={(e)=>this.saveSpeciality(e,item.speciality)}>保存</button><button className="btn-default" onClick={(e)=>this.cancelSpeciality(e,item.speciality)}>取消</button>
+                        <strong>简介</strong><a className="pull-right" onClick={(e)=>this.saveSpeciality(e,item.speciality)}>保存</a><a className="pull-right" onClick={(e)=>this.cancelSpeciality(e,item.speciality)}>取消</a>
                         <textarea rows="4" ref={brief} defaultValue={item.brief}></textarea>
                         <br/>
                         <br/>
-                        <p>经验&nbsp;:&nbsp;</p><textarea ref={experience} defaultValue={item.experience} rows="10"></textarea>
+                        <strong>经验</strong><br /><br /><textarea ref={experience} defaultValue={item.experience} rows="10"></textarea>
                       </li>}
                     </ul>
                   }

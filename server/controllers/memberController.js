@@ -102,19 +102,21 @@ const memberController = {
         this.body = {status:200,data:result,count:count.length}
     },
     modifyNickname:async function(next){
-        if (!this.request.body.nickname) {
-            this.body = { status: 500, msg: "昵称不能为空" }
-            return
-        }
-        if (this.request.body.nickname.length > 19) {
-            this.body = { status: 500, msg: "昵称小于20个字符" }
-            return
-        }
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr("update member set nickname = ? where phone = ?",[this.request.body.nickname,this.session.user])
+
+        var nickname = this.request.body.nickname.trim()
+
+        var flag = nickname.StringFilter(1,20)
+        if (flag) {
+            this.body = { status: 500, msg: `昵称${flag}`}
+            return
+        }
+
+        var result = await sqlStr("update member set nickname = ? where phone = ?",[nickname,this.session.user])
         if (result.affectedRows == 1) {
         this.body = {status:200}
         return
@@ -122,19 +124,22 @@ const memberController = {
         this.body = {status:500,msg:"修改失败"}
     },
     modifyAddress:async function(next){
-        if (!this.request.body.address) {
-            this.body = { status: 500, msg: "昵称不能为空" }
-            return
-        }
-        if (this.request.body.address.length > 98) {
-            this.body = { status: 500, msg: "地址小于100个字符" }
-            return
-        }
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr("update member set address = ? where phone = ?",[this.request.body.address,this.session.user])
+
+        var address = this.request.body.address.trim()
+
+        var flag = address.StringFilter(1,100)
+
+        if (flag) {
+            this.body = { status: 500, msg: `地址${flag}`}
+            return
+        }
+
+        var result = await sqlStr("update member set address = ? where phone = ?",[address,this.session.user])
         if (result.affectedRows == 1) {
         this.body = {status:200}
         return
@@ -344,11 +349,13 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        if (!this.request.body.brief || this.request.body.brief.length > 98) {
-            this.body = { status: 500, msg: "缺少参数或者参数格式不正确" }
+        var brief = this.request.body.brief.trim()
+        var flag = brief.StringFilter(1,100)
+        if (flag) {
+            this.body = { status: 500, msg: `简介${flag}`}
             return
         }
-        var result = await sqlStr("update member set brief = ? where phone = ?",[this.request.body.brief,this.session.user])
+        var result = await sqlStr("update member set brief = ? where phone = ?",[brief,this.session.user])
         if (result.affectedRows == 1) {
             this.body ={status:200}
         }else{

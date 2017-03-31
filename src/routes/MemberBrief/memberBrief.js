@@ -257,9 +257,9 @@ export default class MemberBrief extends Component{
                         var linkPhotos = `/works/${item.id}`
                           return <ul key={index}>
                             <li><b>{item.speciality}</b></li>
-                            <li><p>简介&nbsp;:&nbsp;</p>{item.brief}</li>
-                            <li><p>经验&nbsp;:&nbsp;</p>{item.experience}</li>
-                            {item.work && <li><span>作品集&nbsp;:&nbsp;</span><br/>
+                            <li><strong>简介</strong><p dangerouslySetInnerHTML={{__html:item.brief}}></p></li>
+                            <li><strong>经验</strong><p dangerouslySetInnerHTML={{__html:item.experience}}></p></li>
+                            {item.work && <li><strong>作品集</strong><br/>
                               <div>
                              <ul>
                               {item.work.split(',').map((item,index)=>{
