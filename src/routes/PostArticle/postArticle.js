@@ -99,12 +99,12 @@ export default class PostArticle extends Component{
             document.addEventListener('click',this.resetState,false)
             if (this.props.params.type == "edit") {
                 // var query = this.props.location.query
-                console.log(this.props.location.query)
                 getArticle(this.props.location.query.id).then(({data})=>{
                     var query = data.data
                     this.refs.header.setValue(query.title)
 
                     var items = []
+                    this.initattachedImgs = query.attachedImgs
                     var arr = query.attachedImgs.split(',')
                     for (var i = 0; i < arr.length; i++) {
                         items.push({key:arr[i]})
@@ -480,10 +480,11 @@ export default class PostArticle extends Component{
                         
                         </div>
                             <div className="works">附加图片(最多8张)</div>
-                            {this.state.imgs && <div>
-                                {this.state.imgs.map((item,index)=>{
+                            {this.initattachedImgs && <div>
+                                {this.initattachedImgs.split(',').map((item,index)=>{
+                                console.log(item)
                                 if (!item) return;
-                                var link = `/img?from=article&name=${item.key}`
+                                var link = `/img?from=article&name=${item}`
                                 return <div className="imgList" key={index} style={{backgroundImage:`url(${link})`}}>
                                   <div onMouseOut={this.hideDeleteImg} name={item} onMouseOver={this.showDeleteImg} className="fa fa-trash"></div></div>
                                   })}

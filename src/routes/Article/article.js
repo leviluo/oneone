@@ -58,12 +58,19 @@ export default class Article extends Component{
 
 
   reply =()=>{
-    var comment = this.refs.replyContent.value
-    if (!comment)return
     if (!this.props.auth.memberId) {
       this.props.tipShow({type:"error",msg:"请先登录"})
       return
     }
+    var comment = this.refs.replyContent.value.trim()
+
+    if (!comment || comment.length < 2 ||comment.length > 1000){
+      this.props.tipShow({type:"error",msg:"回复在2 ~ 1000个字符"})
+      return
+    }
+
+    // console.log(comment.length)
+    
     submitReply({comment:comment,articleId:this.props.params.id,replyToId:this.state.replyToId}).then(({data})=>{
          if (data.status==200) {
             getArticleReply(this.props.params.id).then(({data})=>{
@@ -163,7 +170,7 @@ export default class Article extends Component{
           <div className="articleContentTop">
             <img src={headSrc} alt=""/>
             <div><span className="lightColor">来自于&nbsp;:&nbsp;</span><Link to={link}>{this.state.articleData.nickname}</Link><span className="lightColor">&nbsp;&nbsp;最后修改&nbsp;:&nbsp;</span>{time}</div>
-            {this.state.articleData.memberId != this.props.auth.memberId && <span className="lightColor"><a className="pull-right" onClick={this.goReply}>回复</a></span>}{this.state.articleData.memberId == this.props.auth.memberId && <span className="operate"><Link to={`/postArticle/${this.props.params.id}/edit?id=3`}>编辑</Link><a onClick={this.deleteArticle}>删除</a></span>}
+            {this.state.articleData.memberId != this.props.auth.memberId && <span className="lightColor"><a className="pull-right" onClick={this.goReply}>回复</a></span>}{this.state.articleData.memberId == this.props.auth.memberId && <span className="operate"><Link to={`/postArticle/${this.props.params.id}/edit?id=${this.state.articleData.id}`}>编辑</Link><a onClick={this.deleteArticle}>删除</a></span>}
           </div>
           <div className="content" dangerouslySetInnerHTML={{__html:this.state.articleData.content}}>
           </div>

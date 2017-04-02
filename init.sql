@@ -57,7 +57,7 @@ CREATE TABLE `memberSpeciality` (
   `memberId` int unsigned not null default 0,
   `specialitiesId` int unsigned not null default 0,
   `brief` varchar(300) not null DEFAULT '',
-  `experience` text not null default '',
+  `experience` text not null,
   PRIMARY KEY  (`id`)
 );
 
@@ -115,7 +115,7 @@ CREATE TABLE `article`(
   `organizationsId` int unsigned not null default 0,
   `memberId` int unsigned not null default 0,
   `title` varchar(50) not null DEFAULT '' COMMENT '//标题',
-  `content` text not null default '' COMMENT '//',
+  `content` text not null,
   `type` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:普通,1:活动,2:公告,3:咨询',
   `attachedImgs` varchar(300) not null default '',
   `createdAt` datetime not null DEFAULT now() COMMENT '//',

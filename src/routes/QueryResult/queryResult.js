@@ -24,22 +24,18 @@ export default class queryResult extends Component{
   }
 
   query =()=>{
-    console.log("0000")
-    var queryStr = this.refs.queryStr.value
-    if (queryStr.length < 0 || queryStr.length > 50 || !queryStr) {
-      this.props.tipShow({type:'error',msg:"字符数1~50之间"})
+    var queryStr = this.refs.queryStr.value.trim()
+    var flag = queryStr.StringFilter(1,50)
+    if (flag) {
+      this.props.tipShow({type:'error',msg:`搜索${flag}`})
       return
     }
-    // console.log("1111")
-    // this.setState({
-    //   type:this.refs.queryType.getValue()
-    // })
-    console.log(this.refs.queryType.getValue())
     this.props.pageNavInit(this.getData)
   }
 
   getData = (currentPage)=>{
       var type = this.refs.queryType.getValue()
+
     return query({type:type,queryStr:this.refs.queryStr.value,limit:`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`}).then(({data})=>{
       if (data.status == 200) { 
           this.setState({ 

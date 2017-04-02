@@ -39,6 +39,10 @@ export default class myPost extends Component {
      this.props.pageNavInit(this.getMyPostData)
     }
 
+    componentWillUnmount =()=>{
+        this.props.pageNavInit(null)
+    }
+
     getMyPostData = (currentPage)=>{
     return getMyPost(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
         if (data.status == 200) {
