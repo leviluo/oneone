@@ -33,7 +33,7 @@ export default class OrganizationsHome extends Component{
     this.props.pageNavInit(this.activityData)
     getMembers(this.props.params.id).then(({data})=>{
       for (var i = 0; i < data.data.length; i++) {
-        if(data.data[i].phone == this.props.auth.phone){
+        if(data.data[i].id == this.props.auth.memberId){
           this.setState({
             isAttended:true,
             Members:data.data
@@ -75,7 +75,7 @@ export default class OrganizationsHome extends Component{
 	}
 
   attendOrganization =()=>{
-    if (!this.props.auth.phone) {
+    if (!this.props.auth.memberId) {
       this.props.tipShow({type:"error",msg:"尚未登录"})
       return
     }
@@ -110,7 +110,7 @@ export default class OrganizationsHome extends Component{
 
 
   quitOrganization =()=>{
-    if (!this.props.auth.phone) {
+    if (!this.props.auth.memberId) {
       this.props.tipShow({type:"error",msg:"尚未登录"})
       return
     }
@@ -127,7 +127,7 @@ export default class OrganizationsHome extends Component{
   }
 
   postArticle = (e) =>{
-    if (!this.state.isAttended && (this.props.auth.phone != this.state.BasicInfo.phone)) {
+    if (!this.state.isAttended && (this.props.auth.memberId != this.state.BasicInfo.memberId)) {
       console.log(this.props.tipShow)
       this.props.tipShow({type:"error",msg:"请先加入这个社团才能发帖"})
       return
@@ -166,8 +166,8 @@ export default class OrganizationsHome extends Component{
           <div className="head">
             <img src={headImg} alt=""/>
             <span>{this.state.BasicInfo.name}</span>
-            {(!this.state.isAttended && (this.props.auth.phone != this.state.BasicInfo.phone)) && <button className="btn-default" onClick={this.attendOrganization} >加入社团</button>}
-            {(this.state.isAttended && (this.props.auth.phone != this.state.BasicInfo.phone)) && <button className="btn-default" onClick={this.quitOrganization} >退出社团</button>}
+            {(!this.state.isAttended && (this.props.auth.memberId != this.state.BasicInfo.memberId)) && <button className="btn-default" onClick={this.attendOrganization} >加入社团</button>}
+            {(this.state.isAttended && (this.props.auth.memberId != this.state.BasicInfo.memberId)) && <button className="btn-default" onClick={this.quitOrganization} >退出社团</button>}
           </div>
 
           <div className="content">

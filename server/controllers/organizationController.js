@@ -110,7 +110,7 @@ const organizationController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select o.*,s.name as categoryName,m.nickname,m.phone from organizations as o left join member as m on m.id = o.createById left join specialitycategory as s on s.id = o.categoryId where o.id = ?",[this.request.query.id])
+        var result = await sqlStr("select o.*,s.name as categoryName,m.nickname,m.id as memberId from organizations as o left join member as m on m.id = o.createById left join specialitycategory as s on s.id = o.categoryId where o.id = ?",[this.request.query.id])
         this.body = {status:200,data:result}
     },
     getMembers: async function(){

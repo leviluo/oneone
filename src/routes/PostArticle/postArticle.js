@@ -6,7 +6,7 @@ import Input from '../../components/Input'
 import Radio from '../../components/Radio'
 import { tipShow } from '../../components/Tips/modules/tips'
 import { findDOMNode } from 'react-dom'
-import {submitArticle} from './modules'
+import {submitArticle,getArticle} from './modules'
 
 const colorItems = [
                     "#000000",
@@ -98,19 +98,23 @@ export default class PostArticle extends Component{
         componentDidMount=()=>{
             document.addEventListener('click',this.resetState,false)
             if (this.props.params.type == "edit") {
-                var query = this.props.location.query
-                this.refs.header.setValue(query.title)
+                // var query = this.props.location.query
+                console.log(this.props.location.query)
+                getArticle(this.props.location.query.id).then(({data})=>{
+                    var query = data.data
+                    this.refs.header.setValue(query.title)
 
-                var items = []
-                var arr = query.attachedImgs.split(',')
-                for (var i = 0; i < arr.length; i++) {
-                    items.push({key:arr[i]})
-                }
-
-                this.setState({
-                    type:query.type,
-                    defaultContent:{__html:query.content},
-                    imgs:items
+                    var items = []
+                    var arr = query.attachedImgs.split(',')
+                    for (var i = 0; i < arr.length; i++) {
+                        items.push({key:arr[i]})
+                    }
+                    // console.log(items)
+                    this.setState({
+                        type:query.type,
+                        defaultContent:{__html:query.content},
+                        imgs:items
+                    })
                 })
             }
         }
@@ -340,13 +344,17 @@ export default class PostArticle extends Component{
       };
 
       submitArticle =()=>{
-          var header = this.refs.header.getValue()
+          var header = this.refs.header.getValue().trim()
           var type = this.refs.type.getValue()
           var content = this.refs.content.innerHTML
-          if (!header || header.length > 48) {
-            this.props.tipShow({type:"error",msg:"标题不能为空或者大于50个字符"})
+
+          var flag = header.StringFilter(1,50)
+
+          if (flag) {
+            this.props.tipShow({type:"error",msg:`标题${flag}`})
             return
           }
+
           if (content.length < 10) {
             this.props.tipShow({type:"error",msg:"内容不能为空或者小于10个字符"})
             return
@@ -361,8 +369,7 @@ export default class PostArticle extends Component{
                 attachs += this.state.imgs[i].key+','
             }
           }
-          console.log(this.state.imgs)
-          console.log(attachs)
+ 
           if (this.props.params.type=='edit') {
           fd.append("articleId",this.props.params.id)
           }
@@ -473,10 +480,10 @@ export default class PostArticle extends Component{
                         
                         </div>
                             <div className="works">附加图片(最多8张)</div>
-                            {this.props.location.query.attachedImgs && <div>
-                                {this.props.location.query.attachedImgs.split(',').map((item,index)=>{
+                            {this.state.imgs && <div>
+                                {this.state.imgs.map((item,index)=>{
                                 if (!item) return;
-                                var link = `/img?from=article&name=${item}`
+                                var link = `/img?from=article&name=${item.key}`
                                 return <div className="imgList" key={index} style={{backgroundImage:`url(${link})`}}>
                                   <div onMouseOut={this.hideDeleteImg} name={item} onMouseOver={this.showDeleteImg} className="fa fa-trash"></div></div>
                                   })}

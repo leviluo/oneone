@@ -60,7 +60,7 @@ export default class Article extends Component{
   reply =()=>{
     var comment = this.refs.replyContent.value
     if (!comment)return
-    if (!this.props.auth.phone) {
+    if (!this.props.auth.memberId) {
       this.props.tipShow({type:"error",msg:"请先登录"})
       return
     }
@@ -87,7 +87,7 @@ export default class Article extends Component{
   }
 
   goReply =(e)=>{
-    if (!this.props.auth.phone) {
+    if (!this.props.auth.memberId) {
       this.props.tipShow({type:"error",msg:"请先登录"})
       return
     }
@@ -99,7 +99,7 @@ export default class Article extends Component{
   }
 
   replyTo =(e,index)=>{
-    if (!this.props.auth.phone) {
+    if (!this.props.auth.memberId) {
       this.props.tipShow({type:"error",msg:"请先登录"})
       return
     }
@@ -151,7 +151,6 @@ export default class Article extends Component{
     let link = `/memberBrief/${this.state.articleData.memberId}`
     var date = new Date(this.state.articleData.updatedAt)
     var time = `${date.getFullYear()} ${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-    var editLink = `/postArticle/${this.props.params.id}/edit`
       return(
       <div id="article">
         <Helmet title="文章详情" />
@@ -164,7 +163,7 @@ export default class Article extends Component{
           <div className="articleContentTop">
             <img src={headSrc} alt=""/>
             <div><span className="lightColor">来自于&nbsp;:&nbsp;</span><Link to={link}>{this.state.articleData.nickname}</Link><span className="lightColor">&nbsp;&nbsp;最后修改&nbsp;:&nbsp;</span>{time}</div>
-            {this.state.articleData.phone != this.props.auth.phone && <span className="lightColor"><a className="pull-right" onClick={this.goReply}>回复</a></span>}{this.state.articleData.phone == this.props.auth.phone && <span className="operate"><Link to={editLink} query={this.state.articleData}>编辑</Link><a onClick={this.deleteArticle}>删除</a></span>}
+            {this.state.articleData.memberId != this.props.auth.memberId && <span className="lightColor"><a className="pull-right" onClick={this.goReply}>回复</a></span>}{this.state.articleData.memberId == this.props.auth.memberId && <span className="operate"><Link to={`/postArticle/${this.props.params.id}/edit?id=3`}>编辑</Link><a onClick={this.deleteArticle}>删除</a></span>}
           </div>
           <div className="content" dangerouslySetInnerHTML={{__html:this.state.articleData.content}}>
           </div>
@@ -197,9 +196,9 @@ export default class Article extends Component{
               var date = new Date(item.createdAt)
               var rtime = `${date.getFullYear()} ${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
               return <div key={index}>
-                  {item.phone != this.props.auth.phone && <a className="pull-right" onClick={(e)=>this.replyTo(e,index)}>回复</a>}{item.phone == this.props.auth.phone && <a onClick={(e)=>this.deleteReply(e,index)} className="pull-right">删除</a>}
+                  {item.memberId != this.props.auth.memberId && <a className="pull-right" onClick={(e)=>this.replyTo(e,index)}>回复</a>}{item.memberId == this.props.auth.memberId && <a onClick={(e)=>this.deleteReply(e,index)} className="pull-right">删除</a>}
                   <img src={headSrc} alt="" />
-                  <div><span>来自于&nbsp;:&nbsp;</span><Link to={link}>{item.nickname}</Link>&nbsp;&nbsp;<span>时间&nbsp;:&nbsp;</span>{rtime}{replyData && <p><span>回复</span>&nbsp;<Link to={replyLink}>{replyData.nickname}</Link><br />{replyData.comment}</p>}<p>{item.comment}</p></div>
+                  <div><span>来自于&nbsp;:&nbsp;</span><Link to={link}>{item.nickname}</Link>&nbsp;&nbsp;<span>时间&nbsp;:&nbsp;</span>{rtime}{replyData && <p><span>回复</span>&nbsp;<Link to={replyLink}>{replyData.nickname}</Link><br /><span dangerouslySetInnerHTML={{__html:replyData.comment}}></span></p>}<p dangerouslySetInnerHTML={{__html:item.comment}}></p></div>
               </div>
             })}
             {this.state.replyData.length == 0 && <div>还没有人回复耶</div>}
