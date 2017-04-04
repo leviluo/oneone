@@ -27,6 +27,8 @@ function getOriginImage(name,url){
 
 function getThumbImage(name,url){
     return new Promise(function(reslove,reject){
+        console.log("00000")
+        console.log(name)
         fs.exists(`${url}thumbs/${name}.jpg`, function (exists) {
                     if (exists) {
                         var file = `${url}thumbs/${name}.jpg` 
@@ -128,6 +130,7 @@ function uploadImgs(ob,name,url){
                     reject(err)
                 } else {    
                         fields.names=[]
+                        console.log(files)
                         if (files.file) {
                             for (var i = 0; i < files.file.length; i++) {
                                 var inputFile = files.file[i]
@@ -149,9 +152,39 @@ function uploadImgs(ob,name,url){
     })
 }
 
+function UploadMessageImage(ob,name,url){
+    return new Promise(function(reslove,reject){
+          var form = new multiparty.Form({ uploadDir: url });
+            //上传完成后处理
+            form.parse(ob, function(err, fields, files) {
+                if (err) {
+                    reject(err)
+                } else {    
+                    console.log(files)
+                        for(var key in files){
+                            // console.log(files[key])
+                            var inputFile = files[key][0]
+                            var uploadedPath = inputFile.path;
+                            var filename = Date.parse(new Date()) + key.toString().slice(2)
+                            var dstPath = url + filename + '.jpg';
+                            var reg = new RegExp(key)
+                            fields.text[0] = fields.text[0].replace(reg,`<img src="/img?from=chat&name=${filename}" />`)
+                           //重命名为真实文件名
+                            fs.rename(uploadedPath, dstPath, function(err) {
+                                if (err) {
+                                    reject({status:500,type:err})
+                                } else {
+                                }   
+                            })
+                        }
+                        reslove({status:200,msg:fields})
+                }
+            })
+    })
+}
+
 const fileController = {
     loadImg:async function(next){
-
         switch(this.request.query.from){
         case 'chat':
             var result = await getThumbImage(this.request.query.name,config.messageImgDir);
@@ -208,23 +241,23 @@ const fileController = {
         }
         await next
     },
-    messageImg:async function(next){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        // var name = this.session.user + Date.parse(new Date())
+    // messageImg:async function(next){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     // var name = this.session.user + Date.parse(new Date())
 
-        var result = await uploadImgs(this.req,this.session.user,config.messageImgDir)
+    //     var result = await UploadMessageImage(this.req,this.session.user,config.messageImgDir)
 
-        if (result.status != 200) {
-            this.body = {status:500,msg:'上传失败'}
-            return
-        }
+    //     if (result.status != 200) {
+    //         this.body = {status:500,msg:'上传失败'}
+    //         return
+    //     }
 
-        this.request.body.imgUrl = result.msg.names[0]
-        this.request.body.sendTo = result.msg.sendTo[0]
-    },
+    //     this.request.body.text = result.msg.text[0]
+    //     this.request.body.sendTo = result.msg.sendTo[0]
+    // },
     uploadPhotos:async function(next){  //可上传多张图片
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
@@ -257,14 +290,25 @@ const fileController = {
         this.request.body = result.msg
     },
 
-    insertImg:async function(next){
-        await next
-        var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = (select id from member where phone = ?),imgUrl = ?",[this.session.user,this.request.body.sendTo,this.request.body.imgUrl])
-        if(result.affectedRows==1){
-            this.body = {status:200}
+    submitMessage:async function(){
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
             return
         }
+        var name = this.session.user
+        var result = await UploadMessageImage(this.req,name,config.messageImgDir)
+        this.request.body.text = result.msg.text[0]
+        this.request.body.sendTo = result.msg.sendTo[0]
     },
+
+    // insertImg:async function(next){
+    //     await next
+    //     var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,imgUrl = ?",[this.session.user,this.request.body.sendTo,this.request.body.imgUrl])
+    //     if(result.affectedRows==1){
+    //         this.body = {status:200}
+    //         return
+    //     }
+    // },
 
     uploadArticleImg:async function(next){
         if (!this.session.user) {

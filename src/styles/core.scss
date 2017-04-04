@@ -161,6 +161,9 @@
         img{
             box-shadow:2px 2px 5px 1px #ccc;
         }
+        input,div{
+            outline:none;
+        }
     }
     *,
     *:before,

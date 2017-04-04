@@ -9,6 +9,8 @@ import serve from 'koa-static'
 import routers from './routers'
 import bodyParser from 'koa-bodyparser'
 import session from 'koa-session'
+// import IO from 'koa-socket'
+// import co from 'co'
 import '../Public/utils'
 
 const paths = config.utils_paths
@@ -16,61 +18,36 @@ const paths = config.utils_paths
 const router = require('koa-router')();
 
 const app = new Koa()
-    app.keys = ['leviluo'];
-    var CONFIG = {
-        key: 'koa:sess',
-        /** (string) cookie key (default is koa:sess) */
-        maxAge: 18640000,
-        /** (number) maxAge in ms (default is 1 days) */
-        overwrite: true,
-        /** (boolean) can overwrite or not (default true) */
-        httpOnly: true,
-        /** (boolean) httpOnly or not (default true) */
-        signed: true,
-        /** (boolean) signed or not (default true) */
-    };
-    app.use(session(CONFIG, app));
 
-    app.use(bodyParser());
+// const io = new IO()
+
+app.keys = ['leviluo'];
+
+var CONFIG = {
+    key: 'koa:sess',
+    /** (string) cookie key (default is koa:sess) */
+    maxAge: 18640000,
+    /** (number) maxAge in ms (default is 1 days) */
+    overwrite: true,
+    /** (boolean) can overwrite or not (default true) */
+    httpOnly: true,
+    /** (boolean) httpOnly or not (default true) */
+    signed: true,
+    /** (boolean) signed or not (default true) */
+};
+
+app.use(session(CONFIG, app));
+
+app.use(bodyParser());
 // ------------------------------------
 // Apply Webpack HMR Middleware
 // ------------------------------------
 if (config.env === 'development') {
+
   const compiler = webpack(webpackConfig)
-
-  // debug('Enable webpack dev and HMR middleware')
-  // app.use(require('webpack-dev-middleware')(compiler, {
-  //   publicPath  : webpackConfig.output.publicPath,
-  //   contentBase : paths.client(),
-  //   hot         : true,
-  //   quiet       : config.compiler_quiet,
-  //   noInfo      : config.compiler_quiet,
-  //   lazy        : false,
-  //   stats       : config.compiler_stats
-  // }))
-  // app.use(require('webpack-hot-middleware')(compiler))
-
-  // Serve static assets from ~/src/static since Webpack is unaware of
-  // these files. This middleware doesn't need to be enabled outside
-  // of development since this directory will be copied into ~/dist
-  // when the application is compiled.
-  // console.log(paths.client('static'))
-  // app.use(express.static(paths.client('static')))
-
-  // app.use('*', function (req, res, next) {
-  //   const filename = path.join(compiler.outputPath, 'index.html')
-  //   compiler.outputFileSystem.readFile(filename, (err, result) => {
-  //     if (err) {
-  //       return next(err)
-  //     }
-  //     res.set('content-type', 'text/html')
-  //     res.send(result)
-  //     res.end()
-  //   })
-  // })
-
   const devMiddleware = require('koa-webpack-dev-middleware')
   const hotMiddleware = require('koa-webpack-hot-middleware')
+
   app.use(devMiddleware(compiler, {
     publicPath  : webpackConfig.output.publicPath,
     contentBase : paths.client(),
@@ -116,7 +93,6 @@ router.get('*', async function (next) {
     return
   })
 
-
   app.use(serve(paths.client('static')))
 
 } else {
@@ -136,6 +112,15 @@ router.get('*', async function (next) {
 }
 
 routers(router);
+
 app.use(router.routes())
 
-export default app
+//main processing file
+import chat from './routers/chat'
+ 
+// 必须放在在所有app.user()之后
+var server = require('http').Server(app.callback());
+
+chat.initialize(server);
+
+export default server

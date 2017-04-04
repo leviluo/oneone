@@ -40,7 +40,8 @@ export default class BasicInfo extends Component {
   state ={
     content: <div></div>,
     memberInfo: [],
-    imgs:[]
+    imgs:[],
+    headImg:''
   }
 
   static contextTypes = {
@@ -51,7 +52,8 @@ export default class BasicInfo extends Component {
     getMemberInfo().then(({data}) => {
         if (data.status==200) {
             this.setState({
-              memberInfo:data.data[0]
+              memberInfo:data.data[0],
+              headImg:"/originImg?from=member&name="+data.data[0].phone
             })
         }else if (data.status==600) {
             this.props.dispatch({type:"AUTHOUT"})
@@ -121,10 +123,28 @@ export default class BasicInfo extends Component {
 
     ctx.drawImage(image,X,Y,100*ratio,100*ratio,0,0,100,100)
 
-    var data=this.divcenter.toDataURL();
-    // console.log(data)
-    // dataURL 的格式为 “data:image/png;base64,****”,逗号之前都是一些说明性的文字，我们只需要逗号之后的就行了
-    data=data.split(',')[1];
+    var url = this.divcenter.toDataURL();
+
+    var fd=new FormData();
+    fd.append('file',this.convertBase64UrlToBlob(url));
+    // console.log(fd)
+    this.props.commitHeadImg(fd).then((data)=>{
+      if (data.status == 200) {
+        this.setState({
+          headImg:"/originImg?from=member&name="+this.state.memberInfo.phone+"&"+Math.random()
+        })
+      }else{
+        this.props.tipShow({
+          type:"error",
+          msg:data.mag
+        })
+      }
+    })
+    this.props.modalHide()
+  }
+// base64转为file
+  convertBase64UrlToBlob =(url)=>{
+    var data=url.split(',')[1];
     // console.log(data)
     data=window.atob(data);
     // console.log(data)
@@ -134,12 +154,8 @@ export default class BasicInfo extends Component {
     };
     // canvas.toDataURL 返回的默认格式就是 image/png
     var blob=new Blob([ia], {type:"image/png"});
-    // console.log(blob)
-    var fd=new FormData();
-    fd.append('file',blob);
-    // console.log(fd)
-    this.props.commitHeadImg(fd,this.props.auth.phone)
-    this.props.modalHide()
+
+    return blob
   }
 
   editInit=(e)=>{
@@ -493,14 +509,13 @@ export default class BasicInfo extends Component {
       items.push({key:item.parentCatelogue,list:item.childCatelogue})
     })
     let nickname = this.props.auth.nickname
-    var headSrc = "/originImg?from=member&name="+this.props.auth.phone
-
+    // var headSrc = "/originImg?from=member&name="+this.state.memberInfo.phone
     return (
     <div>
           <div id="basicInfo">
             <div>
               <div>
-                <img id="memberinfoHeadImg" src={headSrc} />
+                <img src={this.state.headImg} />
                 <a className="fa fa-image"><input onChange={this.modifyHead} type="file" /></a>
               </div>
               <div className="follow">

@@ -53,17 +53,17 @@ export default class MemberBrief extends Component{
     this.props.imgbrowserShow({currentChoose:index,imgs:works})
   }
 
-  showChat =(name,phone)=>{
-        if (!this.props.auth.phone) {
+  showChat =(name,memberId)=>{
+        if (!this.props.auth.memberId) {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
-        if (phone == this.props.auth.phone) return
-        this.props.chatShow({chatTo:name,chatFrom:this.props.auth.nickname,sendTo:phone})
+        if (memberId == this.props.auth.memberId) return
+        this.props.chatShow({chatTo:name,chatFrom:this.props.auth.nickname,sendTo:memberId})
     }
 
   followIt =()=>{
-      if (!this.props.auth.phone) {
+      if (!this.props.auth.memberId) {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
@@ -82,7 +82,7 @@ export default class MemberBrief extends Component{
   }
 
   followOut =()=>{
-    if (!this.props.auth.phone) {
+    if (!this.props.auth.memberId) {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
@@ -184,7 +184,7 @@ export default class MemberBrief extends Component{
   
 
   render(){
-    const {sex,nickname,address,phone,brief} = this.state.memberInfo
+    const {sex,nickname,address,phone,brief,id} = this.state.memberInfo
     return(
       <div className="memberBrief">
       <Helmet title="名片" />
@@ -203,7 +203,7 @@ export default class MemberBrief extends Component{
                 <div>
                 {(!this.state.memberInfo.isFollowed && this.props.auth.memberId != this.state.memberInfo.id) && <button className="btn-default" onClick={this.followIt}>+关注</button>}
                 {(this.state.memberInfo.isFollowed == 1 && this.props.auth.memberId != this.state.memberInfo.id) && <button className="btn-default" onClick={this.followOut}>取关</button>}
-                {this.props.auth.memberId != this.state.memberInfo.id && <button className="btn-success" onClick={()=>this.showChat(nickname,phone)}>私信</button>}
+                {this.props.auth.memberId != this.state.memberInfo.id && <button className="btn-success" onClick={()=>this.showChat(nickname,id)}>私信</button>}
                 </div>
               </div>
             </div>

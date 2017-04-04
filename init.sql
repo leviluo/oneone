@@ -150,7 +150,6 @@ CREATE TABLE `message` (
   `toMember` int unsigned not null default 0,
   `active` char(1) not null default 0,
   `text` varchar(300) not null default '',
-  `imgUrl` varchar(80) not null default '',
   `time` datetime not null default NOW(),
   PRIMARY KEY  (`id`)
 );

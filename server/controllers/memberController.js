@@ -47,20 +47,19 @@ const memberController = {
         var result = await sqlStr("select m.address,m.sex,m.phone,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where phone = ?",[this.session.user])
         this.body = {status:200,data:result}
     },
-    messageText:async function(next){
+    message:async function(next){
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
+
+        await next
+
         if(!this.request.body.text || !this.request.body.sendTo){
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        if(this.session.user == this.request.body.sendTo){
-            this.body = { status: 500, msg: "不能给自己发送消息" }
-            return
-        }
-        var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = (select id from member where phone = ?),text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
+        var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
         if (result.affectedRows == 1) {
             this.body = { status: 200}
             return
@@ -70,25 +69,33 @@ const memberController = {
         await next
     },
     historyChat:async function(next){
-        if (!this.request.body.chatWith) {
+        var lastUpdate = this.request.query.lastUpdate
+        var chatWith = this.request.query.chatWith
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+        if (!chatWith) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        if (this.request.body.lastUpdate) {
-        var result = await sqlStr("select m.text,m.imgUrl,m.time,mF.phone as send,mT.phone as sendto from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = (select id from member where phone = ?)) or (m.toMember = (select id from member where phone = ?) and m.fromMember = (select id from member where phone = ?))) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,this.request.body.chatWith,this.session.user,this.request.body.chatWith,this.request.body.lastUpdate])
+        if (lastUpdate) {
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.phone as sendto from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
         }else{ 
-        var result = await sqlStr("select m.text,m.imgUrl,m.time,mF.phone as send,mT.phone as sendto from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = (select id from member where phone = ?)) or (m.toMember = (select id from member where phone = ?) and m.fromMember = (select id from member where phone = ?)) order by m.time desc limit 10",[this.session.user,this.request.body.chatWith,this.session.user,this.request.body.chatWith])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.phone as sendto from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith])
         }
         this.body = {status:200,data:result}
     },
     updateActive:async function(next){
+        var lastUpdate = this.request.query.lastUpdate
+        var chatWith = this.request.query.chatWith
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
         await next;
-        if (!this.request.body.lastUpdate && this.body.status == 200) {
-            var result = await sqlStr("update message set active = 1 where toMember = (select id from member where phone = ?) and fromMember = (select id from member where phone = ?) and active = 0",[this.session.user,this.request.body.chatWith])
+        if (!lastUpdate && this.body.status == 200) {
+            var result = await sqlStr("update message set active = 1 where toMember = (select id from member where phone = ?) and fromMember = (select id from member where phone = ?) and active = 0",[this.session.user,chatWith])
         }
         // this.body = this.body
     },
@@ -97,7 +104,7 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr(`select message.time,message.text,message.imgUrl,message.active,member.nickname,member.phone,member.id as memberId,if(message.fromMember=(select id from member where phone = ?),1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
+        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.phone,member.id as memberId,if(message.fromMember=(select id from member where phone = ?),1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
         var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone;",[this.session.user,this.session.user,this.session.user])
         this.body = {status:200,data:result,count:count.length}
     },

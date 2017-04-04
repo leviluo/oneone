@@ -1,15 +1,10 @@
 import axios from 'axios'
 import {tipResult} from '../../../../../components/Tips/modules/tips'
 
-export function commitHeadImg(items,phone) {
+export function commitHeadImg(items) {
   return (dispatch, getState) => {
-    axios.post('/member/HeadImg',items).then(({data}) => {
-      if (data.status==200) {
-        console.log(phone)
-          document.getElementById('memberinfoHeadImg').src = '/public/Headload?member='+phone+"&"+Math.random()
-      }else{
-          dispatch(tipResult({type:"error",msg:data.msg}))
-      }
+    return axios.post('/member/HeadImg',items).then(({data}) => {
+        return data
     })
   }
 }

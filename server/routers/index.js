@@ -61,14 +61,14 @@ export default function routers(router){
 	router.get("/originImg",fileController.loadOriginImg,router.allowedMethods());  
 // 获取会员信息
 	router.get("/member/getMemberInfo",memberController.getMemberInfo,router.allowedMethods());
-// 发送文本消息
-	router.post("/member/messageText",memberController.messageText,router.allowedMethods());
+// 发送消息
+	router.post("/message",memberController.message,fileController.submitMessage,router.allowedMethods());
 // 获取历史聊天记录
-	router.post("/member/historyChat",memberController.updateActive,memberController.historyChat,router.allowedMethods());
+	router.get("/message",memberController.updateActive,memberController.historyChat,router.allowedMethods());
 // 发送图片消息
-	router.post("/member/messageImg",fileController.insertImg,fileController.messageImg,router.allowedMethods());
+	// router.post("/member/messageImg",fileController.insertImg,fileController.messageImg,router.allowedMethods());
 // 获取最新消息
-	router.get("/member/getMessageList",memberController.getMessageList,router.allowedMethods());
+	router.get("/recentmessage",memberController.getMessageList,router.allowedMethods());
 // 修改昵称
 	router.post("/member/modifyNickname",memberController.modifyNickname,router.allowedMethods());
 // 修改简介

@@ -150,17 +150,17 @@ export default class Categories extends React.Component{
         this.props.pageNavInit(this.updateSpecialityData)
     }
 
-    showChat =(name,phone)=>{
-        if (!this.props.auth.phone) {
+    showChat =(name,memberId)=>{
+        if (!this.props.auth.memberId) {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
-        if (phone == this.props.auth.phone) return
+        if (memberId == this.props.auth.memberId) return
         this.setState({
             chatTo:name,
-            sendTo:phone
+            sendTo:memberId
         })
-        this.props.chatShow({chatTo:name,chatFrom:this.props.auth.nickname,sendTo:phone})
+        this.props.chatShow({chatTo:name,chatFrom:this.props.auth.nickname,sendTo:memberId})
     }
 
 
@@ -192,7 +192,7 @@ export default class Categories extends React.Component{
                 let brief = item.brief.length > 50 ? item.brief.slice(0,50) + '...' : item.brief
                 let link = `/memberBrief/${item.memberId}`
                 return <div key={index} className="itemContent">
-                     <span>{item.memberId != this.props.auth.memberId && <a className="btn-default" onClick={()=>this.showChat(item.nickname,item.phone)}>私信</a>}&nbsp;&nbsp;<Link className="btn-default" to={link}>查看名片</Link></span>
+                     <span>{item.memberId != this.props.auth.memberId && <a className="btn-default" onClick={()=>this.showChat(item.nickname,item.memberId)}>私信</a>}&nbsp;&nbsp;<Link className="btn-default" to={link}>查看名片</Link></span>
                     <img src={src} alt=""/>
                     <div><ul><li><Link to={link}>{item.nickname}</Link>(<span className="lightColor">性别:</span>{item.sex==0 && <span>男</span>}{item.sex==1 && <span>女</span>})</li><li><p><span className="lightColor">简介:</span>{brief}</p></li><li><p><span className="lightColor">能力:</span>{item.name}</p></li><li><p><span className="lightColor">现居住地:</span>{item.address}</p></li></ul></div>
                 </div>

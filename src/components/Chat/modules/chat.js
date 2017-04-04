@@ -52,14 +52,14 @@ export default function (state = initialState, action) {
 }
 
 //otherMethods
-export function submitText(text){
-    return axios.post('/member/messageText',text)
+export function submitText(fd){
+    return axios.post('/message',fd)
 }
 
-export function submitImg(data){
-    return axios.post('/member/messageImg',data)
-}
+// export function submitImg(data){
+//     return axios.post('/member/messageImg',data)
+// }
 
 export function getHistory(data){
-    return axios.post('/member/historyChat',data)
+    return axios.get(`/message?chatWith=${data.chatWith}&lastUpdate=${data.lastUpdate}`)
 }
