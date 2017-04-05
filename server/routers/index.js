@@ -48,10 +48,10 @@ export default function routers(router){
 // 查询信息
 	router.get("/public/query",publicController.query,router.allowedMethods());
 // 查询用户标签
-	// router.get("/public/getMemberTag",publicController.getMemberTag,router.allowedMethods());
- //上传头像
+// router.get("/public/getMemberTag",publicController.getMemberTag,router.allowedMethods());
+// 上传头像
 	router.post("/member/HeadImg",fileController.uploadHeadImg,router.allowedMethods());
- // 图片浏览器中图片是否点赞
+// 图片浏览器中图片是否点赞
 	router.get("/member/ifliked",memberController.ifliked,router.allowedMethods());
 // 二维码
 	router.get("/qrcode",fileController.qrCode,router.allowedMethods());  

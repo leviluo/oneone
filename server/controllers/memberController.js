@@ -1,4 +1,5 @@
 import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
+import chat from '../routers/chat.js'
 
 const memberController = {
     addSpeciality:async function(next){
@@ -61,6 +62,26 @@ const memberController = {
         }
         var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
         if (result.affectedRows == 1) {
+            // console.log(chat)
+
+            var toName = this.request.body.sendTo;
+            var sockets = chat.io.sockets.sockets
+            // var toSocket;
+            // console.log(chat.io)
+            // console.log(sockets)
+            // console.log("0000")
+            for(var key in sockets){
+                if(sockets[key].name == this.request.body.sendTo){
+                    // console.log("1111")
+                    var toSocket = sockets[key]
+                    break;
+                }
+            }
+            // console.log(toSocket)
+            // if(toSocket = _.findWhere(chat.io.sockets.sockets,{name:toName})){
+                toSocket.emit('message',this.request.body.text);
+            // }
+
             this.body = { status: 200}
             return
         }else{

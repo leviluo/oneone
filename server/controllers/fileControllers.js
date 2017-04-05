@@ -27,8 +27,6 @@ function getOriginImage(name,url){
 
 function getThumbImage(name,url){
     return new Promise(function(reslove,reject){
-        console.log("00000")
-        console.log(name)
         fs.exists(`${url}thumbs/${name}.jpg`, function (exists) {
                     if (exists) {
                         var file = `${url}thumbs/${name}.jpg` 
@@ -130,7 +128,7 @@ function uploadImgs(ob,name,url){
                     reject(err)
                 } else {    
                         fields.names=[]
-                        console.log(files)
+                        // console.log(files)
                         if (files.file) {
                             for (var i = 0; i < files.file.length; i++) {
                                 var inputFile = files.file[i]
@@ -160,7 +158,7 @@ function UploadMessageImage(ob,name,url){
                 if (err) {
                     reject(err)
                 } else {    
-                    console.log(files)
+                    // console.log(files)
                         for(var key in files){
                             // console.log(files[key])
                             var inputFile = files[key][0]

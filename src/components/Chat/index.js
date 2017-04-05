@@ -5,8 +5,7 @@ import {chatHide,submitText,submitImg,getHistory,chatShowAction} from './modules
 import {imgbrowserShow} from '../ImageBrowser'
 import './chat.scss'
 import {tipShow} from '../Tips'
-
-import io from 'socket.io-client'
+import socket from '../../socket'
 
 @connect(
   state=>({chat:state.chat}),
@@ -20,11 +19,23 @@ export default class Chat extends Component{
   }
 
   componentWillMount =()=>{
-    this.socket = io();
-    this.socket.on('replyClient', function(data){
-      // console.log("连接成功")
-      // console.log(data)
-    });
+    // this.socket = io();
+    // this.socket.on('replyClient', function(data){
+    //   console.log(nextProps.auth.memberId)
+    //   this.socket.emit('setName',nextProps.auth.memberId);
+      var me = this
+      socket.on('message',function(data){
+        console.log("收到消息啦")
+        console.log(data)
+        var date = new Date()
+        var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+        me.state.chatContent.push({
+          time:time,
+          text:data
+        })
+        me.setState({})
+      })
+    // });
 
   }
 

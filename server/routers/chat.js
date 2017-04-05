@@ -51,12 +51,6 @@ chat.ioListen = function() {
 		that.disconnect(socket);
 
 	});
-	
-	this.io.on('sendServer', function(msg){
-		// console.log("收到客户端消息了")
-		// console.log(msg)
-		that.io.emit('replyClient',"test111")
-	});
 }
 
 // send user message
@@ -70,12 +64,24 @@ chat.userMsg = function(socket) {
 		that.io.to(that.currentRoom[socket.id]).emit('chat message', msg);
 	});
 
-	socket.on('sendServer', function(msg){
-		console.log("收到客户端消息了")
-		console.log(msg)
-		that.io.emit('replyClient',"test111")
-	});
+	socket.on('setName',function (data) {
+		console.log(data)
+        socket.name = data;
+    });
 
+    // socket.on('sayTo',function (data) {
+    //     var toName = data.to;
+    //     var toSocket;
+    //     if(toSocket = _.findWhere(io.sockets.sockets,{name:toName})){
+    //         toSocket.emit('message',data.msg);
+    //     }
+    // })
+
+	// socket.on('sendServer', function(msg){
+	// 	console.log("收到客户端消息了")
+	// 	console.log(msg)
+	// 	that.io.emit('replyClient',"test111")
+	// });
 }
 
 //send system message
@@ -218,9 +224,7 @@ chat.changeRoom = function(socket, msg) {
 	else {
 		socket.emit('sys message', '无法加入房间room！');
 	}
-		
-
-	
 }
 
 export default chat;
+

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {tipResult} from '../components/Tips/modules/tips'
+import {initSocket} from '../socket'
 // ------------------------------------
 // Constants
 // ------------------------------------
@@ -21,6 +22,7 @@ function requestLOGIN () {
 
 
 function authIn (nickname,memberId) {
+  initSocket(memberId)
   return {
     type: AUTHIN,
     nickname: nickname,
