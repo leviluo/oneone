@@ -188,7 +188,7 @@ export default class Categories extends React.Component{
         </div>
         <div className="categoryContent">
             {this.state.allItems.map((item,index)=> {
-                let src = `/originImg?from=member&name=${item.phone}`
+                let src = `/originImg?from=member&name=${item.memberId}`
                 let brief = item.brief.length > 50 ? item.brief.slice(0,50) + '...' : item.brief
                 let link = `/memberBrief/${item.memberId}`
                 return <div key={index} className="itemContent">

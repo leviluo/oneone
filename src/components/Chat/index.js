@@ -25,13 +25,14 @@ export default class Chat extends Component{
     //   this.socket.emit('setName',nextProps.auth.memberId);
       var me = this
       socket.on('message',function(data){
-        console.log("收到消息啦")
+        // console.log("收到消息啦")
         console.log(data)
         var date = new Date()
         var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
         me.state.chatContent.push({
           time:time,
-          text:data
+          text:data.text,
+          send:this.props.auth.memberId
         })
         me.setState({})
       })

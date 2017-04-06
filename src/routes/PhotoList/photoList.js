@@ -202,7 +202,7 @@ export default class photoList extends Component {
           <Share />
     </div>
     <div className="memberInfo">
-        <img src={`/originImg?from=member&name=${this.state.memberInfo.phone}`} alt="" />
+        <img src={`/originImg?from=member&name=${this.state.memberInfo.memberId}`} alt="" />
         <div>
             <span className="lightColor">来自</span>&nbsp;<strong><Link to={`/memberBrief/${this.state.memberInfo.memberId}`}>{this.state.memberInfo.nickname}</Link>•{this.state.memberInfo.name}</strong>&nbsp;<span className="lightColor">的作品集</span> 
         </div>

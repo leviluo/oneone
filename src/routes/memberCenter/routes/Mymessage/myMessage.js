@@ -54,12 +54,12 @@ export default class myMessage extends Component {
     })
   }
 
-  showChat =(nickname,phone)=>{
+  showChat =(nickname,id)=>{
     // this.setState({
     //     chatTo:name,
     //     sendTo:phone
     // })
-    this.props.chatShow({chatTo:nickname,chatFrom:this.props.auth.nickname,sendTo:phone})
+    this.props.chatShow({chatTo:nickname,chatFrom:this.props.auth.nickname,sendTo:id})
   }
 
   componentWillUnmount =()=>{
@@ -73,7 +73,7 @@ export default class myMessage extends Component {
       <div className="messageContent">
         {this.state.items.length == 0 && <div className="text-center">您还没有收到任何私信耶~</div>}
         {this.state.items.map((item,index)=>{
-          var headImg = `/originImg?from=member&name=${item.phone}`
+          var headImg = `/originImg?from=member&name=${item.memberId}`
           var imgUrl = item.imgUrl ? `/img?from=chat&name=${item.imgUrl}` : ''
           var date = new Date(item.time)
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
@@ -86,7 +86,7 @@ export default class myMessage extends Component {
             var isRead = item.active == '0'?'未读':'已读'
           }
           return <div key = {index}>
-              <img src={headImg} /><span><button className="btn-default" onClick={()=>this.showChat(item.nickname,item.phone)}>查看</button></span>
+              <img src={headImg} /><span><button className="btn-default" onClick={()=>this.showChat(item.nickname,item.memberId)}>查看</button></span>
               <ul>
                 <li><span style={{color:item.active == '0' ? 'green' : '#666'}}>●</span><span className="lightColor">({isRead})</span><span>{time}</span>{head} </li>
                 <li>{item.text}{item.imgUrl && <img src={imgUrl} />}</li>

@@ -53,7 +53,7 @@ export default class BasicInfo extends Component {
         if (data.status==200) {
             this.setState({
               memberInfo:data.data[0],
-              headImg:"/originImg?from=member&name="+data.data[0].phone
+              headImg:"/originImg?from=member&name="+data.data[0].id
             })
         }else if (data.status==600) {
             this.props.dispatch({type:"AUTHOUT"})
@@ -131,7 +131,7 @@ export default class BasicInfo extends Component {
     this.props.commitHeadImg(fd).then((data)=>{
       if (data.status == 200) {
         this.setState({
-          headImg:"/originImg?from=member&name="+this.state.memberInfo.phone+"&"+Math.random()
+          headImg:"/originImg?from=member&name="+this.state.memberInfo.id+"&"+Math.random()
         })
       }else{
         this.props.tipShow({

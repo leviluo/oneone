@@ -66,7 +66,7 @@ export default class queryResult extends Component{
              {this.state.results.map((item,index)=>{
                 if (this.state.type == 1) {
                     return <div className="member" key={index}>
-                      <img src={`/originImg?from=member&name=${item.phone}`} alt=""/>
+                      <img src={`/originImg?from=member&name=${item.id}`} alt=""/>
                       <ul>
                           <li><Link to={`/memberBrief/${item.id}`}>{item.nickname}</Link>{item.specialityName.map((itemm,index)=><label key={index}>{!itemm ? '无' : itemm}</label>)}</li>
                           <li>{item.sex == 1 ? "女" : "男"} - {item.location}</li>
@@ -85,7 +85,7 @@ export default class queryResult extends Component{
                         var date = new Date(item.createdAt)
                         var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
                     return <div key={index} className="article">
-                            <img width="50" src={`/originImg?from=member&name=${item.phone}`} alt=""/>
+                            <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
                             {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationsName}</Link>发布了<Link to={`/article/${item.id}`}>{item.title}({item.titleType})</Link></div>}
                         </div>
                 }

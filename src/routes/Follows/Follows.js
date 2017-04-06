@@ -170,7 +170,7 @@ export default class follows extends Component {
         <div className="items">
         {this.state.items.map((item,index)=>{
           return <div key={index}>
-            <img src={`/originImg?from=member&name=${item.phone}`} alt="头像"/>
+            <img src={`/originImg?from=member&name=${item.id}`} alt="头像"/>
             <ul>
               <li><Link to={`/memberBrief/${item.id}`}>{item.nickname}</Link>{(this.state.addWho == this.getFollowData && this.props.auth.memberId == this.props.params.memberId) && <a onClick={(e)=>this.followOut(e,item.id,index)} className="pull-right">取关</a>}{(this.state.addWho == this.getFanData && this.props.auth.memberId == this.props.params.memberId) && <a onClick={(e)=>this.followIt(e,item.id)} className="pull-right">+关注</a>}</li>
               <li><p>{item.brief}</p></li>

@@ -154,7 +154,7 @@ export default class Article extends Component{
   }
 
   render(){
-    var headSrc = `/originImg?from=member&name=${this.state.articleData.phone}`
+    var headSrc = `/originImg?from=member&name=${this.state.articleData.memberId}`
     let link = `/memberBrief/${this.state.articleData.memberId}`
     var date = new Date(this.state.articleData.updatedAt)
     var time = `${date.getFullYear()} ${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
@@ -189,7 +189,7 @@ export default class Article extends Component{
           <span>回复区:&nbsp;&nbsp;</span>
           <div className="historyReplys">
             {this.state.replyData.map((item,index)=>{
-              var headSrc = `/originImg?from=member&name=${item.phone}`
+              var headSrc = `/originImg?from=member&name=${item.memberId}`
               var link = `/memberBrief/${item.memberId}`
               if(item.replyTo){
                 for (var i = 0; i < this.state.replyData.length; i++) {

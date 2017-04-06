@@ -42,7 +42,7 @@ export default class MemberBrief extends Component{
               this.setState({
                 memberInfo:data.data[0]
               })
-              this.refs.headImgUrl.src = `/originImg?from=member&name=${data.data[0].phone}`
+              this.refs.headImgUrl.src = `/originImg?from=member&name=${data.data[0].id}`
           }else{
               this.props.tipShow({type:'error',msg:data.msg})
           }
@@ -233,7 +233,7 @@ export default class MemberBrief extends Component{
                   var imgs = item.works.split(',')
                   var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
                   return <div key={index} className="lists">
-                      <img width="50" src={`/originImg?from=member&name=${item.phone}`} alt=""/>
+                      <img width="50" src={`/originImg?from=member&name=${this.props.auth.memberId}`} alt=""/>
                       {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`}>{item.title}({item.titleType})</Link></div>}
                       {item.works && <div>
                         <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>

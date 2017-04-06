@@ -126,7 +126,7 @@ export default class HomeView extends React.Component{
               var imgs = item.works.split(',')
               var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
               return <div key={index} className="lists">
-                  <img width="50" src={`/originImg?from=member&name=${item.phone}`} alt=""/>
+                  <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
                   {item.works && <div>
                     <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>
                     <div className="photoLists">

@@ -45,7 +45,7 @@ const memberController = {
             // this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select m.address,m.sex,m.phone,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where phone = ?",[this.session.user])
+        var result = await sqlStr("select m.address,m.sex,m.phone,m.id,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where phone = ?",[this.session.user])
         this.body = {status:200,data:result}
     },
     message:async function(next){
@@ -62,25 +62,16 @@ const memberController = {
         }
         var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
         if (result.affectedRows == 1) {
-            // console.log(chat)
-
             var toName = this.request.body.sendTo;
             var sockets = chat.io.sockets.sockets
-            // var toSocket;
-            // console.log(chat.io)
-            // console.log(sockets)
-            // console.log("0000")
             for(var key in sockets){
                 if(sockets[key].name == this.request.body.sendTo){
-                    // console.log("1111")
                     var toSocket = sockets[key]
                     break;
                 }
             }
-            // console.log(toSocket)
-            // if(toSocket = _.findWhere(chat.io.sockets.sockets,{name:toName})){
-                toSocket.emit('message',this.request.body.text);
-            // }
+
+            toSocket.emit('message',this.request.body.text);
 
             this.body = { status: 200}
             return
@@ -101,9 +92,9 @@ const memberController = {
             return
         }
         if (lastUpdate) {
-        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.phone as sendto from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
+        var result = await sqlStr("select m.text,m.time,mF.id as send from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
         }else{ 
-        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.phone as sendto from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith])
+        var result = await sqlStr("select m.text,m.time,mF.id as send from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith])
         }
         this.body = {status:200,data:result}
     },
@@ -125,7 +116,7 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.phone,member.id as memberId,if(message.fromMember=(select id from member where phone = ?),1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
+        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=(select id from member where phone = ?),1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
         var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone;",[this.session.user,this.session.user,this.session.user])
         this.body = {status:200,data:result,count:count.length}
     },
@@ -433,7 +424,7 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr("select mu.id,m.nickname,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = (select id from member where phone = ?) order by mu.id desc limit "+this.request.query.limit,[this.session.user])
+        var result = await sqlStr("select mu.id,m.nickname,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = (select id from member where phone = ?) order by mu.id desc limit "+this.request.query.limit,[this.session.user])
         this.body = {status:200,data:result}
     }
 }

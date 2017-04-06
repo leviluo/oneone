@@ -118,7 +118,7 @@ const organizationController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select m.id,m.phone,m.nickname from memberOrganizations as mo left join member as m on mo.memberId = m.id where mo.organizationsId = ?",[this.request.query.id])
+        var result = await sqlStr("select m.id,m.nickname from memberOrganizations as mo left join member as m on mo.memberId = m.id where mo.organizationsId = ?",[this.request.query.id])
         this.body = {status:200,data:result}
     },
     addArticle: async function(next){
@@ -223,7 +223,7 @@ const organizationController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-      var result = await sqlStr("select a.*,m.nickname,m.phone from article as a left join member as m on m.id = a.memberId where a.id = ?",[this.request.query.id])
+      var result = await sqlStr("select a.*,m.nickname from article as a left join member as m on m.id = a.memberId where a.id = ?",[this.request.query.id])
       if (result[0].phone == this.session.user) {
         var resultt = await sqlStr("update comments set status = 1 where articleId = ?",[result[0].id]) //所有回复清空为已读
       };
@@ -260,7 +260,7 @@ const organizationController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-      var result = await sqlStr("select c.comment,c.id,c.memberId,r.replyTo,c.createdAt,m.nickname,m.phone from comments as c left join reReply as r on r.commentsId = c.id left join member as m on m.id = c.memberId where c.articleId=? order by c.id",[this.request.query.id])
+      var result = await sqlStr("select c.comment,c.id,c.memberId,r.replyTo,c.createdAt,m.nickname from comments as c left join reReply as r on r.commentsId = c.id left join member as m on m.id = c.memberId where c.articleId=? order by c.id",[this.request.query.id])
       this.body = {status:200,data:result}
     },
     deleteReply:async function(){
@@ -323,7 +323,7 @@ const organizationController = {
           this.body = { status: 600, msg: "缺少参数" }
           return
       };
-      var result = await sqlStr("select m.id as memberId,m.phone,m.nickname,ro.createdAt,ro.verified,ro.id from organizationsrequest as ro left join member as m on m.id = ro.memberId where ro.status = 0 and ro.organizationsId = ? limit "+this.request.query.limit,[this.request.query.id])
+      var result = await sqlStr("select m.id as memberId,m.nickname,ro.createdAt,ro.verified,ro.id from organizationsrequest as ro left join member as m on m.id = ro.memberId where ro.status = 0 and ro.organizationsId = ? limit "+this.request.query.limit,[this.request.query.id])
       var count = await sqlStr("select count(id) as count from organizationsrequest where organizationsId = ? and status = 0",[this.request.query.id])
       this.body = {status:200,data:result,count:count[0].count}
     },

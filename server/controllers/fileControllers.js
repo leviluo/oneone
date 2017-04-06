@@ -232,30 +232,14 @@ const fileController = {
             return
         }
         var user = this.session.user
-        var result = await uploadOneImg(this.req,user,config.headDir)
+        var id = await sqlStr("select id from member where phone = ?",[user])
+        var result = await uploadOneImg(this.req,id[0].id,config.headDir)
         if (result.status == 200 ) {
             this.body = {status:200}
             return
         }
         await next
     },
-    // messageImg:async function(next){
-    //     if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //     // var name = this.session.user + Date.parse(new Date())
-
-    //     var result = await UploadMessageImage(this.req,this.session.user,config.messageImgDir)
-
-    //     if (result.status != 200) {
-    //         this.body = {status:500,msg:'上传失败'}
-    //         return
-    //     }
-
-    //     this.request.body.text = result.msg.text[0]
-    //     this.request.body.sendTo = result.msg.sendTo[0]
-    // },
     uploadPhotos:async function(next){  //可上传多张图片
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
@@ -298,16 +282,6 @@ const fileController = {
         this.request.body.text = result.msg.text[0]
         this.request.body.sendTo = result.msg.sendTo[0]
     },
-
-    // insertImg:async function(next){
-    //     await next
-    //     var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,imgUrl = ?",[this.session.user,this.request.body.sendTo,this.request.body.imgUrl])
-    //     if(result.affectedRows==1){
-    //         this.body = {status:200}
-    //         return
-    //     }
-    // },
-
     uploadArticleImg:async function(next){
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }

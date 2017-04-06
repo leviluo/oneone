@@ -211,7 +211,7 @@ export default class OrganizationsHome extends Component{
   				<div>加入会员</div>
           <div>
               {this.state.Members.map((item,index)=>{
-                var headImg = `/originImg?from=member&name=${item.phone}`
+                var headImg = `/originImg?from=member&name=${item.id}`
                 var link = `/memberBrief/${item.id}`
                 return <Link to={link} key={index}>
                           <img src={headImg} width="30" alt="" />

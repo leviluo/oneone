@@ -28,10 +28,10 @@ const publicController = {
             return
         }
         if (this.request.body.parentSpeciality) {
-           var result = await sqlStr("select m.nickname,m.address,m.sex,m.phone,ms.memberId,s.name,ms.brief from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where s.categoryId = (select id from specialityCategory where name = ? ) and m.location = ? limit "+this.request.body.limit,[this.request.body.parentSpeciality,this.request.body.address])
+           var result = await sqlStr("select m.nickname,m.address,m.sex,ms.memberId,s.name,ms.brief from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where s.categoryId = (select id from specialityCategory where name = ? ) and m.location = ? limit "+this.request.body.limit,[this.request.body.parentSpeciality,this.request.body.address])
             var count = await sqlStr("select count(m.id) as count from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where s.categoryId = (select id from specialityCategory where name = ? ) and m.location = ? ",[this.request.body.parentSpeciality,this.request.body.address])
         }else if(this.request.body.speciality){
-           var result = await sqlStr("select m.nickname,m.address,m.sex,m.phone,ms.memberId,s.name,ms.brief from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where s.name = ? and m.location = ? limit "+this.request.body.limit,[this.request.body.speciality,this.request.body.address])
+           var result = await sqlStr("select m.nickname,m.address,m.sex,ms.memberId,s.name,ms.brief from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where s.name = ? and m.location = ? limit "+this.request.body.limit,[this.request.body.speciality,this.request.body.address])
            var count = await sqlStr("select count(m.id) as count from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where s.name = ? and m.location = ?",[this.request.body.speciality,this.request.body.address])
         }
         this.body = {status:200,data:result,count:count[0].count}
@@ -47,9 +47,9 @@ const publicController = {
             return
         }
         if (this.session.user) {
-        var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,m.phone,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans,if((select id from follows where followId = ? and memberId = (select id from member where phone = ?)),1,0) as isFollowed from member as m where id = ?",[this.request.query.id,this.session.user,this.request.query.id])
+        var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans,if((select id from follows where followId = ? and memberId = (select id from member where phone = ?)),1,0) as isFollowed from member as m where id = ?",[this.request.query.id,this.session.user,this.request.query.id])
         }else{
-        var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,m.phone,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where id = ?",[this.request.query.id])
+        var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where id = ?",[this.request.query.id])
         }
         this.body = {status:200,data:result}
     },
@@ -110,7 +110,7 @@ const publicController = {
            this.body = {status:500,msg:"缺少参数"}
             return 
         }
-        var result = await sqlStr("select m.phone,m.nickname,m.id as memberId,s.name from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join member as m on m.id = ms.memberId left join specialities as s on s.id = ms.specialitiesId where w.memberSpecialityId = ?",[this.request.query.id])
+        var result = await sqlStr("select DISTINCT(m.nickname),m.id as memberId,s.name from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join member as m on m.id = ms.memberId left join specialities as s on s.id = ms.specialitiesId where w.memberSpecialityId = ? ",[this.request.query.id])
         this.body = {status:200,data:result}
     },
     getFollows: async function(){
@@ -118,7 +118,7 @@ const publicController = {
            this.body = {status:500,msg:"缺少参数"}
             return 
         }
-      var result = await sqlStr("select m.nickname,m.phone,m.brief,m.id from follows as f left join member as m on m.id = f.followId where f.memberId = ? limit "+this.request.query.limit,[this.request.query.id])
+      var result = await sqlStr("select m.nickname,m.brief,m.id from follows as f left join member as m on m.id = f.followId where f.memberId = ? limit "+this.request.query.limit,[this.request.query.id])
       this.body = {status:200,data:result}
     },
     getFans: async function(){
@@ -126,7 +126,7 @@ const publicController = {
            this.body = {status:500,msg:"缺少参数"}
             return 
       }
-      var result = await sqlStr("select m.nickname,m.phone,m.brief,m.id from follows as f left join member as m on m.id = f.memberId where f.followId = ? limit "+this.request.query.limit,[this.request.query.id])
+      var result = await sqlStr("select m.nickname,m.brief,m.id from follows as f left join member as m on m.id = f.memberId where f.followId = ? limit "+this.request.query.limit,[this.request.query.id])
       this.body = {status:200,data:result}
     },
     getMyUpdates:async function(){
@@ -137,7 +137,7 @@ const publicController = {
             return
         }
 
-        var result = await sqlStr("select mu.id,m.phone,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId where mu.memberId = ? order by mu.id desc limit "+limit,[id])
+        var result = await sqlStr("select mu.id,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId where mu.memberId = ? order by mu.id desc limit "+limit,[id])
 
         this.body = {status:200,data:result}
     },
