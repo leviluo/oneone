@@ -57,7 +57,8 @@ export default class follows extends Component {
       averagenum:20,
       currentPage:1,
       items:[],
-      addWho:this.getFollowData
+      addWho:this.getFollowData,
+      request:{}
     }
 
     getFanData =(currentPage)=>{
@@ -117,7 +118,10 @@ export default class follows extends Component {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
+      if (this.state.request['followIt']) return
+        this.state.request['followIt'] = true
       followOne(id).then(({data})=>{
+        this.state.request['followIt'] = false
         if (data.status == 200) {
             // this.state.memberInfo.fans = this.state.memberInfo.fans + 1
             // this.state.memberInfo.isFollowed = 1
@@ -137,11 +141,11 @@ export default class follows extends Component {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
+      if (this.state.request['followOut']) return
+        this.state.request['followOut'] = true
       followOutOne(id).then(({data})=>{
+        this.state.request['followOut'] = false
           if (data.status == 200) {
-            // this.state.memberInfo.fans = this.state.memberInfo.fans - 1
-            // this.state.memberInfo.isFollowed = 0
-            // this.setState({})
             this.state.items.splice(index,1)
             this.setState({})
           }else if (data.status==600) {

@@ -31,7 +31,8 @@ export default class Article extends Component{
     articleData:[],
     replyData:[],
     isReply:false,
-    replyToId:''
+    replyToId:'',
+    request:{}
 	}
 
   componentWillMount =()=>{
@@ -68,10 +69,10 @@ export default class Article extends Component{
       this.props.tipShow({type:"error",msg:"回复在2 ~ 1000个字符"})
       return
     }
-
-    // console.log(comment.length)
-    
+    if(this.state.request['reply'])return
+    this.state.request['reply'] = true;
     submitReply({comment:comment,articleId:this.props.params.id,replyToId:this.state.replyToId}).then(({data})=>{
+    this.state.request['reply'] = false;
          if (data.status==200) {
             getArticleReply(this.props.params.id).then(({data})=>{
               if (data.status==200) {
@@ -120,7 +121,10 @@ export default class Article extends Component{
   }
 
   deleteReply =(e,index)=>{
+    if(this.state.request['deleteReply'])return
+    this.state.request['deleteReply'] = true;
     deleteReply(this.state.replyData[index].id).then(({data})=>{
+      this.state.request['deleteReply'] = false;
        if (data.status==200) {
             this.state.replyData.splice(index,1)
             this.setState({})
@@ -134,7 +138,10 @@ export default class Article extends Component{
   }
 
   confirmDelete =()=>{
+    if(this.state.request['confirmDelete'])return
+    this.state.request['confirmDelete'] = true;
     deleteArticle(this.props.params.id).then(({data})=>{
+       this.state.request['confirmDelete'] = false;
       if (data.status==200) {
         this.props.tipShow({type:"error",msg:"删除成功，2s后自动跳回上一页面"})
         setTimeout(()=>{

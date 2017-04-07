@@ -307,10 +307,15 @@ const fileController = {
     },
     deletePhotos:async function(next){
         await next
+        console.log(this.request.body.deletImgs)
+        if (this.request.body.deletImgs.length > 0) {
+        console.log("000")
         var result = await deleteImgs(this.request.body.deletImgs,config.articleImgDir)
         if(!result){
             this.body = {status:500,mag:"删除失败"}
             return
+        }
+
         }
         next
     }

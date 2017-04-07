@@ -60,6 +60,7 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
+
         var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
@@ -71,7 +72,7 @@ const memberController = {
                 }
             }
 
-            toSocket.emit('message',this.request.body.text);
+            toSocket.emit('message',{text:this.request.body.text,sendTo:this.request.body.sendTo});
 
             this.body = { status: 200}
             return
@@ -92,9 +93,9 @@ const memberController = {
             return
         }
         if (lastUpdate) {
-        var result = await sqlStr("select m.text,m.time,mF.id as send from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
         }else{ 
-        var result = await sqlStr("select m.text,m.time,mF.id as send from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?) order by m.time limit 10",[this.session.user,chatWith,this.session.user,chatWith])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
         }
         this.body = {status:200,data:result}
     },

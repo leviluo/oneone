@@ -61,10 +61,19 @@
                         max-width:200px;
                     }
                 }
+                .head{
+                    border-radius:30px;
+                    margin:0 5px;
+                }
+                article{
+                    border-bottom:1px dashed #e5e5e5;
+                }
                 .sendTo{
                     margin:20px 0;
                     p:nth-of-type(2){
-                        text-align:left
+                        text-align:left;
+                        height:30px;
+                        line-height:30px;
                     }
                     p:last-of-type{
                         span{
@@ -78,7 +87,9 @@
                 .sendFrom{
                     margin:20px 0;
                     p:nth-of-type(2){
-                        text-align:right
+                        text-align:right;
+                        height:30px;
+                        line-height:30px;
                     }
                     p:last-of-type{
                         color:white;
@@ -97,7 +108,7 @@
             height:95px;
             padding:5px 0;
             border-top:1px solid #efefef;
-            div{
+            &>div{
                 height:90px;
                 padding:5px;
                 color:#666;
@@ -130,7 +141,7 @@
                         width:403px;
                         border:1px solid #e5e5e5;
                         padding:5px;
-                        top:23px;
+                        top:-242px;
                         background:#fff;
                         div{
                             border:1px solid #efefef;

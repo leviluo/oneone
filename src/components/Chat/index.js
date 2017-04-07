@@ -8,7 +8,10 @@ import {tipShow} from '../Tips'
 import socket from '../../socket'
 
 @connect(
-  state=>({chat:state.chat}),
+  state=>({
+    chat:state.chat,
+    auth:state.auth
+  }),
 {chatHide,imgbrowserShow,tipShow})
 
 export default class Chat extends Component{
@@ -19,52 +22,35 @@ export default class Chat extends Component{
   }
 
   componentWillMount =()=>{
-    // this.socket = io();
-    // this.socket.on('replyClient', function(data){
-    //   console.log(nextProps.auth.memberId)
-    //   this.socket.emit('setName',nextProps.auth.memberId);
       var me = this
       socket.on('message',function(data){
-        // console.log("收到消息啦")
-        console.log(data)
         var date = new Date()
         var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
         me.state.chatContent.push({
           time:time,
           text:data.text,
-          send:this.props.auth.memberId
+          sendTo:data.sendTo
         })
         me.setState({})
       })
-    // });
-
   }
 
   sendMessage =()=>{
-    // console.log("1111")
-    // this.socket.emit('sendServer',"test000")
+    
   }
 
   componentDidMount =(e)=>{
-    // this.refs.text.focus()
-    this.Chat = findDOMNode(this).getElementsByClassName('chat')[0]
-    this.contentBody = findDOMNode(this).getElementsByClassName('content-body')[0]
+    this.Chat = this.refs.chat
+    this.contentBody = this.refs.contentBody
   }
 
   componentWillReceiveProps =(nextProps)=>{
     //清空留言板
-    // var ele = findDOMNode(this).getElementsByClassName('chat')[0].getElementsByTagName('p')
-    // var num = ele.length
-    // for (var i = 0; i < num; i++) {
-    //     ele[0].parentNode.removeChild(ele[0])
-    // }
-    // this.refs.text.value = '说些什么吧'
-    // setTimeout(()=>{  //定位输入焦点
-    // this.refs.text.focus()
-    // },10)
-    this.lastUpdate = ''
-    // console.log(nextProps)
-    this.checkHistory(nextProps.chat.sendTo)
+    this.refs.chat.innerHTML = ""
+    if (nextProps.chat.sendTo) {
+      this.lastUpdate = ''
+      this.checkHistory(nextProps.chat.sendTo,true)
+    }
   }
 
   shouldComponentUpdate =(nextProps,nextState)=>{
@@ -77,28 +63,32 @@ export default class Chat extends Component{
   }
 
   componentDidUpdate =()=>{
-    if (this.props.chat.isShow) {
-      var ele = findDOMNode(this)
-      var height = window.getComputedStyle(ele,null).height.slice(0,-2)
-      var scrollTop = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop
-      ele.style.top = scrollTop +'px'
-      // ele.style.top = scrollTop + document.body.clientHeight - height+'px'
-      
-    }else{
-      this.hidechat()
-    }
     // console.log("0000")
+    // console.log(this.props.chat.isShow)
+    // if (this.props.chat.isShow) {
+      // var ele = findDOMNode(this)
+      // var height = window.getComputedStyle(ele,null).height.slice(0,-2)
+      // var scrollTop = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop
+      // ele.style.top = scrollTop + document.body.clientHeight - height+'px'
+    // }else{
+    //   this.hidechat()
+    // }
   }
 
   showchat =()=>{
     findDOMNode(this).setAttribute('class','showChat')
     findDOMNode(this).style.display = "block"
+
     var ele = findDOMNode(this) 
+    var height = window.getComputedStyle(ele,null).height.slice(0,-2)
+    var scrollTop = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop
+    ele.style.top = scrollTop + document.body.clientHeight - height+'px'
+
     window.onscroll = function (){
       var height = window.getComputedStyle(ele,null).height.slice(0,-2)
       var scrollTop = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop
-      // ele.style.top = scrollTop + document.body.clientHeight - height+'px'
-      ele.style.top = scrollTop +'px'
+      ele.style.top = scrollTop + document.body.clientHeight - height+'px'
+      // ele.style.top = scrollTop +'px'
     }
   }
 
@@ -158,7 +148,8 @@ export default class Chat extends Component{
           // this.Chat.innerHTML += str; 
           this.state.chatContent.push({
             time:time,
-            text:html
+            text:html,
+            sendTo:this.props.chat.sendTo
           })
           this.setState({})
           this.contentBody.scrollTop = this.contentBody.scrollHeight;
@@ -197,41 +188,27 @@ export default class Chat extends Component{
     reader.readAsDataURL(file); 
   }
 
-  checkHistory =(sendTo)=>{
+  checkHistory =(sendTo,isTop)=>{
     if(typeof sendTo == "object")sendTo = ''
     getHistory({chatWith:sendTo || this.props.chat.sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
-        var data = data.data
+        var data = data.data.reverse()
 
         if (data.length == 0) {
           return
         };
 
-        // var str = ''
-        // for (var i = data.length-1; i >= 0; i--) {
-        //   var date = new Date(data[i].time)
-        //   var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-        //   if(data[i].send != this.props.chat.sendTo){ //我是发送者
-        //       str += `<p class="sendFrom"><span class="lightColor">${this.props.chat.chatFrom}&nbsp;:&nbsp;</span><span class="time">${time}</span><span class="text">${data[i].text}</span></p>`
-        //   }else{
-        //       str += `<p class="sendTo"><span class="lightColor">${this.props.chat.chatTo}&nbsp;:&nbsp;</span>&nbsp;<span class="time">${time}</span><span class="text">${data[i].text}</span></p>`
-        //   }
-        // };
-
-        // if (this.lastUpdate) {
-        //   this.Chat.innerHTML = str + this.Chat.innerHTML;
-        // }else{
-        //   this.Chat.innerHTML = str
-        // }
-
-        // this.addEvent()
-
-        this.setState({
-          chatContent:data
-        })
+        if (this.lastUpdate) {
+          this.state.chatContent = data.concat(this.state.chatContent)
+          this.setState({})
+        }else{
+          this.setState({
+            chatContent:data
+          })
+        }
         
         var sendDate = new Date(data[0].time)
         if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
-        // if(isTop==true)this.contentBody.scrollTop = this.contentBody.scrollHeight;
+        if(isTop==true)this.contentBody.scrollTop = this.contentBody.scrollHeight;
     })
   }
 
@@ -311,23 +288,23 @@ export default class Chat extends Component{
               <div className="close" onClick={this.hidechat}>×</div>
               <h3>{`与${chatTo}的对话`}</h3>
             </div>
-            <div className="content-body">
+            <div className="content-body" ref="contentBody">
                   <p><a onClick={this.checkHistory}>查看更多...</a></p>
                   <p style={{color:"red"}}>{this.state.error}</p>
-                  <div className="chat">
+                  <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{
                      var date = new Date(item.time)
                      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-                     if(item.send != this.props.chat.sendTo){
+                     if(item.sendTo == this.props.chat.sendTo){
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor">{time}</p>
-                        <p>{this.props.chat.chatFrom}</p>
+                        <p>{this.props.chat.chatFrom}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
                         <p><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
                         <p className="text-center lightColor">{time}</p>
-                        <p>{this.props.chat.chatTo}</p>
+                        <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${this.props.chat.sendTo}`} />{this.props.chat.chatTo}</p>
                         <p><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }

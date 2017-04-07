@@ -17,7 +17,8 @@ export const imgbrowserShow = imgbrowser
 export default class ImageBrowser extends Component{
 
   state = {
-    currentChoose:0
+    currentChoose:0,
+    request:{}
   }
  
   componentDidUpdate =()=>{
@@ -112,7 +113,10 @@ export default class ImageBrowser extends Component{
   }
 
   addLike =()=>{
+    if (this.state.request['addLike']) return
+        this.state.request['addLike'] = true
     this.props.ImageBrowser.likeFunc(this.props.ImageBrowser.imgs[this.state.currentChoose].match(/[\d]+/)[0]).then(({data})=>{
+      this.state.request['addLike'] = false
         if (data.status == 200) {
           this.setState({
                 isliked:this.state.isliked ? 0 : 1

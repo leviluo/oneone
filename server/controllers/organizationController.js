@@ -33,7 +33,6 @@ const organizationController = {
             return
         }
 
-
       var result = await sqlStr("insert into organizations set name = ?,brief=?,head=?,createById=(select id from member where phone = ?),categoryId=?",[name,brief,names,user,categoryId])
       var resultt = await sqlStr("insert into memberOrganizations set memberId = (select id from member where phone = ?),organizationsId=(select id from organizations where name = ? and createById = (select id from member where phone = ?));",[user,name,user])
  
@@ -286,7 +285,11 @@ const organizationController = {
             return
         }
       var resultt = await sqlStr("select attachedImgs from article where id = ?",[this.request.query.id])
-      this.request.body.deletImgs = resultt[0].attachedImgs.split(',')
+      if (resultt[0].attachedImgs) {
+       this.request.body.deletImgs = resultt[0].attachedImgs.split(',')
+      }else{
+        this.request.body.deletImgs = []
+      }
       await next
       var result = await sqlStr("delete a.*,c.*,r.*,mu.* from article as a left join comments as c on c.articleId = a.id left join reReply as r on r.commentsId = c.id left join memberupdates as mu on mu.articleId = a.id where a.id = ? and a.memberId = (select id from member where phone =?)",[this.request.query.id,this.session.user])
       if (result.affectedRows > 0) {
