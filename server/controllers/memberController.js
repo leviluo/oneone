@@ -56,12 +56,19 @@ const memberController = {
 
         await next
 
-        if(!this.request.body.text || !this.request.body.sendTo){
+        var text = this.request.body.text
+
+        if(!text || !this.request.body.sendTo){
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
 
-        var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
+        if (text.length > 1000) {
+            this.body = { status: 500, msg: "消息过长" }
+            return
+        }
+
+        var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
             // 在线发送socket消息
@@ -72,8 +79,10 @@ const memberController = {
                     break;
                 }
             }
-
-            toSocket.emit('message',{text:this.request.body.text,sendTo:this.request.body.sendTo});
+            
+            if (toSocket) {
+                toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo});
+            }
 
             this.body = { status: 200}
             return

@@ -146,7 +146,7 @@ export default class Chat extends Component{
           this.contentBody.scrollTop = this.contentBody.scrollHeight;
           this.refs.text.innerHTML = ""
       }else{
-          this.props.tipShow(type:"error",msg:"发送失败")
+          this.props.tipShow({type:"error",msg:"发送失败"})
       }
     }).then(()=>{
           this.refs.text.value = ''

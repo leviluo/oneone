@@ -281,19 +281,9 @@ export default class OrganizationsHome extends Component{
 
     submitText(fd).then(({data}) => {
       if (data.status==200) {
-          var date = new Date()
-          var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-          // var str = `<p class="sendFrom"><span class="lightColor">${this.props.chat.chatFrom}&nbsp;:&nbsp;</span><span class="time">${time}</span><span class="text">${this.refs.text.value}</span></p>`
-          // this.Chat.innerHTML += str; 
-          this.state.chatContent.push({
-            time:time,
-            text:html,
-            sendFrom:this.props.auth.memberId
-          })
-          this.setState({})
           this.refs.text.innerHTML = ""
       }else{
-          this.props.tipShow(type:"error",msg:"发送失败")
+          this.props.tipShow(type:"error",msg:data.msg)
       }
     }).then(()=>{
           this.refs.text.value = ''

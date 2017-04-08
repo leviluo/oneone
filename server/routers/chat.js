@@ -64,6 +64,8 @@ chat.userMsg = function(socket) {
 	// });
 
 	socket.on('setName',function (data) {
+		// console.log("setName")
+		// console.log(data)
         socket.name = data;
     });
 

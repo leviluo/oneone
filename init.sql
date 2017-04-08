@@ -149,7 +149,7 @@ CREATE TABLE `message` (
   `fromMember` int unsigned not null default 0,
   `toMember` int unsigned not null default 0,
   `active` char(1) not null default 0,
-  `text` varchar(300) not null default '',
+  `text` varchar(1000) not null default '',
   `time` datetime not null default NOW(),
   PRIMARY KEY  (`id`)
 );
@@ -159,7 +159,7 @@ CREATE TABLE `groupmessage` (
   `id` int unsigned auto_increment,
   `fromMember` int unsigned not null default 0,
   `organizationsId` int unsigned not null default 0,
-  `text` varchar(300) not null default '',
+  `text` varchar(1000) not null default '',
   `time` datetime not null default NOW(),
   PRIMARY KEY  (`id`)
 );

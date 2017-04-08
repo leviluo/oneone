@@ -372,24 +372,33 @@ const organizationController = {
       this.body = {status:200,data:result}
     },
     message:async function(next){
+
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
 
         await next
+        
+        var text = this.request.body.text
 
-        if(!this.request.body.text || !this.request.body.sendTo){
+        if(!text || !this.request.body.sendTo){
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
 
-        var result = await sqlStr("insert into groupmessage set fromMember = (select id from member where phone = ?),organizationsId = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
+        if (text.length > 1000) {
+            this.body = { status: 500, msg: "消息过长" }
+            return
+        }
+
+        var result = await sqlStr("insert into groupmessage set fromMember = (select id from member where phone = ?),organizationsId = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
         if (result.affectedRows == 1) {
 
             var result = await sqlStr("select * from member where phone = ?",[this.session.user])
 
-            chat.io.to(this.request.body.sendTo).emit('groupMessage', {text:this.request.body.text,sendFrom:result[0].id,nickname:result[0].nickname});
+            chat.io.to(this.request.body.sendTo).emit('groupMessage', {text:text,sendFrom:result[0].id,nickname:result[0].nickname});
 
             this.body = { status: 200}
             return
