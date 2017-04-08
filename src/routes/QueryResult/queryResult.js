@@ -20,7 +20,8 @@ export default class queryResult extends Component{
 
   state = {
     results:[],
-    averagenum:10
+    averagenum:10,
+    request:{}
   }
 
   query =()=>{
@@ -35,8 +36,10 @@ export default class queryResult extends Component{
 
   getData = (currentPage)=>{
       var type = this.refs.queryType.getValue()
-
+    if (this.state.request['getData']) return
+        this.state.request['getData'] = true
     return query({type:type,queryStr:this.refs.queryStr.value,limit:`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`}).then(({data})=>{
+        this.state.request['getData'] = false
       if (data.status == 200) { 
           this.setState({ 
               results:data.data,

@@ -92,7 +92,8 @@ export default class PostArticle extends Component{
             lastChooseDiv:{},
             focusOffset:0,
             imgs:[],
-            type:0
+            type:0,
+            request:{}
         }
 
         componentDidMount=()=>{
@@ -379,7 +380,10 @@ export default class PostArticle extends Component{
           fd.append("content",content)
           fd.append("organizationId",this.props.params.id)
 
+          if (this.state.request['submitArticle']) return
+            this.state.request['submitArticle'] = true
           submitArticle(fd).then(({data})=>{
+            this.state.request['submitArticle'] = false
             if (data.status == 200) {
                 this.props.tipShow({type:"success",msg:"发布成功,2S后跳回上一页"})
                 setTimeout(()=>{

@@ -28,8 +28,9 @@ export default class myUpdates extends Component {
 
     state = {
       myUpdates:[],
-      averagenum:10,
-      currentPage:1
+      averagenum:2,
+      currentPage:1,
+      request:{}
     }
 
     static contextTypes = {
@@ -45,7 +46,12 @@ export default class myUpdates extends Component {
     }
 
     getData = (currentPage,memberId)=>{
+
+    if(this.state.request['getData'])return
+    this.state.request['getData'] = true;
+      if (!memberId) memberId = this.props.auth.memberId
        getMyUpdates(memberId,`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+    this.state.request['getData'] = false;
         if (data.status == 200) {
           if (data.data.length < this.state.averagenum) {
                 this.setState({

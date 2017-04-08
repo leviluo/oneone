@@ -33,7 +33,8 @@ export default class photos extends Component {
       averagenum:24,
       imgs:[],
       currentPage:1,
-      memberInfo:[]
+      memberInfo:[],
+      request:{}
     }
 
     static contextTypes = {
@@ -87,11 +88,18 @@ export default class photos extends Component {
   }
 
   addLike =(e,id,index)=>{
+
     if (!this.props.auth.memberId) {
         this.props.tipShow({type:"error",msg:"请先登录"})
         return
     }
+
+    if(this.state.request['addLike'])return
+    this.state.request['addLike'] = true;
+
     addLike(id).then(({data})=>{
+      
+    this.state.request['addLike'] = false;
         if (data.status == 200) {
           if(this.state.worksData[index].isLiked){
             this.state.worksData[index].isLiked = 0;
@@ -120,7 +128,10 @@ export default class photos extends Component {
   }
 
   confirmDelete =()=>{
+    if (this.state.request['confirmDelete']) return
+        this.state.request['confirmDelete'] = true
     deletePhoto(this.state.deleteId,this.state.deleteWork).then(({data})=>{
+        this.state.request['confirmDelete'] = false
         if (data.status == 200) {
           this.state.worksData.splice(this.state.deleteindex,1)
           this.setState({})

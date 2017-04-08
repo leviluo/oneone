@@ -28,8 +28,9 @@ export default class updates extends Component {
 
     state = {
       updates:[],
-      averagenum:10,
-      currentPage:1
+      averagenum:2,
+      currentPage:1,
+      request:{}
     }
 
     static contextTypes = {
@@ -44,8 +45,14 @@ export default class updates extends Component {
       if (nextProps.auth.memberId)this.getData(this.state.currentPage,nextProps.auth.memberId)
     }
 
-    getData = (currentPage,memberId)=>{
-       getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+    getData = (currentPage)=>{
+
+      if(this.state.request['getData'])return
+      this.state.request['getData'] = true;
+
+      getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+
+      this.state.request['getData'] = false;
         if (data.status == 200) {
           if (data.data.length < this.state.averagenum) {
                 this.setState({

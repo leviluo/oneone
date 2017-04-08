@@ -71,7 +71,8 @@ export default class OrganizationsHome extends Component{
     Activities:[],
     averagenum:5,
     type:0, //文章类型
-    verified:''
+    verified:'',
+    request:{}
 	}
 
   attendOrganization =()=>{
@@ -97,7 +98,10 @@ export default class OrganizationsHome extends Component{
         return
     }
     this.props.modalHide()
+    if (this.state.request['submitAttend']) return
+        this.state.request['submitAttend'] = true
     attendOrganization({id:this.props.params.id,verified:this.state.verified}).then(({data})=>{
+       this.state.request['submitAttend'] = false
       if (data.status == 200) {
         this.props.tipShow({type:"error",msg:"发送请求成功,等待管理员审核"})
       }else{
@@ -114,7 +118,10 @@ export default class OrganizationsHome extends Component{
       this.props.tipShow({type:"error",msg:"尚未登录"})
       return
     }
+    if (this.state.request['quitOrganization']) return
+        this.state.request['quitOrganization'] = true
     quitOrganization(this.props.params.id).then(({data})=>{
+       this.state.request['quitOrganization'] = false
       if (data.status == 200) {
           this.setState({
             isAttended:false

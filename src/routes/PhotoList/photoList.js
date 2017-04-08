@@ -32,7 +32,8 @@ export default class photoList extends Component {
     state = {
       worksData:[],
       averagenum:15,
-      memberInfo:[]
+      memberInfo:[],
+      request:{}
     }
 
     static contextTypes = {
@@ -109,7 +110,10 @@ export default class photoList extends Component {
   }
 
   confirmDelete =()=>{
+    if (this.state.request['confirmDelete']) return
+        this.state.request['confirmDelete'] = true
     deletePhoto(this.state.deleteId,this.state.deleteWork).then(({data})=>{
+        this.state.request['confirmDelete'] = false
         if (data.status == 200) {
           this.state.worksData.splice(this.state.currentLargePhoto,1)
           this.setState({})

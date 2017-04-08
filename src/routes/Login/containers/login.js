@@ -38,7 +38,7 @@ export default class Login extends Component{
   }
 
   submitRepass =()=>{
-      alert("提交了")
+      // alert("提交了")
   }
 
   phoneChange =(e)=>{

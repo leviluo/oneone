@@ -41,7 +41,8 @@ export default class BasicInfo extends Component {
     content: <div></div>,
     memberInfo: [],
     imgs:[],
-    headImg:''
+    headImg:'',
+    request:{}
   }
 
   static contextTypes = {
@@ -128,7 +129,10 @@ export default class BasicInfo extends Component {
     var fd=new FormData();
     fd.append('file',this.convertBase64UrlToBlob(url));
     // console.log(fd)
+    if (this.state.request['modifyHeadSubmit']) return
+        this.state.request['modifyHeadSubmit'] = true
     this.props.commitHeadImg(fd).then((data)=>{
+        this.state.request['modifyHeadSubmit'] = false
       if (data.status == 200) {
         this.setState({
           headImg:"/originImg?from=member&name="+this.state.memberInfo.id+"&"+Math.random()
@@ -213,7 +217,32 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:"error",msg:"相关经验在1~300个字符"})
       return
     }
-    this.props.addSpeciatity(this,{speciality:speciality,brief:brief,experience:experience})
+    if(this.state.request['addSpeciatity'])return
+    this.state.request['addSpeciatity'] = true;
+    this.props.addSpeciatity({speciality:speciality,brief:brief,experience:experience})
+    .then(({data}) => {
+    this.state.request['addSpeciatity'] = false;
+      if (data.status==200) {
+          this.setState({showAddSpeciality:false})
+          var items = {
+            id:data.result.insertId,
+            work:null,
+            memberId:this.props.auth.memberId,
+            speciality:speciality,
+            brief:brief,
+            experience:experience
+          }
+          items.memberId = this.props.auth.memberId
+          this.props.dispatch({type:"ADD_SPECIALITIES",value:items})
+      }else if(data.status==600){
+          this.props.dispatch({type:"AUTHOUT"})
+          this.context.router.push('/login')
+      }
+      else{
+          this.props.dispatch(tipResult({type:"error",msg:data.msg}))
+      }
+    })
+
   }
 
   showDeleteImg=(e,index)=>{
@@ -272,7 +301,10 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:'error',msg:`昵称${flag}`})
       return
     }
+    if(this.state.request['saveNickname'])return
+    this.state.request['saveNickname'] = true;
     modifyNickname({nickname:nickname}).then(({data})=>{
+    this.state.request['saveNickname'] = false;
       if (data.status == 200) {
         this.props.modifyname(nickname)
         this.setState({
@@ -294,7 +326,10 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:'error',msg:`地址${flag}`})
       return
     }
+    if(this.state.request['saveAddress'])return
+    this.state.request['saveAddress'] = true;
     modifyAddress({address:address}).then(({data})=>{
+    this.state.request['saveAddress'] = false;
       if (data.status == 200) {
             this.state.memberInfo.address = address
             this.setState({
@@ -335,8 +370,10 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:"error",msg:"相关经验在1~300个字符"})
       return
     }
-
+    if(this.state.request['saveSpeciality'])return
+    this.state.request['saveSpeciality'] = true;
     modifySpeciality({speciality:speciality,brief:brief,experience:experience}).then(({data})=>{
+    this.state.request['saveSpeciality'] = false;
       if (data.status == 200) {
         this.state[speciality] = false
         this.setState({})
@@ -355,8 +392,10 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:"error",msg:"专业不为空"})
       return
     }
-
+    if(this.state.request['confirmDelete'])return
+    this.state.request['confirmDelete'] = true;
     deleteSpeciality({speciality:this.state.speciality}).then(({data})=>{
+    this.state.request['confirmDelete'] = false;
       if (data.status == 200) {
           var data = this.props.myspecialities.text.concat();
           for (var i = data.length - 1; i >= 0; i--) {
@@ -385,27 +424,29 @@ export default class BasicInfo extends Component {
   }
 
   showAddSpeciality=()=>{
-
     if (this.props.myspecialities.text.length > 4) {
       this.props.tipShow({type:"error",msg:"只能添加5项专业"})
       return
     };
-
     this.setState({
       showAddSpeciality:true,
     })
   }
 
   savePhotos =(e,id,name)=>{
-    // console.log(this.state.imgs)
-    var fd = new FormData(); 
+    // console.log(this.state.imgs    var fd = new FormData(); 
     for (var i = 0; i < this.state.imgs.length; i++) {
       if(this.state.imgs[i].file){
           fd.append("file", this.state.imgs[i].file)
       }
     }
     fd.append("id", id)
+
+    if(this.state.request['savePhotos'])return
+    this.state.request['savePhotos'] = true;
+
     submitPhotos(fd).then(({data})=>{
+    this.state.request['savePhotos'] = false;
       if (data.status == 200) {
           this.props.tipShow({type:'success',msg:"上传成功"})
           this.props.fetchSpeciality()

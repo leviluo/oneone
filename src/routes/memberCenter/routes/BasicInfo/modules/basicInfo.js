@@ -1,6 +1,8 @@
 import axios from 'axios'
 import {tipResult} from '../../../../../components/Tips/modules/tips'
 
+const REQUESTADDSPECIALITY = "REQUESTADDSPECIALITY"
+
 export function commitHeadImg(items) {
   return (dispatch, getState) => {
     return axios.post('/member/HeadImg',items).then(({data}) => {
@@ -41,23 +43,11 @@ export function deleteSpeciality(item) {
 	    return axios.post('/member/deleteSpeciality',item)
 }
 
-export function addSpeciatity (that,items) {
+export function addSpeciatity (items) {
   return (dispatch, getState) => {
-    axios.post('/member/addSpeciality',items).then(({data}) => {
-      if (data.status==200) {
-          that.setState({showAddSpeciality:false})
-          items.id = data.result.insertId
-          items.work = null
-          items.memberId = that.props.auth.memberId
-          dispatch({type:"ADD_SPECIALITIES",value:items})
-      }else if(data.status==600){
-          that.props.dispatch({type:"AUTHOUT"})
-          that.context.router.push('/login')
-      }
-      else{
-          dispatch(tipResult({type:"error",msg:data.msg}))
-      }
-    })
+    if (getState().myspecialities.fetching) return
+      dispatch({type:REQUESTADDSPECIALITY})
+     return axios.post('/member/addSpeciality',items)
   }
 }
 
@@ -102,6 +92,9 @@ const ACTION_HANDLERS = {
   },
   [ADD_SPECIALITIES]: (state, action) => {
     return ({...state, text: state.text.concat(action.value)})
+  },
+  [REQUESTADDSPECIALITY]: (state, action) => {
+    return ({...state, fetching: true })
   }
 }
 
@@ -109,7 +102,8 @@ const ACTION_HANDLERS = {
 // Reducer
 // ------------------------------------
 export const initialState = {
-  text: []
+  text: [],
+  fetching:false
 }
 
 export default function (state = initialState, action) {

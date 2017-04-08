@@ -28,7 +28,8 @@ export default class MemberBrief extends Component{
     pageIndex:1, //默认分页
     myUpdates:[],
     averagenum:10,
-    currentPage:1
+    currentPage:1,
+    request:{}
   }
 
   static contextTypes = {
@@ -67,7 +68,10 @@ export default class MemberBrief extends Component{
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
+      if(this.state.request['followIt'])return
+      this.state.request['followIt'] = true;
       followOne(this.state.memberInfo.id).then(({data})=>{
+        this.state.request['followIt'] = false;
         if (data.status == 200) {
             this.state.memberInfo.fans = this.state.memberInfo.fans + 1
             this.state.memberInfo.isFollowed = 1
@@ -86,7 +90,10 @@ export default class MemberBrief extends Component{
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
+      if(this.state.request['followOut'])return
+      this.state.request['followOut'] = true;
       followOutOne(this.state.memberInfo.id).then(({data})=>{
+        this.state.request['followOut'] = false;
           if (data.status == 200) {
             this.state.memberInfo.fans = this.state.memberInfo.fans - 1
             this.state.memberInfo.isFollowed = 0

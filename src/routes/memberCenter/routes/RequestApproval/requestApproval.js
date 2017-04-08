@@ -29,7 +29,8 @@ export default class requestApproval extends Component {
 
     state = {
       requestData:[],
-      averagenum:5
+      averagenum:5,
+      request:{}
     }
 
     static contextTypes = {
@@ -41,7 +42,12 @@ export default class requestApproval extends Component {
     }
 
     requestData = (currentPage)=>{
+
+    if(this.state.request['requestData'])return
+    this.state.request['requestData'] = true;
+
     return getrequestData(this.props.params.id,`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+    this.state.request['requestData'] = false;
         if (data.status == 200) {
           this.setState({
             requestData:data.data
@@ -57,7 +63,12 @@ export default class requestApproval extends Component {
   }
 
   isApprove =(e,flag,id)=>{
+    
+    if(this.state.request['isApprove'])return
+    this.state.request['isApprove'] = true;
+
     isApprove(flag,id).then(({data})=>{
+    this.state.request['isApprove'] = false;
       if (data.status == 200) {
         this.props.countRequest()
           for (var i = 0; i < this.state.requestData.length; i++) {

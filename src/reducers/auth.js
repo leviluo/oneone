@@ -55,6 +55,7 @@ export function isAuth(history) {
 
 export function login(items,history) {
   return (dispatch, getState) => {
+    if (getState().auth.fetching) return
     dispatch(requestLOGIN())
     axios.post('/login',items).then(({data}) => {
       if (data.status == 200) {

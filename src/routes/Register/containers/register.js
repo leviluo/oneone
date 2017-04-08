@@ -20,7 +20,8 @@ export default class Register extends Component {
   };
 
   state = {
-    sex:0
+    sex:0,
+    request:{}
   }
 
   sexChange =(e)=>{
@@ -61,7 +62,8 @@ export default class Register extends Component {
 
 
     let address = this.props.mylocation[0] ? this.props.mylocation[0] :'';
-    var me = this
+    if (this.state.request['submit']) return
+        this.state.request['submit'] = true
     fetchRegister({
       phone:phone,
       password:password,
@@ -70,10 +72,11 @@ export default class Register extends Component {
       sex:this.state.sex,
       location:address
     }).then(({data}) => {
+        this.state.request['submit'] = false
       if (data.status==200) {
           this.props.tipShow({type:"success",msg:"注册成功,3S后自动跳转个人中心"})
           setTimeout(()=>{
-            me.props.login({phone:me.refs.phone.value,password:me.refs.password.value},me.context.router)
+            this.props.login({phone:this.refs.phone.value,password:this.refs.password.value},this.context.router)
           },3000)
       }else{
           this.props.tipShow({type:"error",msg:data.msg})
