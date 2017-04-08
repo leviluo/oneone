@@ -2,6 +2,9 @@
 	min-height:900px;
     width:1200px;
     margin:0 auto;
+    img{
+    	box-shadow:none;
+    }
 	.BasicInfo{
 		.BasicInfoTop{
 			height:40px;
@@ -124,7 +127,8 @@
 		}
 		&>div{
 			margin-top:10px;
-			height:500px;
+			height:400px;
+			overflow:auto;
 			a{
 				height:40px;
 				line-height:40px;
@@ -140,9 +144,150 @@
 				cursor:pointer;
 				&:hover{
 					color:#ff7f00;
-					background:#e5e5e5;
+					background:#efefef;
 				}
 			}
+		}
+	}
+	.groupChat{
+		background:#fff;
+		float:right;
+		margin:10px 0;
+		width:290px;
+		box-shadow:0px 0px 5px 3px #e5e5e5;
+		&>div:first-of-type{
+			height:40px;
+			line-height:40px;
+			background:#f0f8ff;
+			text-align:center;
+			font-size:110%;
+		}
+		&>article{
+			.content-body{
+			            padding:10px;
+			            height:350px;
+			            overflow:auto;
+			            color:#333;
+			            background:#fff;
+			            &>div:first-of-type{
+			                text-align:center;
+			                color:#ff7f00
+			            }
+			            .chat{
+			                margin:10px 0;
+			                p{
+			                    margin:10px 0;
+			                    img{
+			                        display:inline-block;
+			                        max-width:200px;
+			                    }
+			                }
+			                .head{
+			                    border-radius:30px;
+			                    margin:0 5px;
+			                }
+			                article{
+			                    border-bottom:1px dashed #e5e5e5;
+			                }
+			                .sendTo{
+			                    margin:20px 0;
+			                    p:nth-of-type(2){
+			                        text-align:left;
+			                        height:30px;
+			                        line-height:30px;
+			                    }
+			                    p:last-of-type{
+			                        span{
+			                            padding:5px;
+			                            background:#efefef;
+			                            display:inline-block;
+			                            border-radius:10px;
+			                        }
+			                    }
+			                }
+			                .sendFrom{
+			                    margin:20px 0;
+			                    p:nth-of-type(2){
+			                        text-align:right;
+			                        height:30px;
+			                        line-height:30px;
+			                    }
+			                    p:last-of-type{
+			                        color:white;
+			                        text-align:right;
+			                        span{
+			                            padding:5px;
+			                            background:#5CACEE;
+			                            display:inline-block;
+			                            border-radius:10px;
+			                        }
+			                    }
+			                }
+			            }
+			        }
+			        .content-message{
+			            height:95px;
+			            padding:5px 0;
+			            border-top:1px solid #efefef;
+			            &>div{
+			                height:90px;
+			                padding:5px;
+			                color:#666;
+			                margin:0 auto;
+			                border:1px solid #ccc;
+			                overflow:auto;
+			                img{
+			                    max-width:200px;
+			                }
+			            }
+			        }
+			        .content-footer{
+			            border-top:1px solid #efefef;
+			            padding:5px 5px 10px 5px;
+			            margin-top:5px;
+			            strong{
+			                    height:25px;
+			                    line-height:25px;
+			                    width:25px;
+			                    display:inline-block;
+			                    cursor:pointer;
+			                    position:relative;
+			                    text-align:center;
+			                    a{
+			                        font-size:18px;
+			                    }
+			                    &>div{
+			                        text-align:left;
+			                        position:absolute;
+			                        width:403px;
+			                        border:1px solid #e5e5e5;
+			                        padding:5px;
+			                        top:-200px;
+			                        left:-408px;
+			                        background:#fff;
+			                        div{
+			                            border:1px solid #efefef;
+			                            display:inline-block;
+			                            height:24px;
+			                            img{
+			                                width:100%;
+			                               	box-shadow:none;
+			                            }
+			                        }
+			                    }
+			                    &:hover{
+			                        background:#efefef;
+			                    }
+			                }
+			            button{
+			                height:30px;
+			                line-height:30px;
+			                margin:0 5px;
+			                float:right;
+			                width:60px;
+			            }
+			        }
+			   
 		}
 	}
 	

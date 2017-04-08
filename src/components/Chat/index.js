@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react'
 import { findDOMNode } from 'react-dom';
 import {connect} from 'react-redux'
-import {chatHide,submitText,submitImg,getHistory,chatShowAction} from './modules/chat'
+import {chatHide,submitText,getHistory,chatShowAction} from './modules/chat'
 import {imgbrowserShow} from '../ImageBrowser'
 import './chat.scss'
 import {tipShow} from '../Tips'
@@ -63,16 +63,7 @@ export default class Chat extends Component{
   }
 
   componentDidUpdate =()=>{
-    // console.log("0000")
-    // console.log(this.props.chat.isShow)
-    // if (this.props.chat.isShow) {
-      // var ele = findDOMNode(this)
-      // var height = window.getComputedStyle(ele,null).height.slice(0,-2)
-      // var scrollTop = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop
-      // ele.style.top = scrollTop + document.body.clientHeight - height+'px'
-    // }else{
-    //   this.hidechat()
-    // }
+
   }
 
   showchat =()=>{

@@ -154,6 +154,17 @@ CREATE TABLE `message` (
   PRIMARY KEY  (`id`)
 );
 
+--群聊
+CREATE TABLE `groupmessage` (  
+  `id` int unsigned auto_increment,
+  `fromMember` int unsigned not null default 0,
+  `organizationsId` int unsigned not null default 0,
+  `text` varchar(300) not null default '',
+  `time` datetime not null default NOW(),
+  PRIMARY KEY  (`id`)
+);
+
+
 --article修改了organizationsId,comments删除了replyTo,comments增加了status,notice增加了replyTo,notice改为reReply
 insert into organizations(`categoryId`,`name`,`brief`,`createById`) values(1,"爱乐动","运动爱好者",20),(1,"爱乐动2","运动爱好者2",20),(2,"爱健康","运动爱好者2",20)
 

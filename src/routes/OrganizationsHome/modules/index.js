@@ -25,6 +25,14 @@ export function quitOrganization(id) {
       return axios.get('/organizations/quitOrganization?id='+id)
 }
 
+export function submitText(fd){
+    return axios.post('/groupmessages',fd)
+}
+
+export function getHistory(data){
+    return axios.get(`/groupmessages?lastUpdate=${data.lastUpdate}&organizationsId=${data.organizationsId}`)
+}
+
 // export function modifyNickname(item) {
 //       return axios.post('/member/modifyNickname',item)
 // }

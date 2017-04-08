@@ -64,6 +64,7 @@ const memberController = {
         var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
+            // 在线发送socket消息
             var sockets = chat.io.sockets.sockets
             for(var key in sockets){
                 if(sockets[key].name == this.request.body.sendTo){

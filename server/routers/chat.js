@@ -58,30 +58,15 @@ chat.userMsg = function(socket) {
 
 	var that = this;
 
-	socket.on('chat message', function(msg){
-		msg = that.userName[socket.id] + ' said: ' + msg;
-
-		that.io.to(that.currentRoom[socket.id]).emit('chat message', msg);
-	});
+	// socket.on('chat message', function(msg){
+	// 	msg = that.userName[socket.id] + ' said: ' + msg;
+	// 	that.io.to(that.currentRoom[socket.id]).emit('chat message', msg);
+	// });
 
 	socket.on('setName',function (data) {
-		console.log(data)
         socket.name = data;
     });
 
-    // socket.on('sayTo',function (data) {
-    //     var toName = data.to;
-    //     var toSocket;
-    //     if(toSocket = _.findWhere(io.sockets.sockets,{name:toName})){
-    //         toSocket.emit('message',data.msg);
-    //     }
-    // })
-
-	// socket.on('sendServer', function(msg){
-	// 	console.log("收到客户端消息了")
-	// 	console.log(msg)
-	// 	that.io.emit('replyClient',"test111")
-	// });
 }
 
 //send system message
@@ -154,11 +139,28 @@ chat.changeName = function(socket) {
 chat.assignRoom = function(socket) {
 	
 	var that = this;
-	socket.join('Lobby', function(){
-		that.currentRoom[socket.id] = 'Lobby';
-		that.assignGuestName(socket);
-		socket.emit('room list', that.roomList);
-	});
+
+	socket.on('joinGroup', function(id){
+			// console.log("去哦加入房间咯")
+			// console.log(id)
+		socket.join(id, function(){
+			// console.log("加入房间:"+id)
+			// that.currentRoom[socket.id] = id;
+			// that.assignGuestName(socket);
+			// socket.emit('room list', that.roomList);
+		});
+	})
+
+	socket.on('leaveGroup', function(id){
+			// console.log("去哦加入房间咯")
+			// console.log(id)
+		socket.leave(id, function(){
+			// console.log("离开房间:"+id)
+			// that.currentRoom[socket.id] = id;
+			// that.assignGuestName(socket);
+			// socket.emit('room list', that.roomList);
+		});
+	})
 }
 
 //change room

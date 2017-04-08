@@ -3,13 +3,14 @@ import './organizationsHome.scss'
 // import {getSpecialities} from './modules/memberBrief'
 import Helmet from 'react-helmet'
 import {connect} from 'react-redux'
-import {getBasicInfo,attendOrganization,getMembers,quitOrganization,getArticleList} from './modules'
+import {getBasicInfo,attendOrganization,getMembers,quitOrganization,getArticleList,submitText,getHistory} from './modules'
 import {Link} from 'react-router'
 // import {pageNavInit} from '../../components/PageNavBar/modules/pagenavbar'
 import PageNavBar,{pageNavInit} from '../../components/PageNavBar'
 import Modal,{modalShow,modalHide} from '../../components/Modal'
 import Textarea from '../../components/Textarea'
 import {tipShow} from '../../components/Tips'
+import socket,{initGroupChat,leaveGroupChat} from '../../socket'
 
 @connect(
   state=>({
@@ -46,15 +47,36 @@ export default class OrganizationsHome extends Component{
         Members:data.data
       })
     })
+
+    // 加入群聊
+    initGroupChat(this.props.params.id)
+
+    var me = this
+    socket.on('groupMessage',function(data){
+        var date = new Date()
+        var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+        me.state.chatContent.push({
+          time:time,
+          text:data.text,
+          sendFrom:data.sendFrom,
+          nickname:data.nickname
+        })
+        me.setState({})
+    })
+    this.checkHistory()
   }
 
+
   componentWillUnmount =()=>{
+    // 离开群聊
+    leaveGroupChat(this.props.params.id)
     this.props.pageNavInit(null)
   }
 
   activityData = (currentPage)=>{
     return getArticleList(this.props.params.id,this.state.type,`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
       if (data.status == 200) { 
+        console.log(data.data)
       this.setState({
           Activities:data.data
         })
@@ -69,10 +91,12 @@ export default class OrganizationsHome extends Component{
 		BasicInfo:[],
     Members:[],
     Activities:[],
-    averagenum:5,
+    averagenum:10,
     type:0, //文章类型
     verified:'',
-    request:{}
+    request:{},
+    chatContent:[],
+    showEmotion:false
 	}
 
   attendOrganization =()=>{
@@ -82,7 +106,6 @@ export default class OrganizationsHome extends Component{
     }
 
     var content = <Textarea header="请填写认证信息" handleTextarea = {this.verified} rows="10" />
-
     this.props.modalShow({header:"发送入社请求",content:content,submit:this.submitAttend})
   }
 
@@ -157,11 +180,185 @@ export default class OrganizationsHome extends Component{
     this.props.pageNavInit(this.activityData)
   }
 
+  isEmotion = ()=>{
+    // console.log("0000")
+      this.setState({
+        showEmotion:this.state.showEmotion ? false : true
+      })
+      this.insertContent()
+  }
+
+  chooseEmotion = (e,index)=>{
+    if(e.target.childNodes[0]){
+      var src = e.target.childNodes[0].src
+      this.insertContent() // 点击了div之后重新写入选区
+    }else{
+      var src = e.target.src
+    }
+
+    document.execCommand("InsertImage", false, src);
+
+    this.saveRange() //插入新图片后重新保存选区
+
+    this.setState({
+        showEmotion:false
+    })
+  }
+
+  recordPoint = ()=>{
+    this.saveRange()
+  }
+
+  saveRange = ()=> {
+       var selection = window.getSelection ? window.getSelection() : document.selection;
+       if (!selection.rangeCount) return;
+       var range = selection.createRange ? selection.createRange() : selection.getRangeAt(0);
+       window._range = range;
+  }
+
+  insertContent = ()=> {
+       if(!window._range){
+         this.refs.text.focus()
+         return
+       }
+       var selection,range = window._range;
+       if (!window.getSelection) {
+            range.collapse(false);
+            range.select();
+       } else {
+            selection = window.getSelection ? window.getSelection() : document.selection;
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+       }   
+  }
+
+// base64转为file
+  convertBase64UrlToBlob =(data)=>{
+    // var data=url.split(',')[1];
+    if (!data) {return}
+
+    data=window.atob(data);
+    var ia = new Uint8Array(data.length);
+    for (var i = 0; i < data.length; i++) {
+        ia[i] = data.charCodeAt(i);
+    };
+    // canvas.toDataURL 返回的默认格式就是 image/png
+    var blob=new Blob([ia], {type:"image/png"});
+
+    return blob
+  }
+
+  submitText =()=>{
+
+    if (!this.props.auth.memberId) {
+      this.props.tipShow({type:"error",msg:"登录后才能发言"})
+      return
+    }
+
+    if (!this.state.isAttended) {
+      this.props.tipShow({type:"error",msg:"请先加入这个社团才能发言"})
+      return
+    }
+
+    var html = this.refs.text.innerHTML;
+    var fd = new FormData(); 
+    var file = []
+    var content = html.replace(/<img\ssrc="data:image\/(png|jpeg|gif);base64,([0-9a-zA-Z\/\+=]+)">/g,function(_,$1,$2){
+      var secret = Math.random() 
+      fd.append(secret,this.convertBase64UrlToBlob($2))
+      // file.push({key:secret,file:this.convertBase64UrlToBlob($2)})
+      return secret
+    }.bind(this))
+    // console.log(content)
+    if (!content || content.length > 300) {
+      this.props.tipShow({type:"error",msg:"回复内容在1~300个字符"})
+      return //过滤只有制表符
+    }
+    // fd.append('file',file)
+    fd.append('text',content)
+    fd.append('sendTo',this.props.params.id)
+
+    submitText(fd).then(({data}) => {
+      if (data.status==200) {
+          var date = new Date()
+          var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+          // var str = `<p class="sendFrom"><span class="lightColor">${this.props.chat.chatFrom}&nbsp;:&nbsp;</span><span class="time">${time}</span><span class="text">${this.refs.text.value}</span></p>`
+          // this.Chat.innerHTML += str; 
+          this.state.chatContent.push({
+            time:time,
+            text:html,
+            sendFrom:this.props.auth.memberId
+          })
+          this.setState({})
+          this.refs.text.innerHTML = ""
+      }else{
+          this.props.tipShow(type:"error",msg:"发送失败")
+      }
+    }).then(()=>{
+          this.refs.text.value = ''
+          this.refs.text.focus()
+    })
+  }
+
+
+  insertImage =(e)=>{
+    // 判断文件类型
+    var value = e.target.value
+    if (!value)return
+    var filextension=value.substring(value.lastIndexOf("."),value.length);
+    filextension = filextension.toLowerCase();
+    if ((filextension!='.jpg')&&(filextension!='.gif')&&(filextension!='.jpeg')&&(filextension!='.png')&&(filextension!='.bmp'))
+    {
+      this.props.tipShow({type:"error",msg:"文件类型不正确"})
+      return;
+    }
+    var file = e.target.files[0]
+    var reader = new FileReader();  
+
+    reader.onload = function(e) {  
+        var src = e.target.result;  
+        this.insertContent()
+        document.execCommand("InsertImage", false, src);
+        this.saveRange()
+    }.bind(this)
+
+    reader.readAsDataURL(file); 
+  }
+
+  checkHistory =(sendTo)=>{
+    if(typeof sendTo == "object")sendTo = ''
+    getHistory({organizationsId:this.props.params.id,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
+        var data = data.data.reverse()
+
+        if (data.length == 0) {
+          return
+        };
+
+        if (this.lastUpdate) {
+          this.state.chatContent = data.concat(this.state.chatContent)
+          this.setState({})
+        }else{
+          this.setState({
+            chatContent:data
+          })
+        }
+        
+        var sendDate = new Date(data[0].time)
+        if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
+    })
+  }
+
+  componentDidUpdate =()=>{
+    this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+  }
+   
   render(){
   	var headImg = this.state.BasicInfo.head ? `/originImg?name=${this.state.BasicInfo.head}&from=organizations` : ''
   	var date = new Date(this.state.BasicInfo.time)
     var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}` 
     var link = `/memberBrief/${this.state.BasicInfo.createById}`
+    const num = new Array(100).fill(0)
       return(
       <div className="organizationHome">
         <Helmet title="社团" />
@@ -214,8 +411,8 @@ export default class OrganizationsHome extends Component{
          </div>
         </div>
 
-      	<div className="members">
-  				<div>加入会员</div>
+        <div className="members">
+          <div>加入会员</div>
           <div>
               {this.state.Members.map((item,index)=>{
                 var headImg = `/originImg?from=member&name=${item.id}`
@@ -226,7 +423,56 @@ export default class OrganizationsHome extends Component{
                         </Link>
               })}
           </div>
+        </div>
+
+      	<div className="groupChat">
+  				<div>群聊</div>
+          <article>
+            <div className="content-body" ref="contentBody">
+                  <div><a onClick={this.checkHistory}>查看更多...</a></div>
+                  <p style={{color:"red"}}>{this.state.error}</p>
+                  <div className="chat" ref="chat">
+                  {this.state.chatContent.map((item,index)=>{
+                     var date = new Date(item.time)
+                     var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+                     if(item.sendFrom == this.props.auth.memberId){
+                       return <article className="sendFrom" key={index}>
+                        <p className="text-center lightColor">{time}</p>
+                        <p>{this.props.auth.nickname}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
+                        <p><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                       </article>
+                     }else{
+                        return <article className="sendTo" key={index}>
+                        <p className="text-center lightColor">{time}</p>
+                        <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${item.sendFrom}`} />{item.nickname}</p>
+                        <p><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                       </article>
+                     }
+                  })}
+                  </div>
+            </div>
+            <div className="content-message">
+              <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onClick={this.recordPoint} >
+              </div>
+            </div>
+            <div className="content-footer">
+              <strong>
+                  <a className="fa fa-smile-o" onClick={this.isEmotion}></a>
+                  {this.state.showEmotion && <div>
+                    {num.map((item,index)=>
+                      <div key={index} onClick={(e)=>this.chooseEmotion(e,index)}>
+                        <img src={`https://res.wx.qq.com/mpres/htmledition/images/icon/emotion/${index}.gif`} />
+                      </div>)}
+                  </div>}
+              </strong>
+              &nbsp;
+              <strong><a className="fa fa-image" onClick={()=>{this.refs.imageInput.click()}}></a></strong>
+              <input onChange={this.insertImage} ref="imageInput" type="file" style={{display:"none"}}/>
+              <button className="btn-success" onClick={this.submitText}>发送</button>
+            </div>
+          </article>
       	</div>
+
         <Modal />
       </div>
       )

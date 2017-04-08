@@ -64,7 +64,7 @@ export default class updates extends Component {
                     updates:this.state.updates.concat(data.data)
                 })
             }
-        }else if (data.status==600) {
+        }else if (data.status==600){
           this.props.dispatch({type:"AUTHOUT"})
           this.context.router.push('/login')
         }{

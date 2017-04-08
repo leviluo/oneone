@@ -47,7 +47,6 @@
             color:#333;
             background:#fff;
             border:1px solid #ccc;
-            box-shadow:0 0 5px 3px #e5e5e5 inset;
             &>p{
                 text-align:center;
                 color:#ff7f00
@@ -114,7 +113,7 @@
                 color:#666;
                 margin:0 auto;
                 border:1px solid #ccc;
-                overflow-y:scroll;
+                overflow:auto;
                 img{
                     max-width:200px;
                 }

@@ -1,4 +1,5 @@
 import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
+import chat from '../routers/chat'
 
 const organizationController = {
     addOrganization:async function(next) {
@@ -369,7 +370,48 @@ const organizationController = {
       };
 
       this.body = {status:200,data:result}
-    }
+    },
+    message:async function(next){
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+
+        await next
+
+        if(!this.request.body.text || !this.request.body.sendTo){
+            this.body = { status: 500, msg: "缺少参数" }
+            return
+        }
+
+        var result = await sqlStr("insert into groupmessage set fromMember = (select id from member where phone = ?),organizationsId = ?,text = ?",[this.session.user,this.request.body.sendTo,this.request.body.text])
+        if (result.affectedRows == 1) {
+
+            var result = await sqlStr("select * from member where phone = ?",[this.session.user])
+
+            chat.io.to(this.request.body.sendTo).emit('groupMessage', {text:this.request.body.text,sendFrom:result[0].id,nickname:result[0].nickname});
+
+            this.body = { status: 200}
+            return
+        }else{
+            this.body = { status: 500,msg:'数据库插入失败'}
+        }
+        await next
+    },
+    historyChat:async function(next){
+        var lastUpdate = this.request.query.lastUpdate
+        var organizationsId = this.request.query.organizationsId
+        if (!organizationsId) {
+            this.body = { status: 500, msg: "缺少参数" }
+            return
+        }
+        if (lastUpdate) {
+        var result = await sqlStr("select m.text,m.time,mF.id as sendFrom,mF.nickname from groupmessage as m left join member as mF on mF.id = m.fromMember where m.organizationsId = ? and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[organizationsId,lastUpdate])
+        }else{ 
+        var result = await sqlStr("select m.text,m.time,mF.id as sendFrom,mF.nickname from groupmessage as m left join member as mF on mF.id = m.fromMember where m.organizationsId = ? order by m.time desc limit 10",[organizationsId])
+        }
+        this.body = {status:200,data:result}
+    },
 }
 export default organizationController;
 

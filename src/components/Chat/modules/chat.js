@@ -56,9 +56,7 @@ export function submitText(fd){
     return axios.post('/message',fd)
 }
 
-// export function submitImg(data){
-//     return axios.post('/member/messageImg',data)
-// }
+
 
 export function getHistory(data){
     return axios.get(`/message?chatWith=${data.chatWith}&lastUpdate=${data.lastUpdate}`)

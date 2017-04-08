@@ -65,6 +65,12 @@ export default function routers(router){
 	router.post("/message",memberController.message,fileController.submitMessage,router.allowedMethods());
 // 获取历史聊天记录
 	router.get("/message",memberController.updateActive,memberController.historyChat,router.allowedMethods());
+
+// 发送群消息
+	router.post("/groupmessages",organizationController.message,fileController.submitMessage,router.allowedMethods());
+// 获取历史群消息
+	router.get("/groupmessages",organizationController.historyChat,router.allowedMethods());
+
 // 发送图片消息
 	// router.post("/member/messageImg",fileController.insertImg,fileController.messageImg,router.allowedMethods());
 // 获取最新消息
