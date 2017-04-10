@@ -15,7 +15,7 @@ const initialReducers = {
   auth: (state = require('../reducers/auth').initialState) => state,
   catelogues:(state = require('../reducers/category').initialState) => state,
   pagenavbar:(state = require('../components/PageNavBar/modules').initialState) => state,
-  memberCenter:(state = require('../routes/memberCenter/containers/modules').initialState) => state,
+  message:(state = require('../components/Header/modules').initialState) => state,
   // articleUpdates:(state = require('../routes/Organizations/modules').initialState) => state,
   myspecialities:(state = require('../routes/memberCenter/routes/BasicInfo/modules/basicInfo').initialState) => state,
   // items:(state = {text:[],isloaded:false}) => state,

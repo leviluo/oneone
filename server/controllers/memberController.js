@@ -1,5 +1,6 @@
 import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
 import chat from '../routers/chat.js'
+import mongoose from 'mongoose'
 
 const memberController = {
     addSpeciality:async function(next){
@@ -17,20 +18,20 @@ const memberController = {
             this.body = { status: 500, msg: "简介超过了300个字符" }
             return
         }
-        var resultcount = await sqlStr("select count(*) as count from memberSpeciality where memberId=(select id from member where phone = ?)",[this.session.user])
+        var resultcount = await sqlStr("select count(*) as count from memberSpeciality where memberId=?",[this.session.user])
         if(resultcount[0].count > 4){
             this.body = { status: 500, msg: "最多添加5项专业" }
             return
         }
 
-        var resultrepeat = await sqlStr("select * from memberSpeciality where memberId=(select id from member where phone = ?) and specialitiesId=(select id from specialities where name= ?)",[this.session.user,this.request.body.speciality])
+        var resultrepeat = await sqlStr("select * from memberSpeciality where memberId=? and specialitiesId=(select id from specialities where name= ?)",[this.session.user,this.request.body.speciality])
         // console.log('resultrepeat',resultrepeat)
         if(resultrepeat.length > 0){
             this.body = { status: 500, msg: "已经添加了此专业" }
             return
         }
 
-        var result = await sqlStr("insert into memberSpeciality set brief = ?,experience = ?,memberId=(select id from member where phone = ?),specialitiesId=(select id from specialities where name= ?)",[this.request.body.brief,this.request.body.experience,this.session.user,this.request.body.speciality])
+        var result = await sqlStr("insert into memberSpeciality set brief = ?,experience = ?,memberId=?,specialitiesId=(select id from specialities where name= ?)",[this.request.body.brief,this.request.body.experience,this.session.user,this.request.body.speciality])
         if (result.affectedRows == 1 ) {
             this.body = { status: 200,msg:"插入成功",result:{insertId:result.insertId}}
             return
@@ -45,15 +46,15 @@ const memberController = {
             // this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select m.address,m.sex,m.phone,m.id,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where phone = ?",[this.session.user])
+        var result = await sqlStr("select m.address,m.sex,m.phone,m.id,m.brief,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where id = ?",[this.session.user])
         this.body = {status:200,data:result}
     },
     message:async function(next){
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-
         await next
 
         var text = this.request.body.text
@@ -68,7 +69,7 @@ const memberController = {
             return
         }
 
-        var result = await sqlStr("insert into message set fromMember = (select id from member where phone = ?),toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
+        var result = await sqlStr("insert into message set fromMember = ?,toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
             // 在线发送socket消息
@@ -103,9 +104,9 @@ const memberController = {
             return
         }
         if (lastUpdate) {
-        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
         }else{ 
-        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = (select id from member where phone = ?) and m.toMember = ?) or (m.toMember = (select id from member where phone = ?) and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
         }
         this.body = {status:200,data:result}
     },
@@ -118,7 +119,7 @@ const memberController = {
         }
         await next;
         if (!lastUpdate && this.body.status == 200) {
-            var result = await sqlStr("update message set active = 1 where toMember = (select id from member where phone = ?) and fromMember = (select id from member where phone = ?) and active = 0",[this.session.user,chatWith])
+            var result = await sqlStr("update message set active = 1 where toMember = ? and fromMember = ? and active = 0",[this.session.user,chatWith])
         }
         // this.body = this.body
     },
@@ -127,8 +128,8 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=(select id from member where phone = ?),1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
-        var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != ? where ms.fromMember = (select id from member where phone = ?) or ms.toMember = (select id from member where phone = ?) group by m.phone;",[this.session.user,this.session.user,this.session.user])
+        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != (select phone from member where id = ?) where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != (select phone from member where id = ?) where ms.fromMember = ? or ms.toMember = ? group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
+        var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != (select phone from member where id = ?) where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[this.session.user,this.session.user,this.session.user])
         this.body = {status:200,data:result,count:count.length}
     },
     modifyNickname:async function(next){
@@ -146,7 +147,7 @@ const memberController = {
             return
         }
 
-        var result = await sqlStr("update member set nickname = ? where phone = ?",[nickname,this.session.user])
+        var result = await sqlStr("update member set nickname = ? where id = ?",[nickname,this.session.user])
         if (result.affectedRows == 1) {
         this.body = {status:200}
         return
@@ -169,7 +170,7 @@ const memberController = {
             return
         }
 
-        var result = await sqlStr("update member set address = ? where phone = ?",[address,this.session.user])
+        var result = await sqlStr("update member set address = ? where id = ?",[address,this.session.user])
         if (result.affectedRows == 1) {
         this.body = {status:200}
         return
@@ -191,7 +192,7 @@ const memberController = {
             this.body = { status: 500, msg: "简介超过了300个字符" }
             return
         }
-        var result = await sqlStr("update memberSpeciality set brief = ?,experience=? where specialitiesId = (select id from specialities where name = ?) and memberId = (select id from member where phone = ?)",[this.request.body.brief,this.request.body.experience,this.request.body.speciality,this.session.user])
+        var result = await sqlStr("update memberSpeciality set brief = ?,experience=? where specialitiesId = (select id from specialities where name = ?) and memberId = ?",[this.request.body.brief,this.request.body.experience,this.request.body.speciality,this.session.user])
         
         if (result.affectedRows == 1) {
         this.body = {status:200}
@@ -210,7 +211,7 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("delete from memberSpeciality where specialitiesId = (select id from specialities where name = ?) and memberId = (select id from member where phone = ?)",[this.request.body.speciality,this.session.user])
+        var result = await sqlStr("delete from memberSpeciality where specialitiesId = (select id from specialities where name = ?) and memberId = ?",[this.request.body.speciality,this.session.user])
         
         if (result.affectedRows == 1) {
         this.body = {status:200}
@@ -220,41 +221,56 @@ const memberController = {
         this.body = {status:500,msg:"删除失败"}
         next
     },
-    countMessage:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var result = await sqlStr("select count(DISTINCT fromMember) as count from message where toMember = (select id from member where phone = ?) and active = 0",[this.session.user])
-        this.body = {status:200,data:result[0].count}
-    },
-    countNotice:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var result = await sqlStr("select count(*) as count from reReply where replyTo in (select id from comments where memberId = (select id from member where phone = ?)) and status = 0",[this.session.user])
-        //通过申请
-        var resultt = await sqlStr("select count(id) as count from organizationsrequest where memberId = (select id from member where phone = ?) and status = 1",[this.session.user])
+    // countMessage:async function(){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     var result = await sqlStr("select count(DISTINCT fromMember) as count from message where toMember = ? and active = 0",[this.session.user])
+    //     this.body = {status:200,data:result[0].count}
+    // },
+    // countNotice:async function(){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     var result = await sqlStr("select count(*) as count from reReply where replyTo in (select id from comments where memberId = ?) and status = 0",[this.session.user])
+    //     //通过申请
+    //     var resultt = await sqlStr("select count(id) as count from organizationsrequest where memberId = ? and status = 1",[this.session.user])
        
-        this.body = {status:200,data:result[0].count + resultt[0].count}
+    //     this.body = {status:200,data:result[0].count + resultt[0].count}
+    // },
+    // countReply:async function(){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     //回复通知
+    //     var result = await sqlStr("select count(DISTINCT a.id) as count from article as a left join comments as c on c.articleId = a.id where c.status = 0 and a.memberId = ?;",[this.session.user])
+    //      this.body = {status:200,data:result[0].count}
+    // },
+    // countRequest:async function(){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     var result = await sqlStr("select count(DISTINCT o.id) as count from organizationsRequest as ro left join organizations as o on ro.organizationsId = o.id where ro.status = 0 and o.createById = ?;",[this.session.user])
+    //     this.body = {status:200,data:result[0].count}
+    // },
+    messages:async function(){
+  //私信                        “谁” 给你发了私信               属于消息（type="privatemessage"）
+  //文章评价                    “谁” 在 “文章”                  属于消息（type="articlecomment"）
+  //请求入群                    “谁” 请求加入 “社团”            属于消息（type="attendrequest"）
+  //文章中回复了你              “谁” 在 “文章”                  属于消息（type="articlereply"）
     },
-    countReply:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        //回复通知
-        var result = await sqlStr("select count(DISTINCT a.id) as count from article as a left join comments as c on c.articleId = a.id where c.status = 0 and a.memberId = (select id from member where phone = ?);",[this.session.user])
-         this.body = {status:200,data:result[0].count}
-    },
-    countRequest:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var result = await sqlStr("select count(DISTINCT o.id) as count from organizationsRequest as ro left join organizations as o on ro.organizationsId = o.id where ro.status = 0 and o.createById = (select id from member where phone = ?);",[this.session.user])
-        this.body = {status:200,data:result[0].count}
+    notices:async function(){
+  //关注                        “谁“ 关注了你                   属于通知（type="focusyou"）
+  //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"）
+    if (!this.session.user) {
+        this.body = { status: 600, msg: "尚未登录" }
+        return
+    }
+
     },
     submitPhotos:async function(next){
         if (!this.session.user) {
@@ -280,7 +296,7 @@ const memberController = {
         if(names.length > 8){
             names = names.splice(0,8) 
         }
-        var resultt = await sqlStr("insert into memberupdates set memberId = (select id from member where phone = ?),works = ?,memberSpecialityId=?",[this.session.user,names.join(','),id])
+        var resultt = await sqlStr("insert into memberupdates set memberId = ?,works = ?,memberSpecialityId=?",[this.session.user,names.join(','),id])
        if (result.affectedRows > 0 && resultt.affectedRows == 1) {
             this.body = {status:200}
             return
@@ -299,12 +315,12 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("delete from likes where memberId = (select id from member where phone = ?) and worksId = ?",[this.session.user,this.request.query.id])
+        var result = await sqlStr("delete from likes where memberId = ? and worksId = ?",[this.session.user,this.request.query.id])
         if (result.affectedRows == 1) {
             this.body = {status:200}
             return
         }else if(result.affectedRows == 0){
-            var result = await sqlStr("insert into likes set memberId = (select id from member where phone = ?),worksId = ?",[this.session.user,this.request.query.id])
+            var result = await sqlStr("insert into likes set memberId = ?,worksId = ?",[this.session.user,this.request.query.id])
             if (result.affectedRows == 1) {
             this.body = {status:200}
             return
@@ -327,7 +343,7 @@ const memberController = {
         }
         await next
 
-        var result = await sqlStr("delete l.*,w.* from works as w left join likes as l on l.worksId = w.id left join memberSpeciality as m on m.id = w.memberSpecialityId where w.id = ? and m.memberId = (select id from member where phone = ?)",[this.request.query.id,this.session.user])
+        var result = await sqlStr("delete l.*,w.* from works as w left join likes as l on l.worksId = w.id left join memberSpeciality as m on m.id = w.memberSpecialityId where w.id = ? and m.memberId = ?",[this.request.query.id,this.session.user])
 
         if (result.affectedRows == 1) {
             this.body = {status:200}
@@ -344,14 +360,34 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select * from follows where memberId = (select id from member where phone = ?) and followId = ?",[this.session.user,this.request.query.id])
+        var result = await sqlStr("select * from follows where memberId = ? and followId = ?",[this.session.user,this.request.query.id])
         if (result.length > 0) {
             this.body = { status: 500, msg: "请不要重复关注" }
             return
         }else{
-            result = await sqlStr("insert into follows set memberId = (select id from member where phone = ?),followId = ?",[this.session.user,this.request.query.id])
+            result = await sqlStr("insert into follows set memberId = ?,followId = ?",[this.session.user,this.request.query.id])
             if (result.affectedRows == 1) {
-                this.body = {status:200}
+
+                var notice = mongoose.model('Notice');
+    // status: { type: Number, default: 0 },
+    // type: String,
+    // createdate: {
+    //     type: Date,
+    //     default: Date.now
+    // },
+    // hostid: { type: Number, default: 0 },  //你是谁
+    // follow: { type: Object, default: {} }, //“谁“ 关注了你    
+    // organizations: { type: Object, default: {} }, //“社团” 通过了你的加入请求
+
+                var data = new notice({type:"focusyou",hostid:this.session.user,follow:{id:123,nickname:"456"}});
+                var me = this
+                data.save(function(err, docs) {
+                    if (err) return next(err);
+                    me.body = {status:200}
+                    // return res.json({ 'id': 0, 'msg': '发布成功' })
+                })
+
+                // this.body = {status:200}
                 return
             }else{
                 this.body = {status:500,msg:"操作失败"}
@@ -367,7 +403,7 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("delete from follows where memberId = (select id from member where phone = ?) and followId = ?",[this.session.user,this.request.query.id])
+        var result = await sqlStr("delete from follows where memberId = ? and followId = ?",[this.session.user,this.request.query.id])
         if (result.affectedRows == 1) {
             this.body ={status:200}
         }else{
@@ -401,12 +437,12 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("delete from likes where memberId = (select id from member where phone = ?) and worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
+        var result = await sqlStr("delete from likes where memberId = ? and worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
         if (result.affectedRows == 1) {
             this.body = {status:200}
             return
         }else if(result.affectedRows == 0){
-            var result = await sqlStr("insert into likes set memberId = (select id from member where phone = ?),worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
+            var result = await sqlStr("insert into likes set memberId = ?,worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
             if (result.affectedRows == 1) {
             this.body = {status:200}
             return
@@ -423,7 +459,7 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select * from likes where worksId = (select id from works where name = ?) and memberId = (select id from member where phone = ?)",[this.request.query.name,this.session.user])
+        var result = await sqlStr("select * from likes where worksId = (select id from works where name = ?) and memberId = ?",[this.request.query.name,this.session.user])
         if (result.length == 1) {
             this.body = { status: 200, msg: 1 }
         } else{
@@ -435,7 +471,7 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr("select mu.id,m.nickname,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = (select id from member where phone = ?) order by mu.id desc limit "+this.request.query.limit,[this.session.user])
+        var result = await sqlStr("select mu.id,m.nickname,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by mu.id desc limit "+this.request.query.limit,[this.session.user])
         this.body = {status:200,data:result}
     }
 }

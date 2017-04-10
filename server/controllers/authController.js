@@ -66,7 +66,7 @@ const authController = {
         var result = await sqlStr("select * from member where phone = ? and password = ? ", [phone,decipher.update(password).digest('hex')])
 
         if (result.length > 0) {
-            this.session.user = phone
+            this.session.user = result[0].id
             this.body = { status: 200, nickname: result[0].nickname,memberId:result[0].id}
             // this.redirect('/memberCenter');页面重定向
             return
@@ -81,7 +81,7 @@ const authController = {
             return
         }
         this.session.user = this.session.user
-        var result = await sqlStr("select * from member where phone = ?", [this.session.user])
+        var result = await sqlStr("select * from member where id = ?", [this.session.user])
         if (result.length > 0) {
             this.body = { status: 200, nickname: result[0].nickname,memberId:result[0].id}
             return

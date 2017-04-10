@@ -205,8 +205,11 @@ export default class OrganizationsHome extends Component{
     })
   }
 
-  recordPoint = ()=>{
+  recordPoint = (e)=>{
     this.saveRange()
+     if (e.keyCode == 13) {
+      this.submitText()
+    }
   }
 
   saveRange = ()=> {
@@ -342,7 +345,7 @@ export default class OrganizationsHome extends Component{
   componentDidUpdate =()=>{
     this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
   }
-   
+
   render(){
   	var headImg = this.state.BasicInfo.head ? `/originImg?name=${this.state.BasicInfo.head}&from=organizations` : ''
   	var date = new Date(this.state.BasicInfo.time)

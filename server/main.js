@@ -9,13 +9,14 @@ import serve from 'koa-static'
 import routers from './routers'
 import bodyParser from 'koa-bodyparser'
 import session from 'koa-session'
-// import IO from 'koa-socket'
-// import co from 'co'
 import '../Public/utils'
+import mongo from './dbHelps/mongodb'; //启动mongo
+mongo()
 
 const paths = config.utils_paths
 
 const router = require('koa-router')();
+
 
 const app = new Koa()
 

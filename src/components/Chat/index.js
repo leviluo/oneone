@@ -185,6 +185,7 @@ export default class Chat extends Component{
         var data = data.data.reverse()
 
         if (data.length == 0) {
+          this.props.tipShow({type:"error",msg:"没有更多的消息"})
           return
         };
 
@@ -269,6 +270,12 @@ export default class Chat extends Component{
        }   
   }
 
+  ifSend =(e)=>{
+    if (e.keyCode == 13) {
+      this.submitText()
+    }
+  }
+
   render(){
     const{chatTo} = this.props.chat;
     const num = new Array(100).fill(0)
@@ -303,7 +310,7 @@ export default class Chat extends Component{
                   </div>
             </div>
             <div className="content-message">
-              <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onClick={this.recordPoint} >
+              <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onKeyUp={this.ifSend} onClick={this.recordPoint} >
               </div>
             </div>
             <div className="content-footer">

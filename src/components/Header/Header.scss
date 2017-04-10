@@ -84,6 +84,34 @@ header{
                     margin-left:10px;
                 }
             }
+        .message{
+            position:relative;
+            padding:0 10px;
+            cursor:pointer;
+            &:hover{
+                background:#e5e5e5;
+            }
+            ul{
+                position:absolute;
+                display:none;
+                top:44px;
+                left:0;
+                background:#fff;
+                border:1px solid #e5e5e5;
+                padding:0;
+                margin:0;
+                li{
+                    padding:0 10px;
+                    &:hover{
+                        background:#efefef;
+                    }
+                    &>a{
+                        display:inline;
+                        float:none;
+                    }
+                }
+            }
+        }
     }
 }
 

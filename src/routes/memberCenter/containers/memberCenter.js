@@ -5,30 +5,29 @@ import {Link} from 'react-router'
 // import {isAuth} from '../../../reducers/auth'
 import { connect } from 'react-redux'
 import ImageBrowser from '../../../components/ImageBrowser'
-import {countMessage,countNotice,countReply,countRequest} from './modules'
+// import {countMessage,countNotice,countReply,countRequest} from './modules'
 import { tipShow } from '../../../components/Tips/modules/tips'
 // import {asyncConnect} from 'redux-async-connect'
 
 // @asyncConnect([{
 //   promise: ({store: {dispatch, getState},a}) => {
 //     const promises = [];
-
 //     if (!getState().catelogues.isloaded) {
 //       console.log("why")
 //       promises.push(dispatch(countMessage()));
 //       promises.push(dispatch(countNotice()));
 //       promises.push(dispatch(countReply()));
 //     }
-
 //     return Promise.all(promises);
 //   }
 // }])
 
 @connect(
   state => ({
-    status:state.memberCenter
+    status:state.message
   }),
-  {tipShow,countMessage,countNotice,countReply,countRequest}
+  {tipShow}
+  // {tipShow,countMessage,countNotice,countReply,countRequest}
 )
 export default class memberCenter extends Component {
 
@@ -37,10 +36,10 @@ export default class memberCenter extends Component {
     };
 
     componentWillMount =()=>{
-      this.props.countMessage()
-      this.props.countNotice()
-      this.props.countReply()
-      this.props.countRequest()
+      // this.props.countMessage()
+      // this.props.countNotice()
+      // this.props.countReply()
+      // this.props.countRequest()
       // if(!this.props.auth.isAuth)this.props.isAuth(this.context.router) 
     }
 

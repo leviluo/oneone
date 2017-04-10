@@ -47,7 +47,7 @@ const publicController = {
             return
         }
         if (this.session.user) {
-        var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans,if((select id from follows where followId = ? and memberId = (select id from member where phone = ?)),1,0) as isFollowed from member as m where id = ?",[this.request.query.id,this.session.user,this.request.query.id])
+        var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans,if((select id from follows where followId = ? and memberId = ?),1,0) as isFollowed from member as m where id = ?",[this.request.query.id,this.session.user,this.request.query.id])
         }else{
         var result = await sqlStr("select m.address,m.id,m.brief,m.sex,m.nickname,(select count(id) from follows where memberId = m.id) as follows,(select count(id) from follows where followId = m.id) as fans from member as m where id = ?",[this.request.query.id])
         }
@@ -59,7 +59,7 @@ const publicController = {
         return
       }
       if (this.session.user && this.request.query.id) {
-        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = (select id from member where phone = ?) limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? order by id desc limit "+this.request.query.limit,[this.session.user,this.request.query.id])
+        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? order by id desc limit "+this.request.query.limit,[this.session.user,this.request.query.id])
       }else if(this.request.query.id){
         var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes from works as w where w.memberSpecialityId = ? order by id desc limit "+this.request.query.limit,[this.request.query.id])
       }else{
@@ -76,9 +76,9 @@ const publicController = {
       }
       if (this.session.user && this.request.query.id) {
         if (this.request.query.direction == 1) {
-        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = (select id from member where phone = ?) limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? and w.id >= ? limit "+this.request.query.limit,[this.session.user,this.request.query.id,this.request.query.worksId])
+        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? and w.id >= ? limit "+this.request.query.limit,[this.session.user,this.request.query.id,this.request.query.worksId])
         }else{
-        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = (select id from member where phone = ?) limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? and w.id <= ? order by w.id desc limit "+this.request.query.limit,[this.session.user,this.request.query.id,this.request.query.worksId])
+        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? and w.id <= ? order by w.id desc limit "+this.request.query.limit,[this.session.user,this.request.query.id,this.request.query.worksId])
         }
       }else if(this.request.query.id){
         if (this.request.query.direction == 1) {
@@ -98,7 +98,7 @@ const publicController = {
         if (this.request.query.id) {
         var result = await sqlStr("select m.brief,m.experience,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',8) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId  where memberId = ?;",[this.request.query.id])
         }else if (this.session.user) {
-        var result = await sqlStr("select m.brief,m.experience,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',6) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId  where memberId = (select id from member where phone = ?)",[this.session.user])
+        var result = await sqlStr("select m.brief,m.experience,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',6) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId  where memberId = ?",[this.session.user])
         }else{
             this.body = { status: 600, msg: "尚未登录" }
             return

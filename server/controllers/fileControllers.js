@@ -133,8 +133,9 @@ function uploadImgs(ob,name,url){
                             for (var i = 0; i < files.file.length; i++) {
                                 var inputFile = files.file[i]
                                 var uploadedPath = inputFile.path;
-                                var dstPath = url + name + Date.parse(new Date())+ i + '.jpg';
-                                fields.names.push(name + Date.parse(new Date())+ i)
+                                var name = name + Date.parse(new Date())+ i
+                                var dstPath = url + name + '.jpg';
+                                fields.names.push(name)
                                //重命名为真实文件名
                                 fs.rename(uploadedPath, dstPath, function(err) {
                                     if (err) {
@@ -231,9 +232,9 @@ const fileController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var user = this.session.user
-        var id = await sqlStr("select id from member where phone = ?",[user])
-        var result = await uploadOneImg(this.req,id[0].id,config.headDir)
+        var id = this.session.user
+        // var id = await sqlStr("select id from member where phone = ?",[user])
+        var result = await uploadOneImg(this.req,id,config.headDir)
         if (result.status == 200 ) {
             this.body = {status:200}
             return

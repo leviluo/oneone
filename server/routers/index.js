@@ -91,14 +91,14 @@ export default function routers(router){
 	router.get("/member/followOutOne",memberController.followOutOne,router.allowedMethods());
 // 动态中的图片点赞功能
 	router.get("/member/addLikeByName",memberController.addLikeByName,router.allowedMethods());
-// 计算多少未读消息
-	router.get("/member/countMessage",memberController.countMessage,router.allowedMethods());
-// 计算多少未读通知
-	router.get("/member/countNotice",memberController.countNotice,router.allowedMethods());
-// 计算多少回复
-	router.get("/member/countReply",memberController.countReply,router.allowedMethods());
-// 计算多少入社请求
-	router.get("/member/countRequest",memberController.countRequest,router.allowedMethods());
+// // 计算多少未读消息
+// 	router.get("/member/countMessage",memberController.countMessage,router.allowedMethods());
+// // 计算多少未读通知
+// 	router.get("/member/countNotice",memberController.countNotice,router.allowedMethods());
+// // 计算多少回复
+// 	router.get("/member/countReply",memberController.countReply,router.allowedMethods());
+// // 计算多少入社请求
+// 	router.get("/member/countRequest",memberController.countRequest,router.allowedMethods());
 // 上传作品
 	router.post("/member/submitPhotos",memberController.submitPhotos,fileController.uploadPhotos,router.allowedMethods());
 // 赞
@@ -151,6 +151,12 @@ export default function routers(router){
 	router.get("/organizations/getrequestData",organizationController.getrequestData,router.allowedMethods());
 // 审核申请
 	router.get("/organizations/isApprove",organizationController.isApprove,router.allowedMethods());
+
+// 获取消息记录
+	router.get("/messages",memberController.messages,router.allowedMethods());
+// 获取通知
+	router.get("/notices",memberController.notices,router.allowedMethods());
+
 
 	// router.get('*', async function (next){
 	    // this.res.sendFile(paths.client('static'))

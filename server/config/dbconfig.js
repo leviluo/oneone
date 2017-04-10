@@ -6,4 +6,8 @@ const dbOptions = {
     db_passwd:"19891201luo"
 }
 
+export const mongodbOp = {
+	mongodb: 'mongodb://localhost/oneone',
+}
+
 export default dbOptions
