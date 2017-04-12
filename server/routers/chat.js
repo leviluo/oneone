@@ -232,3 +232,14 @@ chat.changeRoom = function(socket, msg) {
 
 export default chat;
 
+export function queryid(sendTo){
+	var sockets = chat.io.sockets.sockets
+	var toSocket;
+    for(var key in sockets){
+        if(sockets[key].name == sendTo){
+            toSocket = sockets[key]
+            break;
+        }
+    }
+	return toSocket
+}

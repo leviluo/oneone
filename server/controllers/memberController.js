@@ -1,6 +1,8 @@
 import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
-import chat from '../routers/chat.js'
+import {queryid} from '../routers/chat.js'
 import mongoose from 'mongoose'
+import {save,find} from '../dbHelps/mongodb'
+
 
 const memberController = {
     addSpeciality:async function(next){
@@ -73,14 +75,7 @@ const memberController = {
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
             // 在线发送socket消息
-            var sockets = chat.io.sockets.sockets
-            for(var key in sockets){
-                if(sockets[key].name == this.request.body.sendTo){
-                    var toSocket = sockets[key]
-                    break;
-                }
-            }
-            
+            var toSocket = queryid(toName)
             if (toSocket) {
                 toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo});
             }
@@ -270,6 +265,10 @@ const memberController = {
         this.body = { status: 600, msg: "尚未登录" }
         return
     }
+    var notice = mongoose.model('Notice');
+    var result = await find(notice,{hostid:this.session.user})
+    console.log(result)
+    this.body = result
 
     },
     submitPhotos:async function(next){
@@ -352,43 +351,44 @@ const memberController = {
         }
     },
     followOne:async function(){
+
+        var id = this.request.query.id
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        if (!this.request.query.id) {
+        if (!id) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select * from follows where memberId = ? and followId = ?",[this.session.user,this.request.query.id])
+        var result = await sqlStr("select * from follows where memberId = ? and followId = ?",[this.session.user,id])
         if (result.length > 0) {
             this.body = { status: 500, msg: "请不要重复关注" }
             return
         }else{
-            result = await sqlStr("insert into follows set memberId = ?,followId = ?",[this.session.user,this.request.query.id])
+            result = await sqlStr("insert into follows set memberId = ?,followId = ?",[this.session.user,id])
             if (result.affectedRows == 1) {
-
+                var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
                 var notice = mongoose.model('Notice');
-    // status: { type: Number, default: 0 },
-    // type: String,
-    // createdate: {
-    //     type: Date,
-    //     default: Date.now
-    // },
-    // hostid: { type: Number, default: 0 },  //你是谁
-    // follow: { type: Object, default: {} }, //“谁“ 关注了你    
-    // organizations: { type: Object, default: {} }, //“社团” 通过了你的加入请求
 
-                var data = new notice({type:"focusyou",hostid:this.session.user,follow:{id:123,nickname:"456"}});
-                var me = this
-                data.save(function(err, docs) {
-                    if (err) return next(err);
-                    me.body = {status:200}
-                    // return res.json({ 'id': 0, 'msg': '发布成功' })
-                })
+                var data = new notice({type:"focusyou",hostid:id,data:{id:this.session.user,nickname:nickname[0].nickname}});
 
-                // this.body = {status:200}
-                return
+                var resultt = await save(data)
+                
+                if(resultt.id){
+
+                    var toSocket = queryid(id)
+
+                    if (toSocket) {
+                        toSocket.emit('notice',{type:"focusyou",hostid:id,data:{id:this.session.user,nickname:nickname[0].nickname}});
+                    }
+
+                    this.body = {status:200}
+                }else{
+                    this.body = {status:500,msg:"操作失败"}
+                }
+
             }else{
                 this.body = {status:500,msg:"操作失败"}
             }

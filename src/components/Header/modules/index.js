@@ -39,6 +39,8 @@ export function fetchNotice() {
       // }else{
       //     dispatch(tipResult({type:"error",msg:data.msg}))
       // }
+
+      return data
     })
   }
 }
@@ -52,6 +54,7 @@ export function fetchMessage() {
       // }else{
       //     dispatch(tipResult({type:"error",msg:data.msg}))
       // }
+      return data
     })
   }
 }

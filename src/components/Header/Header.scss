@@ -93,21 +93,37 @@ header{
             }
             ul{
                 position:absolute;
-                display:none;
                 top:44px;
                 left:0;
                 background:#fff;
                 border:1px solid #e5e5e5;
                 padding:0;
                 margin:0;
+                z-index:5;
                 li{
-                    padding:0 10px;
+                    line-height:20px;
+                    p{
+                       margin:0;
+                       text-indent:10px;
+                        &>a{
+                            display:inline;
+                            float:none;
+                            &:hover{
+                                color:#ff7f00;
+                            }
+                        }
+                        img{
+                            box-shadow:none;
+                            border-radius:20px;
+                            border:1px solid #e5e5e5;
+                            position:relative;
+                            top:5px;
+                        }
+                    }
+                    border-bottom:1px dashed #efefef;
+                    width:250px;
                     &:hover{
                         background:#efefef;
-                    }
-                    &>a{
-                        display:inline;
-                        float:none;
                     }
                 }
             }

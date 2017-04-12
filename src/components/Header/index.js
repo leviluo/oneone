@@ -7,6 +7,7 @@ import './Header.scss'
 import 'font-awesome/scss/font-awesome.scss'
 import {tipShow} from '../Tips/modules/tips'
 import {fetchNotice,fetchMessage} from './modules'
+import socket from '../../socket'
 
 @connect(
   state=>({auth:state.auth}),
@@ -17,13 +18,37 @@ export default class Header extends Component{
     router:React.PropTypes.object.isRequired
   };
 
+  state = {
+    notice:[],
+    message:[],
+    ifnotice:false,
+    ifmessage:false
+  }
+
   componentWillMount =()=>{
     if(!this.props.auth.isAuth)this.props.isAuth()
+    socket.on('notice',function(data){
+      console.log(data)
+    })
+    // document.onclick = function(){
+    //   // this.setState({
+    //   //   ifnotice:false,
+    //   //   ifmessage:false
+    //   // })
+    // }.bind(this)
+  }
+
+  componentWillUnMount =()=>{
+     // document.onclick = null
   }
 
   componentWillReceiveProps =(nextProps)=>{
     if(nextProps.auth.isAuth){
-        this.props.fetchNotice()
+        this.props.fetchNotice().then(data=>{
+          this.setState({
+            notice:data
+          })
+        })
         this.props.fetchMessage()
     }
   }
@@ -37,13 +62,18 @@ export default class Header extends Component{
   };
 
  goMessage =(e)=>{
-    var ele = e.target.getElementsByTagName('ul')[0]
-    if (ele) {
-      ele.style.display = ele.style.display == "block" ? "none" : "block"
-    }else{
-      ele = e.target.parentNode.getElementsByTagName('ul')[0]
-      ele.style.display = ele.style.display == "block" ? "none" : "block"
-    }
+    this.setState({
+      ifnotice:this.state.ifnotice ? false : true
+    })
+    // e.preventDefault()
+    // e.stopPropagation()
+    // var ele = e.target.getElementsByTagName('ul')[0]
+    // if (ele) {
+    //   ele.style.display = ele.style.display == "block" ? "none" : "block"
+    // }else{
+    //   ele = e.target.parentNode.getElementsByTagName('ul')[0]
+    //   ele.style.display = ele.style.display == "block" ? "none" : "block"
+    // }
   }
 
   //私信                        “谁” 给你发了私信               属于消息（type="privatemessage"）
@@ -75,18 +105,22 @@ export default class Header extends Component{
              <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link></span>}
              <span onClick={this.goMessage} className="message" title="消息">
                 <i className="fa fa-envelope"></i>
-                <ul ref="message" className="details">
-                  <li>asdfsafds23<Link to="/queryresult">asdf</Link>1423</li>
-                  <li>asdfsafds</li>
-                </ul>
              </span>
              <span onClick={this.goMessage} className="message" title="通知">
                 <i className="fa fa-bell"></i>
-                <ul className="details">
-                  <li>asdfsafds23<Link to="/queryresult">asdf</Link>1423</li>
-                  <li>asdfsafds</li>
-                </ul>
              </span>
+              {this.state.ifnotice && <span className="message"><ul className="details">
+                  {this.state.notice.map((item,index)=>{
+                    var link = `/memberBrief/${item.data.id}`
+                    switch(item.type){
+                      case 'focusyou':
+                        return <li key={index}><p><img src={`/originImg?name=${item.data.id}&from=member`} width="20" /><Link to={link}>{item.data.nickname}</Link>关注了你</p></li>
+                      case 'attendapprove':
+                        return <li key={index}><Link to={link}>{item.data.nickname}</Link>关注了你</li>
+                    } 
+                  })}
+                </ul>
+              </span>}
               <Link to='/queryresult' title="搜索"><i className="fa fa-search"></i></Link>
              </div>
           </nav>
