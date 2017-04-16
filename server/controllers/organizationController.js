@@ -1,5 +1,7 @@
-import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
-import chat from '../routers/chat'
+import { sqlStr,getByItems } from '../dbHelps/mysql'
+import {queryid} from '../routers/chat.js'
+import mongoose from 'mongoose'
+import {save,find,remove,update} from '../dbHelps/mongodb'
 
 const organizationController = {
     addOrganization:async function(next) {
@@ -165,7 +167,7 @@ const organizationController = {
       }
       this.body = {status:500,msg:"发布失败"}
     },
-    attendOrganization: async function(next){
+     attendOrganization: async function(next){
       if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
@@ -174,8 +176,10 @@ const organizationController = {
         this.body = { status: 500, msg: "缺少参数" }
         return
       }
-      if (this.request.body.verified.length > 297) {
-        this.body = { status: 500, msg: "认证不能超过300个字符" }
+      var verified = this.request.body.verified.trim()
+      var flag = verified.StringFilter(0,300)
+      if (flag) {
+        this.body = { status: 500, msg: `验证${flag}`}
         return
       }
       var result = await sqlStr("select id from organizationsrequest where memberId = ? and organizationsId=?",[this.session.user,this.request.body.id])
@@ -183,10 +187,32 @@ const organizationController = {
           this.body = {status:500,msg:"您已申请过,等待审核"}
           return
       };
-      result = await sqlStr("insert into organizationsrequest set memberId = ?,organizationsId=?,verified=?;",[this.session.user,this.request.body.id,this.request.body.verified])
+      result = await sqlStr("insert into organizationsrequest set memberId = ?,organizationsId=?,verified=?;",[this.session.user,this.request.body.id,verified])
       if (result.affectedRows == 1) {
+
+        // 发出入社请求消息
+        var info = await sqlStr("select m.memberId,o.name from memberOrganizations as m left join organizations as o on o.id = m.organizationsId where m.organizationsId = ?",[this.request.body.id])
+        var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
+        var message = mongoose.model('Message');
+
+        var data = new message({type:"attendrequest",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
+
+        var resultt = await save(data)
+        
+        if(resultt.id){
+
+            var toSocket = queryid(info[0].memberId)
+
+            if (toSocket) {
+                toSocket.emit('message',resultt);
+            }
+
             this.body = {status:200}
             return
+        }else{
+            this.body = {status:500,msg:"操作失败"}
+            return
+        }
       }
 
       this.body = {status:500,msg:"加入失败"}
@@ -309,15 +335,15 @@ const organizationController = {
       var count = await sqlStr("select count(id) as count from article where memberId = ?",[this.session.user])
       this.body = {status:200,data:result,count:count[0].count}
     },
-    getReplyMe:async function(){
-      if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-      var result = await sqlStr("select m.id,m.nickname,c.createdAt,c.comment,a.id as articleId,r.status,a.title,o.name,o.id as organizationsId from reReply as r left join comments as c on c.id = r.commentsId left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId left join organizations as o on o.id = a.organizationsId left join comments as cc on cc.id = r.replyTo where cc.memberId = ?",[this.session.user])
-      var resultt = await sqlStr("update reReply set status = 1 where replyTo in (select id from comments where memberId = ?)",[this.session.user])
-      this.body = {status:200,data:result}
-    },
+    // getReplyMe:async function(){
+    //   if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //   var result = await sqlStr("select m.id,m.nickname,c.createdAt,c.comment,a.id as articleId,r.status,a.title,o.name,o.id as organizationsId from reReply as r left join comments as c on c.id = r.commentsId left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId left join organizations as o on o.id = a.organizationsId left join comments as cc on cc.id = r.replyTo where cc.memberId = ?",[this.session.user])
+    //   var resultt = await sqlStr("update reReply set status = 1 where replyTo in (select id from comments where memberId = ?)",[this.session.user])
+    //   this.body = {status:200,data:result}
+    // },
     getrequestData:async function(){
       if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
@@ -328,6 +354,9 @@ const organizationController = {
           return
       };
       var result = await sqlStr("select m.id as memberId,m.nickname,ro.createdAt,ro.verified,ro.id from organizationsrequest as ro left join member as m on m.id = ro.memberId where ro.status = 0 and ro.organizationsId = ? limit "+this.request.query.limit,[this.request.query.id])
+      // 更新消息状态
+      // var notice = mongoose.model('Notice');
+
       var count = await sqlStr("select count(id) as count from organizationsrequest where organizationsId = ? and status = 0",[this.request.query.id])
       this.body = {status:200,data:result,count:count[0].count}
     },
@@ -336,41 +365,69 @@ const organizationController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-      if ((!this.request.query.flag && this.request.query.flag !=0) || !this.request.query.id) {
+      var id = this.request.query.id
+      var flag = this.request.query.flag
+
+      if ((!flag && flag !=0) || !id) {
           this.body = { status: 600, msg: "缺少参数" }
           return
       };
+
+      var info = await sqlStr("select ro.memberId,ro.organizationsId,o.name,o.head from organizationsRequest as ro left join organizations as o on o.id = ro.organizationsId where ro.id = ?",[id])
         
-      if (this.request.query.flag == 1) {
-        var resultt = await sqlStr("insert into memberorganizations set memberId = (select memberId from organizationsrequest where id = ?),organizationsId=(select organizationsId from organizationsrequest where id = ?);", [this.request.query.id,this.request.query.id])
+      if (flag == 1) {  //通过
+        var resultt = await sqlStr("insert into memberorganizations set memberId = (select memberId from organizationsrequest where id = ?),organizationsId=(select organizationsId from organizationsrequest where id = ?);", [id,id])
         if (resultt.affectedRows > 0) {
-        var result = await sqlStr("update organizationsrequest set status = 1 where id = ?", [this.request.query.id])
-          if (result.affectedRows > 0) {
-            this.body = {status:200}
-            return
-          }
+        // var result = await sqlStr("update organizationsrequest set status = 1 where id = ?", [id])
+          // if (result.affectedRows > 0) {
+
+            // 通过入社请求通知
+
+            var notice = mongoose.model('Notice');
+
+            var data = new notice({type:"attendapprove",hostId:info[0].memberId,organizationsId:info[0].organizationsId,organizationsname:info[0].name,organizationshead:info[0].head});
+
+            var resultt = await save(data)
+            
+            if(resultt.id){
+
+                var toSocket = queryid(info[0].memberId)
+
+                if (toSocket) {
+                    toSocket.emit('notice',resultt);
+                }
+
+                // this.body = {status:200}
+                // return
+            }else{
+                this.body = {status:500,msg:"操作失败"}
+                return
+            }
+          // }
         }
-      }else{
-        var result = await sqlStr("delete from organizationsrequest where id = ?", [this.request.query.id])
+
+      }
+      // else{   //忽略
+        var result = await sqlStr("delete from organizationsrequest where id = ?", [id])
         if (result.affectedRows > 0) {
         this.body = {status:200}
         return
         }
-      }
+      // }
         this.body= {status:500,msg:"发生错误"}
     },
-    getApproveMe:async function(){
-      if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-      var result = await sqlStr("select o.id,o.name from organizationsrequest as ro left join organizations as o on o.id = ro.organizationsId where ro.status = 1 and ro.memberId = ?",[this.session.user])
-      if (result.length > 0) {
-        await sqlStr("delete from organizationsrequest where status = 1 and memberId = ?", [this.session.user])
-      };
+    // getApproveMe:async function(){
+    //   if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //   var result = await sqlStr("select o.id,o.name from organizationsrequest as ro left join organizations as o on o.id = ro.organizationsId where ro.status = 1 and ro.memberId = ?",[this.session.user])
+    //   if (result.length > 0) {
+    //     await sqlStr("delete from organizationsrequest where status = 1 and memberId = ?", [this.session.user])
+    //   };
 
-      this.body = {status:200,data:result}
-    },
+    //   this.body = {status:200,data:result}
+    // },
     message:async function(next){
 
 

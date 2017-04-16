@@ -69,6 +69,12 @@ export default class Login extends Component{
     this.props.modalShow({header:"重置密码",submit:this.submitRepass,content:content})
   }
 
+  checkSend=(e)=>{
+    if (e.keyCode == 13) {
+      this.submit()
+    }
+  }
+
   render(){
     return(
       <div className="loginContainer">
@@ -77,11 +83,11 @@ export default class Login extends Component{
         <hr />
         <div name="content">
         <div>
-            <input type="text" ref="phone" placeholder="手机号"/>
+            <input type="text" ref="phone" onKeyUp={this.checkSend} placeholder="手机号"/>
         </div>
         <br />
         <div>
-            <input type="password" ref="password" placeholder="密码（6-16位字母数字_,无空格）"/>
+            <input type="password" ref="password" onKeyUp={this.checkSend} placeholder="密码（6-16位字母数字_,无空格）"/>
         </div>
         <div>
             <button className="btn-primary" type="submit" onClick={this.submit}>提交</button>

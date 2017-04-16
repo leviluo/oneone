@@ -105,7 +105,7 @@ CREATE TABLE `organizationsRequest` (
   `organizationsId` int unsigned not null default 0,
   `createdAt` datetime not null DEFAULT now() COMMENT '//',
   `verified` varchar(300) not null default '',
-  `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
+  -- `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
   PRIMARY KEY  (`id`)
 );
 

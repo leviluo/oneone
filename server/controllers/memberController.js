@@ -1,7 +1,7 @@
 import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
 import {queryid} from '../routers/chat.js'
 import mongoose from 'mongoose'
-import {save,find} from '../dbHelps/mongodb'
+import {save,find,update,remove,aggregate,findLimit} from '../dbHelps/mongodb'
 
 
 const memberController = {
@@ -123,8 +123,9 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.phone != (select phone from member where id = ?) where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != (select phone from member where id = ?) where ms.fromMember = ? or ms.toMember = ? group by m.phone) limit ${this.request.query.limit};`,[this.session.user,this.session.user,this.session.user,this.session.user,this.session.user])
-        var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.phone != (select phone from member where id = ?) where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[this.session.user,this.session.user,this.session.user])
+        var id = this.session.user
+        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.id != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone) limit ${this.request.query.limit};`,[id,id,id,id,id])
+        var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[id,id,id])
         this.body = {status:200,data:result,count:count.length}
     },
     modifyNickname:async function(next){
@@ -266,10 +267,45 @@ const memberController = {
         return
     }
     var notice = mongoose.model('Notice');
-    var result = await find(notice,{hostid:this.session.user})
-    console.log(result)
-    this.body = result
+    if (this.request.query.type == 'noread') {
 
+    var result = await find(notice,{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
+    this.body = {status:200,data:result}
+
+    }else if (this.request.query.type == 'all') {
+
+    var result = await findLimit(notice,{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:this.request.query.limit}) 
+
+    var count = await aggregate(notice,{_id:"$hostId",total:{$sum:1}})
+    console.log(count)
+    this.body = {status:200,data:result,count:count[0].total}
+
+    }
+
+    },
+    updatenotices:async function(){
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+        var notice = mongoose.model('Notice');
+        var updates = await update(notice,{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+        // console.log(updates)
+        if(updates.ok){
+            this.body = {status:200}
+        }else{
+            this.body = {status:500,msg:"更新通知状态失败"}
+        }
+    },
+    allnotices:async function(){
+       if (!this.session.user) {
+        this.body = { status: 600, msg: "尚未登录" }
+        return
+    }
+    var notice = mongoose.model('Notice');
+    var result = await find(notice,{hostId:this.session.user},{sort:{'_id':-1}}) 
+    
+    this.body = {status:200,data:result}
     },
     submitPhotos:async function(next){
         if (!this.session.user) {
@@ -370,9 +406,11 @@ const memberController = {
             result = await sqlStr("insert into follows set memberId = ?,followId = ?",[this.session.user,id])
             if (result.affectedRows == 1) {
                 var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
+                
+                // 取关后通知
                 var notice = mongoose.model('Notice');
 
-                var data = new notice({type:"focusyou",hostid:id,data:{id:this.session.user,nickname:nickname[0].nickname}});
+                var data = new notice({type:"focusyou",hostId:id,memberId:this.session.user,nickname:nickname[0].nickname});
 
                 var resultt = await save(data)
                 
@@ -381,7 +419,7 @@ const memberController = {
                     var toSocket = queryid(id)
 
                     if (toSocket) {
-                        toSocket.emit('notice',{type:"focusyou",hostid:id,data:{id:this.session.user,nickname:nickname[0].nickname}});
+                        toSocket.emit('notice',resultt);
                     }
 
                     this.body = {status:200}
@@ -395,6 +433,7 @@ const memberController = {
         }
     },
     followOutOne:async function(){
+        var id = this.request.query.id
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
@@ -403,9 +442,17 @@ const memberController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("delete from follows where memberId = ? and followId = ?",[this.session.user,this.request.query.id])
+        var result = await sqlStr("delete from follows where memberId = ? and followId = ?",[this.session.user,id])
         if (result.affectedRows == 1) {
             this.body ={status:200}
+            // 取关后删除通知
+                var notice = mongoose.model('Notice');
+                var resultt = await remove(notice,{hostId:id,memberId:this.session.user,type:"focusyou"})
+                if(resultt.result.n > 0){
+                    this.body = {status:200}
+                    return
+                }
+
         }else{
             this.body ={status:500,msg:"操作失败"}
         }
@@ -476,4 +523,3 @@ const memberController = {
     }
 }
 export default memberController;
-

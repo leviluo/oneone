@@ -1,53 +1,50 @@
-.myNotice{
-	background:#fff;
+#myNotice{
 	maring-bottom:10px;
-		padding:20px 0;
-	a{
-	 	color:#37a;
-	 	padding:3px;
-	 	&:hover{
-	 		background:#efefef
-	 	}
-	 }
-	&>ul{
-		padding-left:0;
-		text-align:center;
-		li{
-			height:35px;
-			line-height:35px;
-			border-bottom:1px dashed #efefef;
-		}
-		li:first-of-type{
-			background:#efefef
-		}
-	}
-	&>table{
-		margin:30px 0;
-		width:100%;
-		h4{
-			margin:0
-		}
-		tbody{
-			tr{
-				td{
-					height:35px;
-					line-height:25px;
-					text-align:center;
-					border-bottom:1px dashed #e5e5e5;
-					.noRead{
-						padding:0 3px;
-						background:#ff7f00;
-						color:white;
-						border-radius:10px;
-					}
-					span{
-						padding:2px 5px;
-					}
-				}
-			}
-			tr:first-of-type{
-				background:#efefef
-			}
-		}
-	}
+	padding:20px 0;
+	ul:first-of-type{
+                padding:0;
+                margin:0 auto;
+                width:100%;
+                li{
+                    line-height:20px;
+                    padding:10px;
+                    p{
+                       margin:0;
+                    }
+                    color:#999;
+                    .focusyou{
+                        height:40px;
+                        line-height:30px;
+                        &>a{
+                            display:inline;
+                            float:left;
+                            height:30px;
+                            line-height:30px;
+                            margin-left:5px;
+                            &:hover{
+                                background:#e5e5e5
+                            }
+                        }
+                        img{
+                            box-shadow:none;
+                            border-radius:20px;
+                            border:1px solid #e5e5e5;
+                            float:left;
+                        }
+                        span{
+                            color:#999;
+                        }
+                    }
+                    border-bottom:1px solid #efefef;
+                    &:hover{
+                        background:#efefef;
+                    }
+                }
+                .checkmore{
+                padding:0;
+                    a{
+                        float:none;
+                    }
+                }
+            }
 }

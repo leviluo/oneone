@@ -6,12 +6,12 @@ import {connect} from 'react-redux'
 import './Header.scss'
 import 'font-awesome/scss/font-awesome.scss'
 import {tipShow} from '../Tips/modules/tips'
-import {fetchNotice,fetchMessage} from './modules'
+import {fetchNotice,fetchMessage,updateNotice} from './modules'
 import socket from '../../socket'
 
 @connect(
   state=>({auth:state.auth}),
-{loginOut,isAuth,tipShow,fetchNotice,fetchMessage})
+{loginOut,isAuth,tipShow,fetchNotice,fetchMessage,updateNotice})
 export default class Header extends Component{
 
   static contextTypes = {
@@ -22,35 +22,57 @@ export default class Header extends Component{
     notice:[],
     message:[],
     ifnotice:false,
-    ifmessage:false
+    ifmessage:false,
+    // currentPage:1,
+    // ifAddMore:true,
+    // averageNum:5
   }
 
   componentWillMount =()=>{
     if(!this.props.auth.isAuth)this.props.isAuth()
+
     socket.on('notice',function(data){
+      this.state.notice.unshift(data)
+      this.setState({ifnotice:true})
+      this.updateNotice()
+    }.bind(this))
+
+    socket.on('message',function(data){
       console.log(data)
-    })
-    // document.onclick = function(){
-    //   // this.setState({
-    //   //   ifnotice:false,
-    //   //   ifmessage:false
-    //   // })
-    // }.bind(this)
+    }.bind(this))
+    
+  }
+
+  componentDidMount =()=>{
+    document.getElementsByClassName('mainContainer')[0].onclick = function(){
+      this.setState({
+        ifnotice:false,
+        ifmessage:false
+      })
+    }.bind(this)
   }
 
   componentWillUnMount =()=>{
-     // document.onclick = null
+     document.getElementsByClassName('mainContainer')[0].onclick = null
   }
 
   componentWillReceiveProps =(nextProps)=>{
     if(nextProps.auth.isAuth){
-        this.props.fetchNotice().then(data=>{
-          this.setState({
-            notice:data
-          })
-        })
+        this.updateNotice()
         this.props.fetchMessage()
     }
+  }
+
+  updateNotice=()=>{
+    this.props.fetchNotice().then(data=>{
+      if (data.status == 200) {
+          this.setState({
+            notice:data.data
+          })
+        }else{
+          this.props.tipShow({type:"error",msg:data.msg})
+        }
+    })
   }
 
   loginOut =()=>{
@@ -65,28 +87,48 @@ export default class Header extends Component{
     this.setState({
       ifnotice:this.state.ifnotice ? false : true
     })
-    // e.preventDefault()
-    // e.stopPropagation()
-    // var ele = e.target.getElementsByTagName('ul')[0]
-    // if (ele) {
-    //   ele.style.display = ele.style.display == "block" ? "none" : "block"
-    // }else{
-    //   ele = e.target.parentNode.getElementsByTagName('ul')[0]
-    //   ele.style.display = ele.style.display == "block" ? "none" : "block"
-    // }
   }
 
-  //私信                        “谁” 给你发了私信               属于消息（type="privatemessage"）
-  //文章评价                    “谁” 在 “文章”                  属于消息（type="articlecomment"）
-  //请求入群                    “谁” 请求加入 “社团”            属于消息（type="attendrequest"）
-  //文章中回复了你              “谁” 在 “文章”                  属于消息（type="articlereply"）
+ goNotice =(e)=>{
+    this.setState({
+      ifnotice:this.state.ifnotice ? false : true
+    })
+   this.updateNotice()
+  }
 
-  //关注                        “谁“ 关注了你                   属于通知（type="focusyou"）
-  //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"）
+  updateNotice=()=>{
+     this.props.updateNotice().then(data=>{
+      if (data.status == 200) {
+        var notice = this.state.notice;
+        for (var i = 0; i < notice.length; i++) {
+          notice[i].status = 1
+        }
+        this.setState({})
+      }else{
+        this.props.tipShow({type:"error",msg:data.msg})
+      }
+    })
+  }
 
+  addMore =()=>{
+    this.updateNotice(this.state.currentPage + 1)
+    this.setState({
+      currentPage:this.state.currentPage + 1
+    })
+
+  }
+
+  //私信                        “谁” 给你发了私信               属于消息（type="privatemessage"） 转到通知消息页面的私信选项
+  //文章评价                    “谁” 在 “文章”                  属于消息（type="articlecomment"） 转到通知消息页面的回复选项
+  //请求入群                    “谁” 请求加入 “社团”            属于消息（type="attendrequest"）  转到通知消息页面的请求选项
+  //文章中回复了你              “谁” 在 “文章”                  属于消息（type="articlereply"）   转到通知消息页面的回复选项
+
+  //关注                        “谁“ 关注了你                   属于通知（type="focusyou"）      转到通知页面
+  //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"） 转到通知页面
 
   render(){
-    // console.log(this.props.auth)
+    var isMessage = this.state.message[0] ? this.state.message[0].status : ''
+    var isNotice = this.state.notice[0] ? this.state.notice[0].status : ''
     const{auth} = this.props;
     return(
         <header>
@@ -102,23 +144,26 @@ export default class Header extends Component{
              <Link to='/register'>注册</Link>
              </span>}
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
-             <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link></span>}
-             <span onClick={this.goMessage} className="message" title="消息">
-                <i className="fa fa-envelope"></i>
+             <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
+             <span onClick={this.goMessage} className="messageNav" title="消息">
+                <i className={isMessage === 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}></i>
              </span>
-             <span onClick={this.goMessage} className="message" title="通知">
-                <i className="fa fa-bell"></i>
-             </span>
-              {this.state.ifnotice && <span className="message"><ul className="details">
+             <span onClick={this.goNotice} className="messageNav" title="通知">
+                <i className={isNotice === 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
+             </span></span>}
+              {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><ul className="details">
+                  {this.state.notice.length == 0 && <li className="text-center">没有新的通知~</li>}
                   {this.state.notice.map((item,index)=>{
-                    var link = `/memberBrief/${item.data.id}`
+                    var date = new Date(item.createdate)
+                    var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
                     switch(item.type){
                       case 'focusyou':
-                        return <li key={index}><p><img src={`/originImg?name=${item.data.id}&from=member`} width="20" /><Link to={link}>{item.data.nickname}</Link>关注了你</p></li>
+                        return <li key={index}><div className="focusyou"><img src={`/originImg?name=${item.memberId}&from=member`} width="30" /><Link to={`/memberBrief/${item.memberId}`}><strong>{item.nickname}</strong></Link><span className="lightColor smallFont pull-right">{time}</span></div><p>关注了你</p></li>
                       case 'attendapprove':
-                        return <li key={index}><Link to={link}>{item.data.nickname}</Link>关注了你</li>
+                        return <li key={index}><div className="focusyou"><img src={`/originImg?name=${item.organizationshead}&from=organizations`} width="30" /><Link to={`/organizationsHome/${item.organizationsId}`}><strong>{item.organizationsname}</strong></Link><span className="lightColor smallFont pull-right">{time}</span></div><p>通过了你的入社请求</p></li>
                     } 
                   })}
+                  <li className="text-center checkmore"><Link to="/memberCenter/myNotice">查看更多</Link></li>
                 </ul>
               </span>}
               <Link to='/queryresult' title="搜索"><i className="fa fa-search"></i></Link>

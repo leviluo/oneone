@@ -30,16 +30,29 @@ const COUNTREQUEST = 'COUNTREQUEST'
 //   }
 // }
 
-export function fetchNotice() {
+export function updateNotice() {
   return (dispatch, getState) => {
-    return axios.get('/notices').then(({data}) => {
+    return axios.put('/notices').then(({data}) => {
       // if (data.status == 200) {
       //     dispatch(authIn(data.nickname,data.memberId));
       //     history.push('/memberCenter')
       // }else{
       //     dispatch(tipResult({type:"error",msg:data.msg}))
       // }
+      return data
+    })
+  }
+}
 
+export function fetchNotice() {
+  return (dispatch, getState) => {
+    return axios.get('/notices?type=noread').then(({data}) => {
+      // if (data.status == 200) {
+      //     dispatch(authIn(data.nickname,data.memberId));
+      //     history.push('/memberCenter')
+      // }else{
+      //     dispatch(tipResult({type:"error",msg:data.msg}))
+      // }
       return data
     })
   }

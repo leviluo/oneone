@@ -84,10 +84,17 @@ header{
                     margin-left:10px;
                 }
             }
+        .messageNav{
+            padding:0 10px;
+            cursor:pointer;
+            &:hover{
+                background:#e5e5e5;
+            }
+        }
         .message{
             position:relative;
             padding:0 10px;
-            cursor:pointer;
+            z-index:20;
             &:hover{
                 background:#e5e5e5;
             }
@@ -100,38 +107,136 @@ header{
                 padding:0;
                 margin:0;
                 z-index:5;
+                width:300px;
+                height:400px;
+                overflow:auto;
+                &::-webkit-scrollbar{
+                    width: 10px;
+                    height: 16px;
+                }
+                /*定义滚动条的轨道，内阴影及圆角*/
+                &::-webkit-scrollbar-track{
+                    background-color: #fff;
+                }
+                /*定义滑块，内阴影及圆角*/
+                &::-webkit-scrollbar-thumb{
+                    /*width: 10px;*/
+                    height: 20px;
+                    background-color: #e5e5e5;
+                }
                 li{
                     line-height:20px;
+                    padding:10px;
                     p{
                        margin:0;
-                       text-indent:10px;
+                    }
+                    color:#999;
+                    .focusyou{
+                        height:40px;
+                        line-height:30px;
                         &>a{
                             display:inline;
-                            float:none;
+                            float:left;
+                            height:30px;
+                            line-height:30px;
+                            margin-left:5px;
                             &:hover{
-                                color:#ff7f00;
+                                background:#e5e5e5
                             }
                         }
                         img{
                             box-shadow:none;
                             border-radius:20px;
                             border:1px solid #e5e5e5;
-                            position:relative;
-                            top:5px;
+                            float:left;
+                        }
+                        span{
+                            color:#999;
                         }
                     }
-                    border-bottom:1px dashed #efefef;
-                    width:250px;
+                    border-bottom:1px solid #efefef;
                     &:hover{
                         background:#efefef;
+                    }
+                }
+                .checkmore{
+                padding:0;
+                    a{
+                        float:none;
                     }
                 }
             }
         }
     }
+    .messagemove{
+        animation: messageShow 0.2s ease-out;
+        -moz-animation: messageShow 0.2s ease-out;
+        /* Firefox */
+        -webkit-animation: messageShow 0.2s ease-out;
+        /* Safari 和 Chrome */
+        -o-animation: messageShow 0.2s ease-out;
+        /* Opera */
+    }
+    .alternate{
+        animation: alternateShow 1s linear infinite alternate;
+        -moz-animation: alternateShow 1s linear infinite alternate;
+        /* Firefox */
+        -webkit-animation: alternateShow 1s linear infinite alternate;
+        /* Safari 和 Chrome */
+        -o-animation: alternateShow 1s linear infinite alternate;
+        /* Opera */
+    }
 }
 
-.activeRoute {
-    font-weight: bold;
-    text-decoration: none;
+@keyframes messageShow {
+    from {
+        filter: alpha(opacity=0);
+        opacity: 0;
+        left:-100px;
+    }
+
+    to {
+        filter: alpha(opacity=1);
+        opacity: 1;
+        left:0
+    }
+}
+
+@-webkit-keyframes messageShow
+/*Safari and Chrome*/
+{
+    from {
+        filter: alpha(opacity=0);
+        opacity: 0;
+        left:-100px;
+    }
+
+    to {
+        filter: alpha(opacity=1);
+        opacity: 1;
+        left:0
+    }
+}
+
+
+@keyframes alternateShow {
+    from {
+        color:#fff
+    }
+
+    to {
+        color:#ff7f00
+    }   
+}
+
+@-webkit-keyframes alternateShow
+/*Safari and Chrome*/
+{
+    from {
+        color:#fff
+    }
+
+    to {
+        color:#ff7f00
+    }   
 }

@@ -297,13 +297,13 @@ export default class Chat extends Component{
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor">{time}</p>
                         <p>{this.props.chat.chatFrom}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
-                        <p><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><div className="fa fa-play pull-right" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
                         <p className="text-center lightColor">{time}</p>
                         <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${this.props.chat.sendTo}`} />{this.props.chat.chatTo}</p>
-                        <p><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><div className="fa fa-play pull-left" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }
                   })}

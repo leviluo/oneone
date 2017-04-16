@@ -144,9 +144,9 @@ export default function routers(router){
 // 发布的文章
 	router.get("/organizations/getMyPost",organizationController.getMyPost,router.allowedMethods());
 // 获取通知
-	router.get("/organizations/getReplyMe",organizationController.getReplyMe,router.allowedMethods());
+	// router.get("/organizations/getReplyMe",organizationController.getReplyMe,router.allowedMethods());
 // 获取通知
-	router.get("/organizations/getApproveMe",organizationController.getApproveMe,router.allowedMethods());
+	// router.get("/organizations/getApproveMe",organizationController.getApproveMe,router.allowedMethods());
 // 获取入社申请
 	router.get("/organizations/getrequestData",organizationController.getrequestData,router.allowedMethods());
 // 审核申请
@@ -156,6 +156,8 @@ export default function routers(router){
 	router.get("/messages",memberController.messages,router.allowedMethods());
 // 获取通知
 	router.get("/notices",memberController.notices,router.allowedMethods());
+// 更新通知
+	router.put("/notices",memberController.updatenotices,router.allowedMethods());
 
 
 	// router.get('*', async function (next){

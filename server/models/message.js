@@ -60,8 +60,12 @@ var noticeSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    hostid: { type: Number, default: 0 },  //你是谁
-    data: { type: Object, default: {} }, //“谁“ 关注了你    
+    hostId: { type: Number, default: 0 },      //你是谁
+    memberId: { type: Number, default: 0 },      
+    organizationsId: { type: Number, default: 0 },      
+    nickname: { type: String, default: '' },
+    organizationsname: { type: String, default: '' },
+    organizationshead: { type: String, default: '' }, 
 })
 
 var messageSchema = new mongoose.Schema({
@@ -72,7 +76,9 @@ var messageSchema = new mongoose.Schema({
         default: Date.now
     },
     hostid: { type: Number, default: 0 },  //   你是谁
-    data: { type: Object, default: {} },  // “谁” 给你发了私信
+    memberId: { type: Number, default: 0 },      
+    organizationsId: { type: Number, default: 0 },      
+    nickname: { type: String, default: '' }
 })
 
 // var News = mongoose.model('News', NewsSchema);

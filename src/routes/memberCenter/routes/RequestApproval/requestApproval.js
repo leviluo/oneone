@@ -6,7 +6,7 @@ import {asyncConnect} from 'redux-async-connect'
 import { tipShow } from '../../../../components/Tips/modules/tips'
 import {getrequestData,isApprove} from './modules'
 import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
-import {countRequest} from '../../containers/modules'
+// import {countRequest} from '../../containers/modules'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -22,7 +22,7 @@ import {countRequest} from '../../containers/modules'
   state => ({
     auth:state.auth,
     }),
-  {tipShow,pageNavInit,countRequest}
+  {tipShow,pageNavInit}
 )
 
 export default class requestApproval extends Component {
@@ -70,7 +70,8 @@ export default class requestApproval extends Component {
     isApprove(flag,id).then(({data})=>{
     this.state.request['isApprove'] = false;
       if (data.status == 200) {
-        this.props.countRequest()
+        // this.props.countRequest()
+        this.props.tipShow({type:'success',msg:"操作成功"})
           for (var i = 0; i < this.state.requestData.length; i++) {
             if(this.state.requestData[i].id == id){
               this.state.requestData.splice(i,1)

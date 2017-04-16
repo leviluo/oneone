@@ -1,54 +1,53 @@
-.messageContent{
+#message{
 	padding:20px 0;
-	div{
-		height:140px;
-		padding:15px 0;
-		border-bottom:1px dashed #e5e5e5;
-		a{
-		 	color:#37a;
-		 	padding:3px;
-		 	&:hover{
-		 		background:#efefef
-		 	}
-		 }
-		&>img{
-			border-radius:75px;
-			border:5px solid #efefef;
-			float:left
-		}
-		&>span{
-			float:right;
-			i{
-				font-size:12px;
-			}
-		}
-		ul{
-			float:left;
-			margin:2px;
-			padding-left:5px;
-			li:first-of-type{
-				margin-bottom:5px;
-				b{
-					color:#ff7f00
-				}
-				span:first-of-type{
-					font-size:120%
-				}
-				span:nth-of-type(2),span:nth-of-type(3){
-					font-size:13px;
-					margin:0 15px 0 5px;
-				}
-			}
-			li:nth-of-type(2){
-				color:#444;
+	.top{
+		height:40px;
+		box-sizing:content-box;
+		span{
+			height:40px;
+			line-height:40px;
+			display:inline-block;
+			padding:0 20px;
+			cursor:pointer;
+			letter-spacing:5px;
+			&:hover{
 				background:#efefef;
-				border-radius:5px;
-				padding:3px 5px;
-				 word-wrap: break-word;
-				 max-width:400px;
-				img{
-					margin-top:2px;
-					height:80px;
+			}
+		}
+		.active{
+			background:#1c86ee;
+			color:white;
+			&:hover{
+				background:#1c86ee;
+			}
+		}
+		border-bottom:2px solid #1c86ee;
+	}
+	.content{
+		padding:10px 0;
+		.chat{
+			aside{
+				height:700px;
+				display:inline-block;
+				&:nth-of-type(1){
+					width:200px;
+					border:1px solid #e5e5e5;
+					border-right:none;
+					overflow:auto;
+					 /*定义滚动条的轨道，内阴影及圆角*/
+	                &::-webkit-scrollbar-track{
+	                    background-color: #fff;
+	                }
+	                /*定义滑块，内阴影及圆角*/
+	                &::-webkit-scrollbar-thumb{
+	                    /*width: 10px;*/
+	                    height: 20px;
+	                    background-color: #e5e5e5;
+	                }
+				}
+				&:nth-of-type(2){
+					width:780px;
+					border:1px solid #e5e5e5;
 				}
 			}
 		}
