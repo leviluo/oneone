@@ -200,7 +200,11 @@ export default class Chat extends Component{
         
         var sendDate = new Date(data[0].time)
         if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
-        if(isTop==true)this.contentBody.scrollTop = this.contentBody.scrollHeight;
+        if(isTop==true){
+          setTimeout(()=>{
+          this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+          },10)
+        }
     })
   }
 
@@ -288,20 +292,19 @@ export default class Chat extends Component{
             </div>
             <div className="content-body" ref="contentBody">
                   <p><a onClick={this.checkHistory}>查看更多...</a></p>
-                  <p style={{color:"red"}}>{this.state.error}</p>
                   <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{
                      var date = new Date(item.time)
                      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
                      if(item.sendTo == this.props.chat.sendTo){
                        return <article className="sendFrom" key={index}>
-                        <p className="text-center lightColor">{time}</p>
+                        <p className="text-center lightColor smallFont">{time}</p>
                         <p>{this.props.chat.chatFrom}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
                         <p><div className="fa fa-play pull-right" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
-                        <p className="text-center lightColor">{time}</p>
+                        <p className="text-center lightColor smallFont">{time}</p>
                         <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${this.props.chat.sendTo}`} />{this.props.chat.chatTo}</p>
                         <p><div className="fa fa-play pull-left" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>

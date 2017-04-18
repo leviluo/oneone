@@ -319,7 +319,7 @@ export default class OrganizationsHome extends Component{
     reader.readAsDataURL(file); 
   }
 
-  checkHistory =(sendTo)=>{
+  checkHistory =(sendTo,isTop)=>{
     if(typeof sendTo == "object")sendTo = ''
     getHistory({organizationsId:this.props.params.id,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
         var data = data.data.reverse()
@@ -339,6 +339,11 @@ export default class OrganizationsHome extends Component{
         
         var sendDate = new Date(data[0].time)
         if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
+        // if(isTop==true){
+        //   setTimeout(()=>{
+        //   this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+        //   },10)
+        // }
     })
   }
 
@@ -430,13 +435,13 @@ export default class OrganizationsHome extends Component{
                      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
                      if(item.sendFrom == this.props.auth.memberId){
                        return <article className="sendFrom" key={index}>
-                        <p className="text-center lightColor">{time}</p>
+                        <p className="text-center lightColor smallFont">{time}</p>
                         <p>{this.props.auth.nickname}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
                         <p><div className="fa fa-play pull-right" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
-                        <p className="text-center lightColor">{time}</p>
+                        <p className="text-center lightColor smallFont">{time}</p>
                         <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${item.sendFrom}`} />{item.nickname}</p>
                         <p><div className="fa fa-play pull-left" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>

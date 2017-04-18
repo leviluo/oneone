@@ -196,7 +196,7 @@ export default class photoList extends Component {
   render () {
      if (this.state.worksData.length > 0) {
       var date = new Date(this.state.worksData[this.state.currentLargePhoto].createdAt)
-      var time = `${date.getFullYear()} ${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
     }
     return (
     <div className="photoList">
@@ -213,7 +213,7 @@ export default class photoList extends Component {
         {this.state.worksData.length > 0 && <div>
             {this.props.auth.memberId == this.state.memberInfo.memberId && <button className="btn-default operate">•••<ul><li onClick={(e)=>this.deletePhoto(e,this.state.worksData[this.state.currentLargePhoto].id,this.state.worksData[this.state.currentLargePhoto].name)}>删除</li></ul></button>}
             <span onClick={(e)=>this.addLike(e,this.state.worksData[this.state.currentLargePhoto].id)} className={`like lightColor ${this.state.worksData[this.state.currentLargePhoto].isLiked ? 'liked' : ''}`}><i className="fa fa-heart"></i>&nbsp;{this.state.worksData[this.state.currentLargePhoto].likes}</span>&nbsp;
-            <span className="lightColor">上传时间:</span>&nbsp;{time}&nbsp;
+            <span className="lightColor">上传时间:&nbsp;{time}&nbsp;</span>
           </div>
         }
     </div>

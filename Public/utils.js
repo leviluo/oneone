@@ -13,3 +13,10 @@ String.prototype.StringFilter = function(minlen,maxLen){
 
       return ''
 }
+
+String.prototype.StringTrim = function(maxLen){
+        if (this.length > maxLen) {
+          return this.slice(0,maxLen) + '...'
+        }
+      return this
+}

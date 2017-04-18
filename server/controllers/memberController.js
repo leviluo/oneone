@@ -99,9 +99,9 @@ const memberController = {
             return
         }
         if (lastUpdate) {
-        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mF.nickname as sendnickname,mT.id as sendTo,mT.nickname as sendTonickname from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
         }else{ 
-        var result = await sqlStr("select m.text,m.time,mF.id as send,mT.id as sendTo from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
+        var result = await sqlStr("select m.text,m.time,mF.id as send,mF.nickname as sendnickname,mT.id as sendTo,mT.nickname as sendTonickname from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
         }
         this.body = {status:200,data:result}
     },
