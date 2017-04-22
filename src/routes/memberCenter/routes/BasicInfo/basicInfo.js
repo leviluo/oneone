@@ -434,7 +434,8 @@ export default class BasicInfo extends Component {
   }
 
   savePhotos =(e,id,name)=>{
-    // console.log(this.state.imgs    var fd = new FormData(); 
+    // console.log(this.state.imgs   
+     var fd = new FormData(); 
     for (var i = 0; i < this.state.imgs.length; i++) {
       if(this.state.imgs[i].file){
           fd.append("file", this.state.imgs[i].file)

@@ -123,17 +123,19 @@ function uploadImgs(ob,name,url){
     return new Promise(function(reslove,reject){
           var form = new multiparty.Form({ uploadDir: url });
             //上传完成后处理
+            var ss = name
             form.parse(ob, function(err, fields, files) {
                 if (err) {
                     reject(err)
                 } else {    
                         fields.names=[]
                         // console.log(files)
+
                         if (files.file) {
                             for (var i = 0; i < files.file.length; i++) {
                                 var inputFile = files.file[i]
                                 var uploadedPath = inputFile.path;
-                                var name = name + Date.parse(new Date())+ i
+                                var name = ss + Date.parse(new Date())+ i
                                 var dstPath = url + name + '.jpg';
                                 fields.names.push(name)
                                //重命名为真实文件名
