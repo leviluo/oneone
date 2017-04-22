@@ -1,7 +1,7 @@
 import React from 'react'
 import Helmet from 'react-helmet'
 import Banner from '../../../components/Banner'
-import {Link} from 'react-router'
+import {Link,History} from 'react-router'
 import {connect} from 'react-redux'
 import {fetchCatelogue} from '../../../reducers/category'
 import {asyncConnect} from 'redux-async-connect'
@@ -17,7 +17,8 @@ import './HomeView.scss'
   promise: ({store: {dispatch, getState}}) => {
     const promises = [];
     
-    if (!getState().catelogues.isloaded) {
+    if (!getState().catelogues.isloaded) 
+    {
       promises.push(dispatch(fetchCatelogue()));
     }
 
@@ -37,9 +38,9 @@ export default class HomeView extends React.Component{
       currentPage:1
     }
 
-    static contextTypes = {
-      router: React.PropTypes.object.isRequired
-    };
+    // static contextTypes = {
+    //   router: React.PropTypes.object.isRequired
+    // };
 
     componentWillMount =()=>{ //正常进入页面可以直接获取到memberId
       if(this.props.mylocation.text[0]){
@@ -55,7 +56,6 @@ export default class HomeView extends React.Component{
         this.getData(this.state.currentPage,nextProps.mylocation.text[0])
       }
       if(nextProps.mylocation.text[0] && !this.state.isloaded){
-        console.log("333")
         this.setState({
           isloaded:true
         })
@@ -78,8 +78,8 @@ export default class HomeView extends React.Component{
             }
         }else if (data.status==600) {
           this.props.dispatch({type:"AUTHOUT"})
-          this.context.router.push('/login')
-        }{
+          this.props.router.push('/login')
+        }else{
           this.props.tipShow({type:'error',msg:data.msg})
         }
       })

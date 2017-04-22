@@ -15,7 +15,7 @@ import socket from '../../socket'
 export default class Header extends Component{
 
   static contextTypes = {
-    router:React.PropTypes.object.isRequired
+    router:PropTypes.object.isRequired
   };
 
   state = {
@@ -78,10 +78,6 @@ export default class Header extends Component{
   loginOut =()=>{
     this.props.loginOut(this.context.router);
   }
-
-  static contextTypes = {
-    router: React.PropTypes.object.isRequired
-  };
 
  goMessage =(e)=>{
     this.setState({

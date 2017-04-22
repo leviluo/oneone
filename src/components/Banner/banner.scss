@@ -39,7 +39,8 @@
         li{
             list-style:none;
             float:left;
-            font-size:30px;
+            height:30px;
+            line-height:30px;
             margin:0 5px;
         	&:hover{
         		color:red;

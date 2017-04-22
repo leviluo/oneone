@@ -88,6 +88,7 @@ export default class Header extends Component{
     this.count = this.len - count;
     this.runBanner()
   }
+  div
 
   componentWillUnmount =()=>{
     clearInterval(this.intrl)
@@ -102,7 +103,7 @@ export default class Header extends Component{
             )}
             <ul>
               {this.props.items.map((src,index) =>
-                <li key={index} onClick={(e)=>this.changeBanner(e,index)}>●</li>
+                <li key={index} onClick={(e)=>this.changeBanner(e,index)}><i className="fa fa-circle"></i></li>
                 )}
             </ul>
           </ul>
