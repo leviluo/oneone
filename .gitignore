@@ -7,9 +7,9 @@ node_modules
 dist
 coverage
 .idea/
-./server/upload/specialityimages
-./server/upload/articleImages
-./server/upload/headImages
-./server/upload/messageImages
-./server/upload/organizationImages
-./server/upload/specialityimages
+server/upload/specialityimages／
+server/upload/articleImages／
+server/upload/headImages／
+server/upload/messageImages／
+server/upload/organizationImages／
+server/upload/specialityimages／
