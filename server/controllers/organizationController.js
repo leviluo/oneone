@@ -1,5 +1,5 @@
 import { sqlStr,getByItems } from '../dbHelps/mysql'
-import {queryid} from '../routers/chat.js'
+import chat,{queryid} from '../routers/chat.js'
 import mongoose from 'mongoose'
 import {save,find,remove,update} from '../dbHelps/mongodb'
 
@@ -453,8 +453,8 @@ const organizationController = {
         var result = await sqlStr("insert into groupmessage set fromMember = ?,organizationsId = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
         if (result.affectedRows == 1) {
 
-            // var result = await sqlStr("select * from member where id = ?",[this.session.user])
-
+            var result = await sqlStr("select * from member where id = ?",[this.session.user])
+            // console.log(chat)
             chat.io.to(this.request.body.sendTo).emit('groupMessage', {text:text,sendFrom:this.session.user,nickname:result[0].nickname});
 
             this.body = { status: 200}

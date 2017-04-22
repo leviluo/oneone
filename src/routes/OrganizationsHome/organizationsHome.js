@@ -51,19 +51,25 @@ export default class OrganizationsHome extends Component{
     // 加入群聊
     initGroupChat(this.props.params.id)
 
-    var me = this
     socket.on('groupMessage',function(data){
         var date = new Date()
         var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-        me.state.chatContent.push({
+        this.state.chatContent.push({
           time:time,
           text:data.text,
           sendFrom:data.sendFrom,
           nickname:data.nickname
         })
-        me.setState({})
-    })
+        this.setState({})
+        this.setHeight()
+    }.bind(this))
     this.checkHistory()
+  }
+
+  setHeight=()=>{
+    setTimeout(()=>{
+            this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+    },50)
   }
 
 
@@ -71,6 +77,7 @@ export default class OrganizationsHome extends Component{
     // 离开群聊
     leaveGroupChat(this.props.params.id)
     this.props.pageNavInit(null)
+    document.onclick = null
   }
 
   activityData = (currentPage)=>{
@@ -186,6 +193,12 @@ export default class OrganizationsHome extends Component{
         showEmotion:this.state.showEmotion ? false : true
       })
       this.insertContent()
+      document.onclick = function(){
+        if (!this.state.showEmotion) return
+          this.setState({
+            showEmotion:false 
+        })
+      }
   }
 
   chooseEmotion = (e,index)=>{
@@ -344,11 +357,12 @@ export default class OrganizationsHome extends Component{
         //   this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
         //   },10)
         // }
+        this.setHeight()
     })
   }
 
   componentDidUpdate =()=>{
-    this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+    // this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
   }
 
   render(){
@@ -437,13 +451,13 @@ export default class OrganizationsHome extends Component{
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
                         <p>{this.props.auth.nickname}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
-                        <p><div className="fa fa-play pull-right" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><span className="fa fa-play pull-right" ></span><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
                         <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${item.sendFrom}`} />{item.nickname}</p>
-                        <p><div className="fa fa-play pull-left" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><span className="fa fa-play pull-left" ></span><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }
                   })}

@@ -2,12 +2,11 @@ import React, {Component} from 'react'
 import './myMessage.scss'
 import { connect } from 'react-redux'
 import { tipShow } from '../../../../components/Tips/modules/tips'
-import {messageList,getHistory} from './modules/myMessage'
+import {messageList,getHistory,submitText} from './modules/myMessage'
 import Chat,{chatShow} from '../../../../components/Chat'
-// import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
 import {asyncConnect} from 'redux-async-connect'
 import {Link} from 'react-router'
-// import {countMessage} from '../../containers/modules'
+import socket from '../../../../socket'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -39,8 +38,19 @@ export default class myMessage extends Component {
   };
 
   componentWillMount =()=>{
-    // this.props.pageNavInit(this.recentChats)
-    this.recentChats(1)
+   this.recentChats(1)
+   socket.on('message',function(data){
+      var date = new Date()
+      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+      this.state.chatContent.push({
+        time:time,
+        text:data.text,
+        sendTo:data.sendTo,
+        sendnickname:data.sendnickname
+      })
+      this.setState({})
+      this.setHeight()
+    }.bind(this))
   }
 
   recentChats = (currentPage)=>{
@@ -69,14 +79,17 @@ export default class myMessage extends Component {
     this.props.chatShow({chatTo:nickname,chatFrom:this.props.auth.nickname,sendTo:id})
   }
 
-  componentWillUnmount =()=>{
-    // this.props.countMessage()
-  }
-
   changeTag =(index)=>{
     this.setState({
       tag:index
     })
+    if (index == 1) { // 
+
+    }else if (index == 2) { // 
+
+    }else if (index == 3) { // 
+
+    }
   }
 
   chooseEmotion = (e,index)=>{
@@ -95,8 +108,11 @@ export default class myMessage extends Component {
     })
   }
 
-  recordPoint = ()=>{
+  recordPoint = (e)=>{
     this.saveRange()
+    if (e.keyCode == 13) {
+      this.sendMsg()
+    }
   }
 
   saveRange = ()=> {
@@ -123,11 +139,22 @@ export default class myMessage extends Component {
        }   
   }
 
-  isEmotion = ()=>{
+  isEmotion = (e)=>{
       this.setState({
         showEmotion:this.state.showEmotion ? false : true
       })
       this.insertContent()
+      document.onclick = function(){
+      if (!this.state.showEmotion) return
+        this.setState({
+          showEmotion:false 
+      })
+   }.bind(this)
+
+  }
+
+  componentWillUnmount =()=>{
+    document.onclick = null
   }
 
    insertImage =(e)=>{
@@ -169,7 +196,7 @@ export default class myMessage extends Component {
     return blob
   }
 
-  submitText =()=>{
+  sendMsg =()=>{
 
     var html = this.refs.text.innerHTML;
     var fd = new FormData(); 
@@ -187,21 +214,21 @@ export default class myMessage extends Component {
     }
     // fd.append('file',file)
     fd.append('text',content)
-    fd.append('sendTo',this.props.chat.sendTo)
+    fd.append('sendTo',this.state.items[this.state.msgIndex].memberId)
 
     submitText(fd).then(({data}) => {
       if (data.status==200) {
           var date = new Date()
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-          // var str = `<p class="sendFrom"><span class="lightColor">${this.props.chat.chatFrom}&nbsp;:&nbsp;</span><span class="time">${time}</span><span class="text">${this.refs.text.value}</span></p>`
-          // this.Chat.innerHTML += str; 
           this.state.chatContent.push({
             time:time,
             text:html,
-            sendTo:this.props.chat.sendTo
+            sendTo:this.state.items[this.state.msgIndex].memberId,
+            send:this.props.auth.memberId,
+            sendnickname:this.props.auth.nickname
           })
           this.setState({})
-          this.contentBody.scrollTop = this.contentBody.scrollHeight;
+          this.setHeight()
           this.refs.text.innerHTML = ""
       }else{
           this.props.tipShow({type:"error",msg:"发送失败"})
@@ -214,7 +241,7 @@ export default class myMessage extends Component {
 
   checkHistory =(sendTo,isTop)=>{
     if(typeof sendTo == "object")sendTo = ''
-    getHistory({chatWith:sendTo || this.props.chat.sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
+    getHistory({chatWith:sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
         var data = data.data.reverse()
 
         if (data.length == 0) {
@@ -234,11 +261,15 @@ export default class myMessage extends Component {
         var sendDate = new Date(data[0].time)
         if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
         if(isTop==true){
-          setTimeout(()=>{
-          this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-          },10)
+          this.setHeight()
         }
     })
+  }
+
+  setHeight=()=>{
+    setTimeout(()=>{
+            this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+    },50)
   }
 
   changeChat =(e,index)=>{
@@ -249,7 +280,6 @@ export default class myMessage extends Component {
     this.lastUpdate = ""
     this.checkHistory(this.state.items[index].memberId,true)
   }
-
 
   render () {
     const num = new Array(100).fill(0)
@@ -288,7 +318,7 @@ export default class myMessage extends Component {
             </aside>
             <aside>
               <div className="chatrecent" ref="contentBody">
-                  <p><a onClick={this.checkHistory}>查看更多...</a></p>
+                  <p><a onClick={()=>this.checkHistory(this.state.items[this.state.msgIndex].memberId)}>查看更多...</a></p>
                   <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{
                      var date = new Date(item.time)
@@ -297,13 +327,13 @@ export default class myMessage extends Component {
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
                         <p>{item.sendnickname}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
-                        <p><div className="fa fa-play pull-right" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><span className="fa fa-play pull-right" ></span><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
                         <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${item.send}`} />{item.sendnickname}</p>
-                        <p><div className="fa fa-play pull-left" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><span className="fa fa-play pull-left" ></span><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }
                   })}
@@ -324,10 +354,10 @@ export default class myMessage extends Component {
                   <input onChange={this.insertImage} ref="imageInput" type="file" style={{display:"none"}}/>
               </div>
               <div className="chatcontent">
-                  <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onKeyUp={this.ifSend} onClick={this.recordPoint} >
+                  <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onClick={this.recordPoint} >
                   </div>
                   <div>
-                    <button className="btn btn-success">发送</button>
+                    <button className="btn btn-success" onClick={this.sendMsg}>发送</button>
                   </div>
               </div>
             </aside>

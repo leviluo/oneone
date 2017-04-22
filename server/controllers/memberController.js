@@ -74,10 +74,11 @@ const memberController = {
         var result = await sqlStr("insert into message set fromMember = ?,toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
+            var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
             // 在线发送socket消息
             var toSocket = queryid(toName)
             if (toSocket) {
-                toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo});
+                toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
             }
 
             this.body = { status: 200}

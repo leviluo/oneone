@@ -32,6 +32,7 @@ export default class Chat extends Component{
           sendTo:data.sendTo
         })
         me.setState({})
+        this.setHeight()
       })
   }
 
@@ -143,7 +144,8 @@ export default class Chat extends Component{
             sendTo:this.props.chat.sendTo
           })
           this.setState({})
-          this.contentBody.scrollTop = this.contentBody.scrollHeight;
+          // this.contentBody.scrollTop = this.contentBody.scrollHeight;
+          this.setHeight()
           this.refs.text.innerHTML = ""
       }else{
           this.props.tipShow({type:"error",msg:"发送失败"})
@@ -201,15 +203,17 @@ export default class Chat extends Component{
         var sendDate = new Date(data[0].time)
         if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
         if(isTop==true){
-          setTimeout(()=>{
-          this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-          },10)
+          // setTimeout(()=>{
+          // this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+          // },10)
+          this.setHeight()
         }
     })
   }
 
   componentDidUpdate=()=>{
-    this.contentBody.scrollTop = this.contentBody.scrollHeight;
+    // this.contentBody.scrollTop = this.contentBody.scrollHeight;
+
   }
 
   addEvent = ()=>{
@@ -228,6 +232,22 @@ export default class Chat extends Component{
         showEmotion:this.state.showEmotion ? false : true
       })
       this.insertContent()
+      document.onclick = function(){
+      if (!this.state.showEmotion) return
+        this.setState({
+          showEmotion:false 
+      })
+    }
+  }
+
+  componentWillUnmount =()=>{
+    document.onclick = null
+  }
+
+  setHeight=()=>{
+    setTimeout(()=>{
+            this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+    },50)
   }
 
   chooseEmotion = (e,index)=>{
@@ -246,8 +266,11 @@ export default class Chat extends Component{
     })
   }
 
-  recordPoint = ()=>{
+  recordPoint = (e)=>{
     this.saveRange()
+     if (e.keyCode == 13) {
+      this.submitText()
+    }
   }
 
   saveRange = ()=> {
@@ -274,11 +297,6 @@ export default class Chat extends Component{
        }   
   }
 
-  ifSend =(e)=>{
-    if (e.keyCode == 13) {
-      this.submitText()
-    }
-  }
 
   render(){
     const{chatTo} = this.props.chat;
@@ -300,20 +318,20 @@ export default class Chat extends Component{
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
                         <p>{this.props.chat.chatFrom}<img className="head pull-right" width="30" src={`/originImg?from=member&name=${this.props.auth.memberId}`} /></p>
-                        <p><div className="fa fa-play pull-right" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><span className="fa fa-play pull-right" ></span><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }else{
                         return <article className="sendTo" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
                         <p><img width="30" className="head pull-left" src={`/originImg?from=member&name=${this.props.chat.sendTo}`} />{this.props.chat.chatTo}</p>
-                        <p><div className="fa fa-play pull-left" ></div><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
+                        <p><span className="fa fa-play pull-left" ></span><span dangerouslySetInnerHTML={{__html:item.text}}></span></p>
                        </article>
                      }
                   })}
                   </div>
             </div>
             <div className="content-message">
-              <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onKeyUp={this.ifSend} onClick={this.recordPoint} >
+              <div contentEditable="true" ref="text" onKeyUp={this.recordPoint} onClick={this.recordPoint} >
               </div>
             </div>
             <div className="content-footer">

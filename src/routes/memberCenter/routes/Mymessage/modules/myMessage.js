@@ -7,3 +7,8 @@ export function messageList(limit){
 export function getHistory(data){
     return axios.get(`/message?chatWith=${data.chatWith}&lastUpdate=${data.lastUpdate}`)
 }
+
+//otherMethods
+export function submitText(fd){
+    return axios.post('/message',fd)
+}

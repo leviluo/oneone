@@ -225,7 +225,7 @@
 			                        line-height:30px;
 			                    }
 			                    p:last-of-type{
-			                        span{
+			                        span:last-of-type{
 			                            padding:5px;
 			                            background:#efefef;
 			                            display:inline-block;
@@ -250,7 +250,7 @@
 			                    p:last-of-type{
 			                        color:white;
 			                        text-align:right;
-			                        span{
+			                        span:last-of-type{
 			                            padding:5px;
 			                            background:#5CACEE;
 			                            display:inline-block;
