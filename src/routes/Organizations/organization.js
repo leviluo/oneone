@@ -82,11 +82,10 @@ export default class MemberBrief extends Component{
                   <div className="updates">
                       {this.state.updates.length == 0 && <div style={{textAlign:"center"}}>暂时没有任何动态哦~</div>}
                       {this.state.updates.map((item,index)=>{
-                        var date = new Date(item.createAt)
-                        var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+                        var time = item.createAt.DateFormat("yyyy-MM-dd hh:mm")
                         return <div key={index} className="lists">
                             <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
-                            {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`}>{item.title}</Link></div>}
+                            {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`} dangerouslySetInnerHTML={{__html:item.title}}></Link></div>}
                         </div>
                       })}
                       <PageNavBar />

@@ -147,7 +147,7 @@ export default class Header extends Component{
              <span onClick={this.goNotice} className="messageNav" title="通知">
                 <i className={isNotice === 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
              </span></span>}
-              {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><ul className="details">
+              {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><span className="fa fa-play pull-right" ></span><ul className="details">
                   {this.state.notice.length == 0 && <li className="text-center">没有新的通知~</li>}
                   {this.state.notice.map((item,index)=>{
                     var date = new Date(item.createdate)

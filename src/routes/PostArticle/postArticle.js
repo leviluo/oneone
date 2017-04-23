@@ -62,7 +62,7 @@ const colorItems = [
                     "#8A2BE2",
                     "#00C78C",
                     "#9933FA"
-                    ];
+];
 
 const fontFamilyItems = [
     "Arial","Arial Narrow","Comic Sans MS","Courier New","Courier","Georgia",
@@ -89,15 +89,16 @@ export default class PostArticle extends Component{
             isColor:false,
             isFontFamily:false,
             isFontSize:false,
-            lastChooseDiv:{},
-            focusOffset:0,
-            imgs:[],
             type:0,
             request:{}
         }
 
         componentDidMount=()=>{
-            document.addEventListener('click',this.resetState,false)
+
+            document.onclick = function(){
+                this.closemodal()
+            }.bind(this)
+
             if (this.props.params.type == "edit") {
                 // var query = this.props.location.query
                 getArticle(this.props.location.query.id).then(({data})=>{
@@ -121,26 +122,11 @@ export default class PostArticle extends Component{
         }
 
         componentDidUpdate=()=>{
-            // if (this.props.setContent) { //在修改时,更新内容和state
-            //     if (this.props.setContent && this.props.articleDetailData && this.state.flag) {
-            //         this.setState({
-            //             defaultContent:{__html:this.props.articleDetailData.content},
-            //             flag:false
-            //         })
-            //     }; 
-            //     this.props.setContent();
-            // }
-        }
 
-        resetState = ()=>{
-            this.setState({
-                lastChooseDiv:{},
-                focusOffset:0
-            })
         }
 
         componentWillUnmount=()=>{
-            document.removeEventListener('click',this.resetState,false)
+            document.onclick = null
         }
 
         search =(lastnode)=>{
@@ -163,9 +149,18 @@ export default class PostArticle extends Component{
             return selection
         }
 
+        closemodal = ()=>{
+            this.setState({
+                isColor:false,
+                isFontFamily:false,
+                isFontSize:false,
+            })
+        }
+
             
         setStyle = (e,action,value,changeColor)=>{
             if(e)e.nativeEvent.stopImmediatePropagation();
+
             let selection = this.getSelection().focusNode
 
             if (selection) {
@@ -174,30 +169,25 @@ export default class PostArticle extends Component{
                 return
             }
 
+            // if (!isIE()) {
+                if (action=='formatBlock') {
+                    let headers = document.getElementsByName('header')
+                    for (var i = 0; i < headers.length; i++) {
+                        headers[i].style.color = '#000'
+                    }
+                    e.target.style.color = 'rgb(24, 116, 205)'
+                }
+            // };
+
             this.refs.content.focus();
             document.execCommand(action, false, value);
 
-            // if (!isIE()) {
-            //     if (action=='formatBlock') {
-            //         let headers = document.getElementsByName('header')
-            //         for (var i = 0; i < headers.length; i++) {
-            //             headers[i].style.color = '#000'
-            //         }
-            //         e.target.style.color = 'rgb(24, 116, 205)'
-            //     }
-            // };
- 
-
             if(changeColor)e.target.style.color = e.target.style.color == 'rgb(24, 116, 205)' ? 'rgb(0,0,0)' :'rgb(24, 116, 205)'
-            
-            this.setState({
-                isColor:false,
-                isFontFamily:false,
-                isFontSize:false,
-            })
+            this.closemodal()
         }
 
         setColor = (e,action)=>{
+            e.nativeEvent.stopImmediatePropagation();
             this.setState({
                 colorAction:action,
                 isColor:this.state.isColor ? false : true
@@ -205,12 +195,14 @@ export default class PostArticle extends Component{
         }
 
         setFontfamily = (e)=>{
+            e.nativeEvent.stopImmediatePropagation();
             this.setState({
                 isFontFamily: this.state.isFontFamily ? false : true
             })
         }
 
         setFontsize = (e)=>{
+            e.nativeEvent.stopImmediatePropagation();
             this.setState({
                 isFontSize: this.state.isFontSize ? false : true
             })
@@ -227,48 +219,36 @@ export default class PostArticle extends Component{
         }
 
         chooseStyle = (e) =>{
-                e.nativeEvent.stopImmediatePropagation();//react阻止冒泡
-                let selection = this.getSelection();
-                if (this.state.lastChooseDiv===selection.focusNode && ((this.state.focusOffset+1)==selection.focusOffset || this.state.focusOffset==0)){return}
-                this.setState({
-                    lastChooseDiv:selection.focusNode,
-                })
-                var items = this.searchStyle(selection.focusNode,[]);
-                // console.log(items)
-                for (var i = 0; i < document.getElementsByName('header').length; i++) {
-                    document.getElementsByName('header')[i].style.color = '#000'
-                }
-                for (var i = 0; i < document.getElementsByName('changeColor').length; i++) {
-                    document.getElementsByName('changeColor')[i].style.color = '#000'
-                }
-                for (var i = 0; i < items.length; i++) {
-                    if(items[i] == 'DIV'){
-                        document.getElementsByName('header')[0].style.color = 'rgb(24, 116, 205)'
-                        continue
-                    }
-                    if (items[i] == 'FONT' || items[i] == 'SPAN') {
-                        continue
-                    }
-                    document.getElementById(items[i]).style.color='rgb(24, 116, 205)'
-                }
-                if (items.length<1) {
-                    document.getElementsByName('header')[0].style.color = 'rgb(24, 116, 205)'
-                }
-        }
 
-        recordOffset = (e)=>{
-            
-            if(e.keyCode==8){this.chooseStyle(e)} //backspace键
-            if(e.keyCode==13){ //enter键
-                for (var i = 0; i < document.getElementsByName('header').length; i++) {
-                    document.getElementsByName('header')[i].style.color = '#000'
+            this.saveRange()
+
+            this.closemodal()
+
+            e.nativeEvent.stopImmediatePropagation();//react阻止冒泡
+
+            let selection = this.getSelection();
+
+            var items = this.searchStyle(selection.focusNode,[]);
+            // console.log(items)
+            for (var i = 0; i < document.getElementsByName('header').length; i++) {
+                document.getElementsByName('header')[i].style.color = '#000'
+            }
+            for (var i = 0; i < document.getElementsByName('changeColor').length; i++) {
+                document.getElementsByName('changeColor')[i].style.color = '#000'
+            }
+            for (var i = 0; i < items.length; i++) {
+                if(items[i] == 'DIV'){
+                    document.getElementsByName('header')[0].style.color = 'rgb(24, 116, 205)'
+                    continue
                 }
+                if (items[i] == 'FONT' || items[i] == 'SPAN') {
+                    continue
+                }
+                document.getElementById(items[i]).style.color='rgb(24, 116, 205)'
+            }
+            if (items.length<1) {
                 document.getElementsByName('header')[0].style.color = 'rgb(24, 116, 205)'
             }
-            this.setState({
-                focusOffset:this.getSelection().focusOffset,
-
-            })
         }
 
         toolTips = (e)=>{
@@ -283,63 +263,6 @@ export default class PostArticle extends Component{
             element.style.display = 'none'
         }
 
-        hideDeleteImg=(e)=>{
-          e.target.style.filter = "alpha(opacity=0)"
-          e.target.style.opacity = "0"
-        }
-
-        showDeleteImg=(e,index)=>{
-          e.target.style.filter = "alpha(opacity=0.8)"
-          e.target.style.opacity = "80"
-          var me = this
-          e.target.onclick=function(e){
-            e.srcElement.parentNode.parentNode.removeChild(e.srcElement.parentNode)
-            for (var i = 0; i < me.state.imgs.length; i++) {
-                if(me.state.imgs[i].key == e.target.getAttribute('name')){
-                    me.state.imgs.splice(i,1)
-                    break
-                }
-            }
-            me.setState({})
-          }
-        }
-
-        addImages = (e)=>{
-          if ((this.state.imgs.length + e.target.files.length) > 8) {
-            this.props.tipShow({type:'error',msg:'只能添加8张图片'})
-            return;
-          };
-          var value = e.target.value
-          var filextension=value.substring(value.lastIndexOf("."),value.length);
-          filextension = filextension.toLowerCase();
-          if ((filextension!='.jpg')&&(filextension!='.gif')&&(filextension!='.jpeg')&&(filextension!='.png')&&(filextension!='.bmp'))
-          {
-          this.props.tipShow({type:'error',msg:'文件类型不正确'})
-          return;
-          }
-
-          for (var i = e.target.files.length - 1; i >= 0; i--) {
-              var fileUrl = window.URL.createObjectURL(e.target.files[i])
-              var div = document.createElement('div')
-              div.className = "imgList"
-              div.style.backgroundImage = `url(${fileUrl})`
-
-              var divDelete = document.createElement('div')
-              divDelete.onmouseout = this.hideDeleteImg
-              divDelete.onmouseover = this.showDeleteImg
-              divDelete.className = "fa fa-trash"
-              var key = Date.parse(new Date())
-              divDelete.setAttribute('name',key)
-
-              div.appendChild(divDelete)
-
-              e.target.parentNode.parentNode.insertBefore(div,e.target.parentNode)
-              this.state.imgs.push({key:key,file:e.target.files[i]})
-          };
-
-          this.setState({})
-      }
-
       static contextTypes = {
         router: React.PropTypes.object.isRequired
       };
@@ -349,35 +272,34 @@ export default class PostArticle extends Component{
           var type = this.refs.type.getValue()
           var content = this.refs.content.innerHTML
 
-          var flag = header.StringFilter(1,50)
+          var flag = header.StringLen(1,50)
 
           if (flag) {
             this.props.tipShow({type:"error",msg:`标题${flag}`})
             return
           }
 
+        var fd = new FormData(); 
+
+        var file = []
+        var content = content.replace(/<img\ssrc="data:image\/(png|jpeg|gif);base64,([0-9a-zA-Z\/\+=]+)">/g,function(_,$1,$2){
+          var secret = Math.random() 
+          fd.append(secret,this.convertBase64UrlToBlob($2))
+          return secret
+        }.bind(this))
+
           if (content.length < 10) {
             this.props.tipShow({type:"error",msg:"内容不能为空或者小于10个字符"})
             return
           }
 
-          var fd = new FormData(); 
-          var attachs = ''
-          for (var i = 0; i < this.state.imgs.length; i++) {
-            if(this.state.imgs[i].file){
-                fd.append("file", this.state.imgs[i].file)
-            }else{
-                attachs += this.state.imgs[i].key+','
-            }
-          }
- 
           if (this.props.params.type=='edit') {
           fd.append("articleId",this.props.params.id)
           }
-          fd.append("attachs",attachs.slice(0,-1))
+          // fd.append("attachs",attachs.slice(0,-1))
           fd.append("header",header)
           fd.append("type",type)
-          fd.append("content",content)
+          fd.append("text",content)
           fd.append("organizationId",this.props.params.id)
 
           if (this.state.request['submitArticle']) return
@@ -396,6 +318,80 @@ export default class PostArticle extends Component{
                 return
             }
           })
+      }
+
+      // base64转为file
+    convertBase64UrlToBlob =(data)=>{
+        // var data=url.split(',')[1];
+        if (!data) {return}
+
+        data=window.atob(data);
+        var ia = new Uint8Array(data.length);
+        for (var i = 0; i < data.length; i++) {
+            ia[i] = data.charCodeAt(i);
+        };
+        // canvas.toDataURL 返回的默认格式就是 image/png
+        var blob=new Blob([ia], {type:"image/png"});
+
+        return blob
+    }
+
+    insertImage =(e)=>{
+            // 判断文件类型
+            var value = e.target.value
+            if (!value)return
+            var filextension=value.substring(value.lastIndexOf("."),value.length);
+            filextension = filextension.toLowerCase();
+            if ((filextension!='.jpg')&&(filextension!='.gif')&&(filextension!='.jpeg')&&(filextension!='.png')&&(filextension!='.bmp'))
+            {
+              this.props.tipShow({type:"error",msg:"文件类型不正确"})
+              return;
+            }
+            var file = e.target.files[0]
+            var reader = new FileReader();  
+
+            reader.onload = function(e) {  
+                var src = e.target.result;  
+                this.insertContent()
+                document.execCommand("InsertImage", false, src);
+                this.saveRange()
+            }.bind(this)
+
+            reader.readAsDataURL(file); 
+    }
+
+    recordPoint = (e)=>{
+        this.saveRange()
+        if (e.keyCode == 13) {  //发送
+            for (var i = 0; i < document.getElementsByName('header').length; i++) {
+                document.getElementsByName('header')[i].style.color = '#000'
+            }
+            document.getElementsByName('header')[0].style.color = 'rgb(24, 116, 205)'
+        } 
+    }
+
+      saveRange = ()=> {
+           var selection = window.getSelection ? window.getSelection() : document.selection;
+           if (!selection.rangeCount) return;
+           var range = selection.createRange ? selection.createRange() : selection.getRangeAt(0);
+           window._range = range;
+      }
+
+      insertContent = ()=> {
+           if(!window._range){
+             this.refs.text.focus()
+             return
+           }
+           var selection, range = window._range;
+           if (!window.getSelection) {
+                range.collapse(false);
+                range.select();
+           } else {
+                selection = window.getSelection ? window.getSelection() : document.selection;
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+           }   
       }
 
         render() {
@@ -451,7 +447,9 @@ export default class PostArticle extends Component{
                                 <button onMouseOut={this.toolTipsHide} onMouseOver={this.toolTips} className='btn-default fa fa-list-ul' onClick={(e)=>this.setStyle(e,"insertUnorderedList",null)}><span>无序列表</span></button>
                                 <button onMouseOut={this.toolTipsHide} onMouseOver={this.toolTips} className='btn-default fa fa-list-ol' onClick={(e)=>this.setStyle(e,"insertOrderedList",null)}><span>有序列表</span></button>
                             </div>
-
+                            <div>
+                                <button onMouseOut={this.toolTipsHide} onMouseOver={this.toolTips} className='btn-default fa fa-image' onClick={()=>this.refs.imageInput.click()}><span>图片</span></button>
+                            </div>
                             </div>
                             {this.state.isColor && <div className="color">
                                         {colorItems.map((color) =>
@@ -480,27 +478,14 @@ export default class PostArticle extends Component{
                                         )}
                             </div>}
                         </div>
-                        <div ref="content" className="content" dangerouslySetInnerHTML={this.state.defaultContent} onClick={this.chooseStyle} contentEditable onKeyDown={this.recordOffset} onBlur={this.props.editorChange}>
+                        <div ref="content" className="content" dangerouslySetInnerHTML={this.state.defaultContent} onClick={this.chooseStyle} contentEditable onKeyUp={this.recordPoint}>
                         
                         </div>
-                            <div className="works">附加图片(最多8张)</div>
-                            {this.initattachedImgs && <div>
-                                {this.initattachedImgs.split(',').map((item,index)=>{
-                                console.log(item)
-                                if (!item) return;
-                                var link = `/img?from=article&name=${item}`
-                                return <div className="imgList" key={index} style={{backgroundImage:`url(${link})`}}>
-                                  <div onMouseOut={this.hideDeleteImg} name={item} onMouseOver={this.showDeleteImg} className="fa fa-trash"></div></div>
-                                  })}
-                                </div>
-                            }
-                            <div className="addDiv">
-                              +<input onChange={this.addImages} type="file" multiple/>
-                            </div>
                             <div className="addSubmit">
                               <button onClick={this.submitArticle} className="btn-success">提交</button>
                             </div>
                         </div>
+                        <input onChange={this.insertImage} ref="imageInput" type="file" style={{display:"none"}}/>
                       </div>
                 )
             ;

@@ -229,8 +229,8 @@ export default class BasicInfo extends Component {
             work:null,
             memberId:this.props.auth.memberId,
             speciality:speciality,
-            brief:brief,
-            experience:experience
+            brief:brief.html2Escape(),
+            experience:experience.html2Escape()
           }
           items.memberId = this.props.auth.memberId
           this.props.dispatch({type:"ADD_SPECIALITIES",value:items})
@@ -239,7 +239,7 @@ export default class BasicInfo extends Component {
           this.context.router.push('/login')
       }
       else{
-          this.props.dispatch(tipResult({type:"error",msg:data.msg}))
+          this.props.tipShow({type:"error",msg:data.msg})
       }
     })
 
@@ -420,6 +420,7 @@ export default class BasicInfo extends Component {
     this.setState({
       speciality:speciality
     })
+    // console.log(speciality)
     this.props.confirmShow({submit:this.confirmDelete,text:"此操作会删除该条目下的作品集,确定继续吗？"})
   }
 

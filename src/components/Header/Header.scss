@@ -98,10 +98,17 @@ header{
             &:hover{
                 background:#e5e5e5;
             }
+            .fa-play{
+                transform:rotate(90deg);
+                color:red;
+                position:absolute;
+                left:-10px;
+                top:45px;
+            }
             ul{
                 position:absolute;
                 top:44px;
-                left:0;
+                left:-235px;
                 background:#fff;
                 border:1px solid #e5e5e5;
                 padding:0;

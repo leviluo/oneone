@@ -285,5 +285,21 @@
 				}
 			}
 		}
+		.replys{
+			ul{
+				padding-left:0;
+				li{
+					line-height:30px;
+					verticle-align:middle;
+					border-bottom:1px solid #efefef;
+					span{
+						margin-left:10px;
+					}
+					p{
+						padding:5px;
+					}
+				}
+			}
+		}
 	}
 }

@@ -2,11 +2,14 @@ import React, {Component} from 'react'
 import './myMessage.scss'
 import { connect } from 'react-redux'
 import { tipShow } from '../../../../components/Tips/modules/tips'
-import {messageList,getHistory,submitText} from './modules/myMessage'
+import {messageList,getHistory,submitText,getReplyMe,submitReply,getcommentData} from './modules/myMessage'
 import Chat,{chatShow} from '../../../../components/Chat'
 import {asyncConnect} from 'redux-async-connect'
 import {Link} from 'react-router'
 import socket from '../../../../socket'
+import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
+import Modal,{modalShow,modalHide} from '../../../../components/Modal'
+import Textarea from '../../../../components/Textarea'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -19,23 +22,27 @@ import socket from '../../../../socket'
     auth:state.auth,
     pagenavbar:state.pagenavbar
     }),
-  {chatShow,tipShow}
+  {chatShow,tipShow,pageNavInit,modalShow,modalHide}
 )
 
 export default class myMessage extends Component {
 
   state ={
     items:[],
-    averagenum:5,
+    averagenum:3,
     tag:1,
     showEmotion:false,
     chatContent:[],
-    msgIndex:0
+    msgIndex:0,
+    currentPage:1,
+    replyMe:[],
+    commentMe:[],
+    flag:{}
   }
 
   static contextTypes = {
     router: React.PropTypes.object.isRequired
-  };
+  }
 
   componentWillMount =()=>{
    this.recentChats(1)
@@ -50,17 +57,30 @@ export default class myMessage extends Component {
       })
       this.setState({})
       this.setHeight()
-    }.bind(this))
+    }.bind(this)) 
   }
 
   recentChats = (currentPage)=>{
+    if (this.state.isEnd) {return}
     messageList(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
       if (data.status == 200) {
-        this.setState({
-          items:data.data
-        })
-        if (data.data[0]) { 
-          this.checkHistory(data.data[0].memberId,true)
+        if (currentPage == 1) {
+            this.setState({
+              items:data.data
+            })
+          if (data.data[0]) { 
+            this.checkHistory(data.data[0].memberId,true)
+          }
+        }else{
+          if (data.data.length == 0) {
+            this.props.tipShow({type:"error",msg:"没有更多的消息"})
+            this.setState({
+              isEnd:true
+            })
+            return
+          };
+          this.state.items = this.state.items.concat(data.data)
+          this.setState({})
         }
       }else if (data.status==600) {
         this.props.dispatch({type:"AUTHOUT"})
@@ -71,25 +91,51 @@ export default class myMessage extends Component {
     })
   }
 
-  showChat =(nickname,id)=>{
-    // this.setState({
-    //     chatTo:name,
-    //     sendTo:phone
-    // })
-    this.props.chatShow({chatTo:nickname,chatFrom:this.props.auth.nickname,sendTo:id})
+
+  addMore =()=>{
+    this.setState({
+      currentPage:this.state.currentPage + 1
+    })
+    this.recentChats(this.state.currentPage + 1)
   }
 
   changeTag =(index)=>{
     this.setState({
       tag:index
     })
-    if (index == 1) { // 
-
-    }else if (index == 2) { // 
-
-    }else if (index == 3) { // 
-
+    if (index == 1) { // 获取聊天记录
+      this.recentChats(1)
+    }else if (index == 2) { // 获取评论
+      this.props.pageNavInit(this.commentData)
+    }else if (index == 3) { // 获取回复
+      this.props.pageNavInit(this.replyData)
     }
+  }
+
+  commentData = (currentPage)=>{
+    return getcommentData(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+      if (data.status == 200) { 
+        this.setState({
+          commentMe:data.data
+        })
+      return Math.ceil(data.count/this.state.averagenum)
+      }else{
+       this.props.tipShow({type:'error',msg:data.msg})
+      }
+    })
+  }
+
+  replyData = (currentPage)=>{
+    return getReplyMe(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+      if (data.status == 200) { 
+        this.setState({
+          replyMe:data.data
+        })
+      return Math.ceil(data.count/this.state.averagenum)
+      }else{
+       this.props.tipShow({type:'error',msg:data.msg})
+      }
+    })
   }
 
   chooseEmotion = (e,index)=>{
@@ -157,7 +203,7 @@ export default class myMessage extends Component {
     document.onclick = null
   }
 
-   insertImage =(e)=>{
+  insertImage =(e)=>{
     // 判断文件类型
     var value = e.target.value
     if (!value)return
@@ -181,7 +227,7 @@ export default class myMessage extends Component {
     reader.readAsDataURL(file); 
   }
 
-    convertBase64UrlToBlob =(data)=>{
+  convertBase64UrlToBlob =(data)=>{
     // var data=url.split(',')[1];
     if (!data) {return}
 
@@ -215,8 +261,10 @@ export default class myMessage extends Component {
     // fd.append('file',file)
     fd.append('text',content)
     fd.append('sendTo',this.state.items[this.state.msgIndex].memberId)
-
+    if (this.state.flag['sendMsg']) return
+    this.state.flag['sendMsg'] = true;
     submitText(fd).then(({data}) => {
+      this.state.flag['sendMsg'] = false;
       if (data.status==200) {
           var date = new Date()
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
@@ -281,6 +329,57 @@ export default class myMessage extends Component {
     this.checkHistory(this.state.items[index].memberId,true)
   }
 
+  replyText =(e)=>{
+    this.setState({
+      replyText:e.target.value
+    })
+  }
+
+  replyNow = (nickname,articleId,replyId)=>{
+    // console.log(nickname)
+    // console.log(articleId)
+    // console.log(replyId)
+    this.setState({
+      articleId:articleId,
+      replyToId:replyId,
+    })
+    var content = <Textarea header="回复内容" handleTextarea = {this.replyText} rows="10" />
+
+    this.props.modalShow({header:`回复 ${nickname} 的消息`,content:content,submit:this.submitReply})
+
+  }
+
+  submitReply = ()=>{
+    var comment = this.state.replyText.trim()
+
+    if (!comment) {
+      this.props.tipShow({type:"error",msg:"请填写回复内容"})
+      return
+    }
+
+    if (comment.length > 1000) {
+      this.props.tipShow({type:"error",msg:"回复内容不超过1000个字符"})
+      return
+    }
+    if (this.state.flag['submitReply']) return
+    this.state.flag['submitReply'] = true;
+    submitReply({comment:comment,articleId:this.state.articleId,replyToId:this.state.replyToId}).then(data=>{
+      this.state.flag['submitReply'] = false;
+      if (data.status == 200) {
+        this.props.tipShow({
+          type:"success",
+          msg:"回复成功"
+        })
+        this.props.modalHide()
+      }else{
+        this.props.tipShow({
+          type:"error",
+          msg:data.msg
+        })
+      }
+    })
+  }
+
   render () {
     const num = new Array(100).fill(0)
     return (
@@ -288,16 +387,15 @@ export default class myMessage extends Component {
        <div id="message">
           <div className="top">
               <span className={this.state.tag == 1 ? "active" : ""} onClick={()=>this.changeTag(1)}>私信</span>
-              <span className={this.state.tag == 2 ? "active" : ""} onClick={()=>this.changeTag(2)}>回复</span>
-              <span className={this.state.tag == 3 ? "active" : ""} onClick={()=>this.changeTag(3)}>请求</span>
+              <span className={this.state.tag == 2 ? "active" : ""} onClick={()=>this.changeTag(2)}>评论</span>
+              <span className={this.state.tag == 3 ? "active" : ""} onClick={()=>this.changeTag(3)}>回复</span>
           </div>
           <div className="content">
           {this.state.tag == 1 && <article className="chat">
             <aside>
               <ul>
               {this.state.items.map((item,index)=>{
-              var date = new Date(item.time)
-              var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+              var time = item.time.DateFormat("yyyy-MM-dd hh:mm")
               var link = `/memberBrief/${item.memberId}`
               if (item.isSend) {
                 var isRead = item.active == '0'?'对方未读':'对方已读'
@@ -314,6 +412,7 @@ export default class myMessage extends Component {
                 </div>
               </li>
               })}
+              <li className="text-center"><a onClick={this.addMore}>加载更多</a></li>
               </ul>
             </aside>
             <aside>
@@ -321,8 +420,7 @@ export default class myMessage extends Component {
                   <p><a onClick={()=>this.checkHistory(this.state.items[this.state.msgIndex].memberId)}>查看更多...</a></p>
                   <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{
-                     var date = new Date(item.time)
-                     var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+                    var time = item.time.DateFormat("yyyy-MM-dd hh:mm")
                      if(item.sendTo != this.props.auth.memberId){
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>
@@ -362,10 +460,28 @@ export default class myMessage extends Component {
               </div>
             </aside>
           </article>}
-          {this.state.tag == 2 && <article>2222</article>}
-          {this.state.tag == 3 && <article>3333</article>}
+          {this.state.tag == 2 && <article className="replys">
+            <ul>
+              {this.state.commentMe.length == 0 && <li className="text-center">暂时没有记录</li>}
+              {this.state.commentMe.map((item,index)=>{
+                var time = item.createdAt.DateFormat("yyyy-MM-dd hh:mm")
+                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;在&nbsp;<Link to={`/article/${item.articleId}`}>{item.title}</Link>&nbsp;中评论了你<span className="pull-right lightColor smallFont">{time}</span> <a onClick={()=>this.replyNow(item.nickname,item.articleId,item.replyId)} className="pull-right">立即回复</a><p dangerouslySetInnerHTML={{__html:item.comment}} className="lightBackground"></p></li>
+              })}
+            </ul>
+          </article>}
+          {this.state.tag == 3 && <article className="replys">
+            <ul>
+              {this.state.replyMe.length == 0 && <li className="text-center">暂时没有记录</li>}
+              {this.state.replyMe.map((item,index)=>{
+                var time = item.createdAt.DateFormat("yyyy-MM-dd hh:mm")
+                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;在&nbsp;<Link to={`/article/${item.articleId}`}>{item.title}</Link>&nbsp;中回复了你<span className="pull-right lightColor smallFont">{time}</span> <a onClick={()=>this.replyNow(item.nickname,item.articleId,item.replyId)} className="pull-right">立即回复</a><p dangerouslySetInnerHTML={{__html:item.comment}} className="lightBackground"></p></li>
+              })}
+            </ul>
+            </article>}
+          {this.state.tag !=1 && <PageNavBar></PageNavBar>}
           </div>
        </div>
+       <Modal></Modal>
     </div>
     )
   }

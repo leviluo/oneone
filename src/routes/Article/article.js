@@ -65,8 +65,8 @@ export default class Article extends Component{
     }
     var comment = this.refs.replyContent.value.trim()
 
-    if (!comment || comment.length < 2 ||comment.length > 1000){
-      this.props.tipShow({type:"error",msg:"回复在2 ~ 1000个字符"})
+    if (!comment || comment.length < 1 ||comment.length > 1000){
+      this.props.tipShow({type:"error",msg:"回复在1 ~ 1000个字符"})
       return
     }
     if(this.state.request['reply'])return
@@ -173,25 +173,14 @@ export default class Article extends Component{
           <Share />
         </div>
         <div className="articleContent">
-          <h3>{this.state.articleData.title}</h3>
+          <h3 dangerouslySetInnerHTML={{__html:this.state.articleData.title}}></h3>
           <div className="articleContentTop">
             <img src={headSrc} alt=""/>
             <div><span className="lightColor">来自于&nbsp;:&nbsp;</span><Link to={link}>{this.state.articleData.nickname}</Link><span className="lightColor">&nbsp;&nbsp;最后修改&nbsp;:&nbsp;</span>{time}</div>
             {this.state.articleData.memberId != this.props.auth.memberId && <span className="lightColor"><a className="pull-right" onClick={this.goReply}>回复</a></span>}{this.state.articleData.memberId == this.props.auth.memberId && <span className="operate"><Link to={`/postArticle/${this.props.params.id}/edit?id=${this.state.articleData.id}`}>编辑</Link><a onClick={this.deleteArticle}>删除</a></span>}
           </div>
-          <div className="content" dangerouslySetInnerHTML={{__html:this.state.articleData.content}}>
-          </div>
-          <div className="attachedImgs">
-          {this.state.articleData.attachedImgs && <div className="imgShow"><span className="lightColor">附图:&nbsp;&nbsp;</span>
-          {this.state.articleData.attachedImgs.split(',').map((item,index)=>{
-            if (!item) return;
-            if (!this.imgs) {this.imgs = []}
-            var url = `/originImg?from=article&name=${item}`
-            this.imgs.push(url)
-            return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:this.imgs})} style={{backgroundImage:`url(${url.replace(/\/originImg\?/,"/img?")})`}}></div>
-              })}
-          </div>
-          }
+          <div className="content" >
+            <p dangerouslySetInnerHTML={{__html:this.state.articleData.content}}></p>
           </div>
           <span>回复区:&nbsp;&nbsp;</span>
           <div className="historyReplys">
@@ -212,13 +201,13 @@ export default class Article extends Component{
               return <div key={index}>
                   {item.memberId != this.props.auth.memberId && <a className="pull-right" onClick={(e)=>this.replyTo(e,index)}>回复</a>}{item.memberId == this.props.auth.memberId && <a onClick={(e)=>this.deleteReply(e,index)} className="pull-right">删除</a>}
                   <img src={headSrc} alt="" />
-                  <div><span>来自于&nbsp;:&nbsp;</span><Link to={link}>{item.nickname}</Link>&nbsp;&nbsp;<span>时间&nbsp;:&nbsp;</span>{rtime}{replyData && <p><span>回复</span>&nbsp;<Link to={replyLink}>{replyData.nickname}</Link><br /><span dangerouslySetInnerHTML={{__html:replyData.comment}}></span></p>}<p dangerouslySetInnerHTML={{__html:item.comment}}></p></div>
+                  <div><span>来自于&nbsp;:&nbsp;</span><Link to={link}>{item.nickname}</Link>&nbsp;&nbsp;<span className="smallFont">时间&nbsp;:&nbsp;{rtime}</span>{replyData && <p><span>回复</span>&nbsp;<Link to={replyLink}>{replyData.nickname}</Link><br /><span dangerouslySetInnerHTML={{__html:replyData.comment}}></span></p>}<p dangerouslySetInnerHTML={{__html:item.comment}}></p></div>
               </div>
             })}
             {this.state.replyData.length == 0 && <div>还没有人回复耶</div>}
           </div>
           <div className="reply">
-            <span>回复</span>&nbsp;{this.state.isReply && <span><Link to={this.state.link}>{this.state.replyToName}</Link><div>{this.state.replyToComment}</div> </span>}
+            <span>回复</span>&nbsp;{this.state.isReply && <span><Link to={this.state.link}>{this.state.replyToName}</Link><p dangerouslySetInnerHTML={{__html:this.state.replyToComment}}></p> </span>}
             <textarea ref="replyContent" rows="5"></textarea><button className="btn-success" onClick={this.reply}>发送</button>
           </div>
         </div>

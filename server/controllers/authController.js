@@ -4,11 +4,11 @@ var crypto = require('crypto'); //加载crypto库
 
 const authController = {
     register: async function(next) {
-        var phone = this.request.body.phone.trim()
-        var password = this.request.body.password.trim()
-        var code = this.request.body.code.trim()
-        var nickname = this.request.body.nickname.trim()
-        var location = this.request.body.location.trim();
+        var phone = this.request.body.phone.trim().html2Escape()
+        var password = this.request.body.password.trim().html2Escape()
+        var code = this.request.body.code.trim().html2Escape()
+        var nickname = this.request.body.nickname.trim().html2Escape()
+        var location = this.request.body.location.trim().html2Escape();
         var sex = this.request.body.sex;
 
         if (!/^[1][34578][0-9]{9}$/.test(phone)) {
@@ -48,8 +48,8 @@ const authController = {
         
     },
     login: async function(next) {
-        var phone = this.request.body.phone.trim()
-        var password = this.request.body.password.trim()
+        var phone = this.request.body.phone.trim().html2Escape()
+        var password = this.request.body.password.trim().html2Escape()
 
         if (!/^[1][34578][0-9]{9}$/.test(this.request.body.phone)) {
             this.body = { status: 500, msg: "手机号格式不正确" }

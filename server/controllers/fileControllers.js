@@ -153,7 +153,7 @@ function uploadImgs(ob,name,url){
     })
 }
 
-function UploadMessageImage(ob,name,url){
+function UploadMessageImage(ob,name,url,type){
     return new Promise(function(reslove,reject){
           var form = new multiparty.Form({ uploadDir: url });
             //上传完成后处理
@@ -161,15 +161,14 @@ function UploadMessageImage(ob,name,url){
                 if (err) {
                     reject(err)
                 } else {    
-                    // console.log(files)
                         for(var key in files){
-                            // console.log(files[key])
                             var inputFile = files[key][0]
                             var uploadedPath = inputFile.path;
                             var filename = Date.parse(new Date()) + key.toString().slice(2)
                             var dstPath = url + filename + '.jpg';
                             var reg = new RegExp(key)
-                            fields.text[0] = fields.text[0].replace(reg,`<img src="/img?from=chat&name=${filename}" />`)
+
+                            fields.text[0] = fields.text[0].replace(reg,`<img src="/img?from=${type}&name=${filename}" />`)
                            //重命名为真实文件名
                             fs.rename(uploadedPath, dstPath, function(err) {
                                 if (err) {
@@ -274,30 +273,32 @@ const fileController = {
 
         this.request.body = result.msg
     },
-
     submitMessage:async function(){
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
         var name = this.session.user
-        var result = await UploadMessageImage(this.req,name,config.messageImgDir)
+        var result = await UploadMessageImage(this.req,name,config.messageImgDir,'chat')
+        if (result.status != 200) {
+            this.body = {status:500,msg:'上传失败'}
+            return
+        }
         this.request.body.text = result.msg.text[0]
         this.request.body.sendTo = result.msg.sendTo[0]
     },
-    uploadArticleImg:async function(next){
+    uploadArticleImg:async function(next){   //上传文章时
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
         var name = this.session.user
-        var result = await uploadImgs(this.req,name,config.articleImgDir)
+        var result = await UploadMessageImage(this.req,name,config.articleImgDir,'article')
 
         if (result.status != 200) {
             this.body = {status:500,msg:'上传失败'}
             return
         }
-        
         this.request.body = result.msg
     },
     deletePhoto:async function(next){

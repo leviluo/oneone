@@ -83,7 +83,6 @@ export default class OrganizationsHome extends Component{
   activityData = (currentPage)=>{
     return getArticleList(this.props.params.id,this.state.type,`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
       if (data.status == 200) { 
-        console.log(data.data)
       this.setState({
           Activities:data.data
         })
@@ -198,7 +197,7 @@ export default class OrganizationsHome extends Component{
           this.setState({
             showEmotion:false 
         })
-      }
+      }.bind(this)
   }
 
   chooseEmotion = (e,index)=>{
@@ -367,8 +366,9 @@ export default class OrganizationsHome extends Component{
 
   render(){
   	var headImg = this.state.BasicInfo.head ? `/originImg?name=${this.state.BasicInfo.head}&from=organizations` : ''
-  	var date = new Date(this.state.BasicInfo.time)
-    var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}` 
+    if (this.state.BasicInfo.time) {
+    var time = this.state.BasicInfo.time.DateFormat("yyyy-MM-dd hh:mm")
+    }
     var link = `/memberBrief/${this.state.BasicInfo.createById}`
     const num = new Array(100).fill(0)
       return(
@@ -381,14 +381,14 @@ export default class OrganizationsHome extends Component{
         <div className="BasicInfoContent">
           <div className="head">
             <img src={headImg} alt=""/>
-            <span>{this.state.BasicInfo.name}</span>
+            <span dangerouslySetInnerHTML={{__html:this.state.BasicInfo.name}}></span>
             {(!this.state.isAttended && (this.props.auth.memberId != this.state.BasicInfo.memberId)) && <button className="btn-default" onClick={this.attendOrganization} >加入社团</button>}
             {(this.state.isAttended && (this.props.auth.memberId != this.state.BasicInfo.memberId)) && <button className="btn-default" onClick={this.quitOrganization} >退出社团</button>}
           </div>
 
           <div className="content">
             <div>创建于: <span>{time}</span>&nbsp;团长:&nbsp;<Link to={link}>{this.state.BasicInfo.nickname}</Link></div>
-            {this.state.BasicInfo.brief}
+            <p dangerouslySetInnerHTML={{__html:this.state.BasicInfo.brief}}></p>
           </div>
 
           <div className="articleTop">
@@ -406,13 +406,12 @@ export default class OrganizationsHome extends Component{
             </thead>
             <tbody>
             {this.state.Activities.map((item,index)=>{
-              var date = new Date(item.updatedAt)
-              var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+              var time = item.updatedAt.DateFormat("yyyy-MM-dd hh:mm")
               var linkMember = `/memberBrief/${item.memberId}`
               var linkArticle = `/article/${item.id}`
                 return <tr key={index}>
-                  <td><Link to={linkArticle}>{item.title}</Link></td>
-                  <td>{time}</td>  
+                  <td><Link to={linkArticle} dangerouslySetInnerHTML={{__html:item.title}}></Link></td>
+                  <td className="lightColor smallFont">{time}</td>  
                   <td><Link to={linkMember}>{item.publisher}</Link></td>
                 </tr>
             })}
@@ -445,8 +444,7 @@ export default class OrganizationsHome extends Component{
                   <p style={{color:"red"}}>{this.state.error}</p>
                   <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{
-                     var date = new Date(item.time)
-                     var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+                    var time = item.time.DateFormat("yyyy-MM-dd hh:mm")
                      if(item.sendFrom == this.props.auth.memberId){
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>

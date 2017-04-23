@@ -115,9 +115,9 @@ CREATE TABLE `article`(
   `organizationsId` int unsigned not null default 0,
   `memberId` int unsigned not null default 0,
   `title` varchar(50) not null DEFAULT '' COMMENT '//标题',
-  `content` text not null,
+  -- `content` text not null,
   `type` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:普通,1:活动,2:公告,3:咨询',
-  `attachedImgs` varchar(300) not null default '',
+  -- `attachedImgs` varchar(300) not null default '',
   `createdAt` datetime not null DEFAULT now() COMMENT '//',
   `updatedAt` datetime not null DEFAULT now() COMMENT '//',
   PRIMARY KEY  (`id`)
@@ -133,12 +133,12 @@ CREATE TABLE `comments` (
   `createdAt` datetime not null DEFAULT now() COMMENT '//',
   PRIMARY KEY  (`id`)
 );
-
+select 
 --回复通知 
 CREATE TABLE `reReply` (  
   `id` int unsigned auto_increment,
-  `replyTo` int unsigned not null default 0,
-  `commentsId` int unsigned not null default 0,
+  `replyTo` int unsigned not null default 0 COMMENT '//回复那条消息的',
+  `commentsId` int unsigned not null default 0 COMMENT '//回复内容',
   `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已读',
   PRIMARY KEY  (`id`)
 );
@@ -166,7 +166,7 @@ CREATE TABLE `groupmessage` (
 
 
 --article修改了organizationsId,comments删除了replyTo,comments增加了status,notice增加了replyTo,notice改为reReply
-insert into organizations(`categoryId`,`name`,`brief`,`createById`) values(1,"爱乐动","运动爱好者",20),(1,"爱乐动2","运动爱好者2",20),(2,"爱健康","运动爱好者2",20)
+insert into organizations(`categoryId`,`name`,`brief`,`createById`) values(1,"爱乐动","运动爱好者",20),(1,"爱乐动2","运动爱好者2",20),(2,"爱健康","运动爱好者2",20);
 
 insert into specialityCategory set name="运动";
 insert into specialityCategory set name="健康";

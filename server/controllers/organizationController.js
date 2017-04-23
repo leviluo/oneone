@@ -8,8 +8,8 @@ const organizationController = {
        await next;
 
        var user = this.session.user;
-       var name = this.request.body.name[0].trim()
-       var brief = this.request.body.brief[0].trim()
+       var name = this.request.body.name[0].trim().html2Escape()
+       var brief = this.request.body.brief[0].trim().html2Escape()
        var names = this.request.body.names[0]
        var categoryId = this.request.body.categoryId[0]
 
@@ -47,12 +47,22 @@ const organizationController = {
       }
     },
     modifyOrganization:async function(next) {
-       await next;
+      await next;
 
-       var name = this.request.body.name[0].trim()
-       var brief = this.request.body.brief[0].trim()
-       var names = this.request.body.names[0]
-       var id = this.request.body.id[0]
+      var name = this.request.body.name[0].trim().html2Escape()
+      var brief = this.request.body.brief[0].trim().html2Escape()
+      var names = this.request.body.names[0]
+      var id = this.request.body.id[0]
+
+       if (!name || name.length > 38) {
+        this.body = { status: 500, msg: "名称不为空或者大于30位字符" }
+        return
+      }
+
+      if (!brief || brief.length > 995) {
+        this.body = { status: 500, msg: "简介不为空或者大于1000位字符" }
+        return
+      }
 
        var resultrepeat = await sqlStr("select * from organizations where createById=? and name=? and id != ?",[this.session.user,name,id])
 
@@ -123,7 +133,7 @@ const organizationController = {
         var result = await sqlStr("select m.id,m.nickname from memberOrganizations as mo left join member as m on mo.memberId = m.id where mo.organizationsId = ?",[this.request.query.id])
         this.body = {status:200,data:result}
     },
-    addArticle: async function(next){
+    addArticle: async function(next){   //修改和添加文章
       await next;
       if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
@@ -131,39 +141,43 @@ const organizationController = {
         }
 
       var data = this.request.body
+      var header = data.header[0].trim().html2Escape()
+      var content = data.text[0]
 
-      if (!data.header[0] || data.header[0].length > 48) {
+      if (!header || header.length > 48) {
             this.body = { status: 500, msg: "标题不能为空或者大于50个字符" }
+            return
+      }
+
+      var article = mongoose.model('Article');
+
+      if (!data.articleId) {
+
+          var result = await sqlStr("insert into article set title = ?,type = ?,organizationsId =?,memberId = ?",[header,data.type[0],data.organizationId[0],this.session.user])
+          if (result.insertId) {
+              var data = new article({articleId:result.insertId,content:content});
+              var resulttt = await save(data)
+            // 写入更新表
+              var resultt = await sqlStr("insert into memberupdates set articleId = ?,memberId = ?",[result.insertId,this.session.user])
+          }
+          if (result.affectedRows == 1 && resultt.affectedRows == 1 && result.insertId == resulttt.articleId) {
+                  this.body = {status:200}
+                  return
+          }
+      }else{
+        var result = await sqlStr("update article set title =?,type=?,updatedAt=now() where id = ?",[header,data.type[0],data.articleId[0]])
+        var updates = await update(article,{articleId:data.articleId},{$set:{content:content}},{multi:true})
+        // if (result.affectedRows == 1) {
+        //       this.body = {status:200}
+        //       return
+        // }
+        console.log(result)
+        console.log(updates)
+        if(updates.ok == 1 && result.affectedRows == 1){
+            this.body = {status:200}
             return
         }
 
-      if (!data.articleId) {
-      var result = await sqlStr("insert into article set title = ?,type = ?,content =?,organizationsId =?,attachedImgs=?,memberId = ?",[data.header[0],data.type[0],data.content[0],data.organizationId[0],data.names.join(','),this.session.user])
-      // 写入更新表
-      var resultt = await sqlStr("insert into memberupdates set articleId = ?,memberId = ?",[result.insertId,this.session.user])
-
-      if (result.affectedRows == 1 && resultt.affectedRows == 1) {
-              this.body = {status:200}
-              return
-      }
-
-      }else{
-
-        if(data.attachs[0]){
-            if (this.request.body.names.length > 0) {
-                var imgs = data.attachs[0] +','+ this.request.body.names.join(',')
-            }else{
-                var imgs = data.attachs[0]
-            }
-        }else{
-                var imgs = this.request.body.names.join(',')
-        }
-
-        var result = await sqlStr("update article set title =?,type=?,content=?,attachedImgs=?,updatedAt=now() where id = ?",[data.header[0],data.type[0],data.content[0],imgs,data.articleId[0]])
-        if (result.affectedRows == 1) {
-              this.body = {status:200}
-              return
-        }
       }
       this.body = {status:500,msg:"发布失败"}
     },
@@ -176,12 +190,14 @@ const organizationController = {
         this.body = { status: 500, msg: "缺少参数" }
         return
       }
-      var verified = this.request.body.verified.trim()
-      var flag = verified.StringFilter(0,300)
+      var verified = this.request.body.verified.trim().html2Escape()
+      var flag = verified.StringLen(0,300)
       if (flag) {
         this.body = { status: 500, msg: `验证${flag}`}
         return
       }
+
+
       var result = await sqlStr("select id from organizationsrequest where memberId = ? and organizationsId=?",[this.session.user,this.request.body.id])
       if (result.length > 0) {
           this.body = {status:500,msg:"您已申请过,等待审核"}
@@ -250,13 +266,19 @@ const organizationController = {
             return
         }
       var result = await sqlStr("select a.*,m.nickname from article as a left join member as m on m.id = a.memberId where a.id = ?",[this.request.query.id])
-      if (result[0].phone == this.session.user) {
-        var resultt = await sqlStr("update comments set status = 1 where articleId = ?",[result[0].id]) //所有回复清空为已读
-      };
+
+      var article = mongoose.model('Article');
+      var content = await find(article,{articleId:this.request.query.id})
+      if (content[0]) {
+      result[0].content = content[0].content
+      }
+
       this.body = {status:200,data:result[0]}
     },
-    reply:async function(){
-      if (!this.request.body.comment || !this.request.body.articleId) {
+    reply:async function(){   //评论
+        var comment = this.request.body.comment.trim().html2Escape()
+
+      if (!comment || !this.request.body.articleId) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
@@ -264,8 +286,11 @@ const organizationController = {
           this.body = { status: 600, msg: "尚未登录" }
           return
         }
-      var result = await sqlStr("insert into comments set memberId = ?,articleId=?,comment=?",[this.session.user,this.request.body.articleId,this.request.body.comment])
-
+        if (comment.length > 1000) {
+          this.body = { status: 500, msg: "回复内容不多于1000个字符" }
+          return
+        }
+      var result = await sqlStr("insert into comments set memberId = ?,articleId=?,comment=?",[this.session.user,this.request.body.articleId,comment])
       if (this.request.body.replyToId) { 
         var resultt = await sqlStr("insert into reReply set commentsId = (select id from comments where memberId = ? and articleId=? order by id desc limit 1),replyTo = ?",[this.session.user,this.request.body.articleId,this.request.body.replyToId])
         if (result.affectedRows == 1 && resultt.affectedRows == 1) {
@@ -335,15 +360,26 @@ const organizationController = {
       var count = await sqlStr("select count(id) as count from article where memberId = ?",[this.session.user])
       this.body = {status:200,data:result,count:count[0].count}
     },
-    // getReplyMe:async function(){
-    //   if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //   var result = await sqlStr("select m.id,m.nickname,c.createdAt,c.comment,a.id as articleId,r.status,a.title,o.name,o.id as organizationsId from reReply as r left join comments as c on c.id = r.commentsId left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId left join organizations as o on o.id = a.organizationsId left join comments as cc on cc.id = r.replyTo where cc.memberId = ?",[this.session.user])
-    //   var resultt = await sqlStr("update reReply set status = 1 where replyTo in (select id from comments where memberId = ?)",[this.session.user])
-    //   this.body = {status:200,data:result}
-    // },
+    getReplyMe:async function(){  //回复我的消息
+      if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+      var result = await sqlStr("select m.id as memberId,m.nickname,c.createdAt,c.comment,c.id as replyId,a.id as articleId,r.status,a.title,o.name,o.id as organizationsId from reReply as r left join comments as c on c.id = r.commentsId left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId left join organizations as o on o.id = a.organizationsId left join comments as cc on cc.id = r.replyTo where cc.memberId = ? order by r.id desc limit "+this.request.query.limit,[this.session.user])
+      var count = await sqlStr("select count(r.id) as count from reReply as r left join comments as c on c.id = r.replyTo where c.memberId = ?",[this.session.user])
+      // var resultt = await sqlStr("update reReply set status = 1 where replyTo in (select id from comments where memberId = ?) and status = 0 order by id desc limit "+this.request.query.limit,[this.session.user])
+      this.body = {status:200,data:result,count:count[0].count}
+    },
+    commentsme:async function(){
+      if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+      var result = await sqlStr("select m.id as memberId,m.nickname,a.title,a.id as articleId,c.comment,c.createdAt,c.id as replyId from comments as c left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId where a.memberId = ? order by c.id desc limit "+this.request.query.limit,[this.session.user])
+      var count = await sqlStr("select count(c.id) as count from comments as c left join article as a on a.id = c.articleId where a.memberId = ?",[this.session.user])
+
+      this.body = {status:200,data:result,count:count[0].count}
+    },
     getrequestData:async function(){
       if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
@@ -438,16 +474,18 @@ const organizationController = {
 
         await next
         
-        var text = this.request.body.text
+        var text = this.request.body.text.trim()
 
         if(!text || !this.request.body.sendTo){
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
 
-        if (text.length > 1000) {
-            this.body = { status: 500, msg: "消息过长" }
-            return
+        var flag = text.StringLen(0,500)
+
+        if (flag) {
+          this.body = { status: 500, msg:`文本内容${flag}` }
+          return
         }
 
         var result = await sqlStr("insert into groupmessage set fromMember = ?,organizationsId = ?,text = ?",[this.session.user,this.request.body.sendTo,text])

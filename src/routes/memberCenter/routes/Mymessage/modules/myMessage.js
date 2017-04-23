@@ -12,3 +12,15 @@ export function getHistory(data){
 export function submitText(fd){
     return axios.post('/message',fd)
 }
+
+export function getReplyMe(limit){
+	return axios.get('/organizations/getReplyMe?limit='+limit)
+}
+
+export function getcommentData(limit){
+	return axios.get('/commentsme?limit='+limit)
+}
+
+export function submitReply(text) {
+      return axios.post('/organizations/reply',text)
+}

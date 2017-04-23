@@ -6,17 +6,23 @@ import {save,find,update,remove,aggregate,findLimit} from '../dbHelps/mongodb'
 
 const memberController = {
     addSpeciality:async function(next){
+
         await next
+
+        var brief = this.request.body.brief.trim().html2Escape()
+        var experience = this.request.body.experience.trim().html2Escape()
+        var speciality = this.request.body.speciality.trim().html2Escape()
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
 
-        if (!this.request.body.speciality || !this.request.body.brief || !this.request.body.experience ) {
+        if (!speciality || !brief || !experience ) {
         	this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        if (this.request.body.brief.length > 300) {
+        if (brief.length > 300) {
             this.body = { status: 500, msg: "简介超过了300个字符" }
             return
         }
@@ -26,14 +32,14 @@ const memberController = {
             return
         }
 
-        var resultrepeat = await sqlStr("select * from memberSpeciality where memberId=? and specialitiesId=(select id from specialities where name= ?)",[this.session.user,this.request.body.speciality])
+        var resultrepeat = await sqlStr("select * from memberSpeciality where memberId=? and specialitiesId=(select id from specialities where name= ?)",[this.session.user,speciality])
         // console.log('resultrepeat',resultrepeat)
         if(resultrepeat.length > 0){
             this.body = { status: 500, msg: "已经添加了此专业" }
             return
         }
 
-        var result = await sqlStr("insert into memberSpeciality set brief = ?,experience = ?,memberId=?,specialitiesId=(select id from specialities where name= ?)",[this.request.body.brief,this.request.body.experience,this.session.user,this.request.body.speciality])
+        var result = await sqlStr("insert into memberSpeciality set brief = ?,experience = ?,memberId=?,specialitiesId=(select id from specialities where name= ?)",[brief,experience,this.session.user,speciality])
         if (result.affectedRows == 1 ) {
             this.body = { status: 200,msg:"插入成功",result:{insertId:result.insertId}}
             return
@@ -136,7 +142,7 @@ const memberController = {
             return
         }
 
-        var nickname = this.request.body.nickname.trim()
+        var nickname = this.request.body.nickname.trim().html2Escape()
 
         var flag = nickname.StringFilter(1,20)
         if (flag) {
@@ -158,7 +164,7 @@ const memberController = {
             return
         }
 
-        var address = this.request.body.address.trim()
+        var address = this.request.body.address.trim().html2Escape()
 
         var flag = address.StringFilter(1,100)
 
@@ -177,19 +183,28 @@ const memberController = {
     },
     modifySpeciality:async function(next){
         await next
+
+        var brief = this.request.body.brief.trim().html2Escape()
+        var experience = this.request.body.experience.trim().html2Escape()
+        var speciality = this.request.body.speciality.trim().html2Escape()
+
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        if (!this.request.body.speciality || !this.request.body.brief || !this.request.body.experience ) {
+
+        if (!this.request.body.speciality || !brief || !experience ) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        if (this.request.body.brief.length > 300) {
-            this.body = { status: 500, msg: "简介超过了300个字符" }
+
+        var flag = brief.StringLen(0,300)
+        if (flag) {
+            this.body = { status: 500, msg: `简介${flag}` }
             return
         }
-        var result = await sqlStr("update memberSpeciality set brief = ?,experience=? where specialitiesId = (select id from specialities where name = ?) and memberId = ?",[this.request.body.brief,this.request.body.experience,this.request.body.speciality,this.session.user])
+
+        var result = await sqlStr("update memberSpeciality set brief = ?,experience=? where specialitiesId = (select id from specialities where name = ?) and memberId = ?",[brief,experience,speciality,this.session.user])
         
         if (result.affectedRows == 1) {
         this.body = {status:200}
@@ -278,7 +293,7 @@ const memberController = {
     var result = await findLimit(notice,{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:this.request.query.limit}) 
 
     var count = await aggregate(notice,{_id:"$hostId",total:{$sum:1}})
-    console.log(count)
+
     this.body = {status:200,data:result,count:count[0].total}
 
     }
@@ -463,7 +478,7 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var brief = this.request.body.brief.trim()
+        var brief = this.request.body.brief.trim().html2Escape()
         var flag = brief.StringFilter(1,100)
         if (flag) {
             this.body = { status: 500, msg: `简介${flag}`}

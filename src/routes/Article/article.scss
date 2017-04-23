@@ -56,30 +56,6 @@
 			padding:10px;
 			margin-top:10px;
 		}
-		.attachedImgs{
-			margin:10px 0;
-			.imgShow{
-				height:100px;
-				margin-top:10px;
-				span{
-				float:left
-				}
-				div{
-					width:100px;
-					overflow:hidden;
-					height:100px;
-					margin-right:10px;
-					float:left;
-					border:1px solid #efefef;
-					border-radius:5px;
-					background-position:center;
-					background-repeat:no-repeat;
-					background-size:cover;
-					cursor:pointer;
-					box-shadow:3px 3px 5px 1px #efefef;
-					}
-			}
-		}
 		.historyReplys{
 			margin-top:10px;
 			height:60px;

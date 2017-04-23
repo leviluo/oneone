@@ -120,15 +120,14 @@ export default class Chat extends Component{
     var content = html.replace(/<img\ssrc="data:image\/(png|jpeg|gif);base64,([0-9a-zA-Z\/\+=]+)">/g,function(_,$1,$2){
       var secret = Math.random() 
       fd.append(secret,this.convertBase64UrlToBlob($2))
-      // file.push({key:secret,file:this.convertBase64UrlToBlob($2)})
       return secret
     }.bind(this))
-    // console.log(content)
+
     if (!content || content.length > 300) {
       this.props.tipShow({type:"error",msg:"回复内容在1~300个字符"})
       return //过滤只有制表符
     }
-    // fd.append('file',file)
+
     fd.append('text',content)
     fd.append('sendTo',this.props.chat.sendTo)
 
@@ -136,8 +135,6 @@ export default class Chat extends Component{
       if (data.status==200) {
           var date = new Date()
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-          // var str = `<p class="sendFrom"><span class="lightColor">${this.props.chat.chatFrom}&nbsp;:&nbsp;</span><span class="time">${time}</span><span class="text">${this.refs.text.value}</span></p>`
-          // this.Chat.innerHTML += str; 
           this.state.chatContent.push({
             time:time,
             text:html,
@@ -233,11 +230,11 @@ export default class Chat extends Component{
       })
       this.insertContent()
       document.onclick = function(){
-      if (!this.state.showEmotion) return
-        this.setState({
-          showEmotion:false 
-      })
-    }
+        if (!this.state.showEmotion) return
+          this.setState({
+            showEmotion:false 
+        })
+      }.bind(this)
   }
 
   componentWillUnmount =()=>{

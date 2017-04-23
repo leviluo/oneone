@@ -143,8 +143,10 @@ export default function routers(router){
 	router.post("/organizations/reply",organizationController.reply,router.allowedMethods());
 // 发布的文章
 	router.get("/organizations/getMyPost",organizationController.getMyPost,router.allowedMethods());
-// 获取通知
-	// router.get("/organizations/getReplyMe",organizationController.getReplyMe,router.allowedMethods());
+// 获取回復
+	router.get("/organizations/getReplyMe",organizationController.getReplyMe,router.allowedMethods());
+// 获取評論
+	router.get("/commentsme",organizationController.commentsme,router.allowedMethods());
 // 获取通知
 	// router.get("/organizations/getApproveMe",organizationController.getApproveMe,router.allowedMethods());
 // 获取入社申请

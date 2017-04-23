@@ -40,6 +40,9 @@
 					i{
 						font-size:12px;
 					}
+					&:first-of-type{
+						float:none;
+					}
 				}
 			}
 			padding:15px 0;
@@ -54,7 +57,7 @@
 					border:none;
 					margin-bottom:15px;
 					line-height:25px;
-					span{
+					span:first-of-type{
 						margin-right:10px;
 						color:#999;
 					}

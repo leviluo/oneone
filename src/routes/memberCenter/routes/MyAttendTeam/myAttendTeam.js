@@ -66,13 +66,13 @@ export default class myAttendTeam extends Component {
               var organizationBrief = `organizationBrief${item.id}`
               var link = `/organizationsHome/${item.id}`
               return <div className="items" key = {index}>
-                      {!this.state[item.name] && <div>{item.name}<span><Link to={link} >去社团主页</Link></span></div>}
+                      {!this.state[item.name] && <div><span dangerouslySetInnerHTML={{__html:item.name}}></span><span><Link to={link} >去社团主页</Link></span></div>}
                       {!this.state[item.name] && <img src={headImg} />}
 
                       <ul>
                         {!this.state[item.name] && <li><span>所属类别:</span>{item.categoryName}</li>}
                         {!this.state[item.name] && <li><span>创建时间:</span>{time}</li>}
-                        {!this.state[item.name] && <li><span>社团简介:</span>{item.brief}</li>}
+                        {!this.state[item.name] && <li><span>社团简介:</span><span dangerouslySetInnerHTML={{__html:item.brief}}></span></li>}
                         {this.state[item.name] && <li className="editLi">
                           <canvas style={{background:`url(${headImg})`}} width="100" height="100" ></canvas>
                           <div>

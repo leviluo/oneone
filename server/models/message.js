@@ -81,10 +81,16 @@ var messageSchema = new mongoose.Schema({
     nickname: { type: String, default: '' }
 })
 
+var articleSchema = new mongoose.Schema({
+    articleId: { type: Number, default: 0 },
+    content: { type: String, default: '' }
+})
+
 // var News = mongoose.model('News', NewsSchema);
 // mongoose.model('User', UserSchema);
 mongoose.model('Message', messageSchema);
 mongoose.model('Notice', noticeSchema);
+mongoose.model('Article', articleSchema);
 
 console.log("加载mongo模型")
 
