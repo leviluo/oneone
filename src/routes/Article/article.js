@@ -74,17 +74,17 @@ export default class Article extends Component{
     submitReply({comment:comment,articleId:this.props.params.id,replyToId:this.state.replyToId}).then(({data})=>{
     this.state.request['reply'] = false;
          if (data.status==200) {
-            getArticleReply(this.props.params.id).then(({data})=>{
-              if (data.status==200) {
-                this.setState({
-                  replyData:data.data,
-                  isReply:false,
-                })
-                this.refs.replyContent.value = ''
-              }else{
-                this.props.tipShow({type:"error",msg:data.msg})
-              }
+            this.state.replyData.push({
+              comment:comment.html2Escape(),
+              createdAt:new Date(),
+              id:data.insertId,
+              memberId:this.props.auth.memberId,
+              nickname:this.props.auth.nickname,
+              replyTo:this.state.replyToId
             })
+            this.setState({isReply:false})
+            this.refs.replyContent.value = ""
+
           }else if (data.status==600) {
               this.props.dispatch({type:"AUTHOUT"})
               this.context.router.push('/login')

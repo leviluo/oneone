@@ -70,7 +70,7 @@
 			                		border-radius:40px;
 			                		border:2px solid #e5e5e5;
 			                		float:left;
-			                	margin-bottom:5px;
+			                		margin-bottom:5px;
 			                	}
 			                	strong{
 			                		float:left;
@@ -144,7 +144,7 @@
 			                    margin:0 5px;
 			                }
 			                article{
-			                    border-bottom:1px dashed #e5e5e5;
+			                   /* border-bottom:1px dashed #e5e5e5; */
 			                }
 			                .sendTo{
 			                    margin:20px 0;
@@ -152,6 +152,9 @@
 			                        text-align:left;
 			                        height:30px;
 			                        line-height:30px;
+			                        img{
+					                   	border:2px solid #e5e5e5;
+					                  }
 			                    }
 			                    p:last-of-type{
 			                        span:last-of-type{
@@ -175,6 +178,9 @@
 			                        text-align:right;
 			                        height:30px;
 			                        line-height:30px;
+			                        img{
+					                   	border:2px solid #e5e5e5;
+					                  }
 			                    }
 			                    p:last-of-type{
 			                        color:white;

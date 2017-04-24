@@ -294,12 +294,12 @@ const organizationController = {
       if (this.request.body.replyToId) { 
         var resultt = await sqlStr("insert into reReply set commentsId = (select id from comments where memberId = ? and articleId=? order by id desc limit 1),replyTo = ?",[this.session.user,this.request.body.articleId,this.request.body.replyToId])
         if (result.affectedRows == 1 && resultt.affectedRows == 1) {
-              this.body = {status:200}
+              this.body = {status:200,insertId:result.insertId}
               return
         }
       }else{
         if (result.affectedRows == 1) {
-              this.body = {status:200}
+              this.body = {status:200,insertId:result.insertId}
               return
         }
       }

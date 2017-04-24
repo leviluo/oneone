@@ -133,7 +133,7 @@ CREATE TABLE `comments` (
   `createdAt` datetime not null DEFAULT now() COMMENT '//',
   PRIMARY KEY  (`id`)
 );
-select 
+ 
 --回复通知 
 CREATE TABLE `reReply` (  
   `id` int unsigned auto_increment,
