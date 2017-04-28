@@ -85,6 +85,9 @@ const memberController = {
             var toSocket = queryid(toName)
             if (toSocket) {
                 toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
+            }else{
+                console.log("不在线")
+                // toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
             }
 
             this.body = { status: 200}

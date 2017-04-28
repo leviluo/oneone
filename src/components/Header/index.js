@@ -40,20 +40,29 @@ export default class Header extends Component{
     socket.on('message',function(data){
       console.log(data)
     }.bind(this))
-    
+
+    document.addEventListener('click', this.setModal, false);
+
   }
 
-  componentDidMount =()=>{
-    document.getElementsByClassName('mainContainer')[0].onclick = function(){
-      this.setState({
+  setModal = ()=>{
+    this.setState({
         ifnotice:false,
         ifmessage:false
       })
-    }.bind(this)
+  }
+
+  componentDidMount =()=>{
+    // document.onclick = function(){
+    //   this.setState({
+    //     ifnotice:false,
+    //     ifmessage:false
+    //   })
+    // }.bind(this)
   }
 
   componentWillUnMount =()=>{
-     document.getElementsByClassName('mainContainer')[0].onclick = null
+     // document.onclick = null
   }
 
   componentWillReceiveProps =(nextProps)=>{
@@ -80,16 +89,18 @@ export default class Header extends Component{
   }
 
  goMessage =(e)=>{
+    
     this.setState({
       ifnotice:this.state.ifnotice ? false : true
     })
   }
 
  goNotice =(e)=>{
+    e.nativeEvent.stopImmediatePropagation();
     this.setState({
       ifnotice:this.state.ifnotice ? false : true
     })
-   this.updateNotice()
+    this.updateNotice()
   }
 
   updateNotice=()=>{
@@ -111,7 +122,6 @@ export default class Header extends Component{
     this.setState({
       currentPage:this.state.currentPage + 1
     })
-
   }
 
   //私信                        “谁” 给你发了私信               属于消息（type="privatemessage"） 转到通知消息页面的私信选项

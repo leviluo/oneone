@@ -37,7 +37,8 @@ export default class myMessage extends Component {
     currentPage:1,
     replyMe:[],
     commentMe:[],
-    flag:{}
+    flag:{},
+    setHeight:true
   }
 
   static contextTypes = {
@@ -55,9 +56,9 @@ export default class myMessage extends Component {
         sendTo:data.sendTo,
         sendnickname:data.sendnickname
       })
-      this.setState({})
-      this.setHeight()
+      this.setState({setHeight:true})
     }.bind(this)) 
+    document.addEventListener('click', this.closeEmotion, false);
   }
 
   recentChats = (currentPage)=>{
@@ -69,7 +70,7 @@ export default class myMessage extends Component {
               items:data.data
             })
           if (data.data[0]) { 
-            this.checkHistory(data.data[0].memberId,true)
+            this.checkHistory(data.data[0].memberId)
           }
         }else{
           if (data.data.length == 0) {
@@ -190,17 +191,30 @@ export default class myMessage extends Component {
         showEmotion:this.state.showEmotion ? false : true
       })
       this.insertContent()
-      document.onclick = function(){
-      if (!this.state.showEmotion) return
-        this.setState({
-          showEmotion:false 
-      })
-   }.bind(this)
-
+      e.nativeEvent.stopImmediatePropagation();
   }
 
+  closeEmotion =()=>{
+    // console.log("2222")
+    if (!this.state.showEmotion) return
+    this.setState({
+          showEmotion:false 
+    })
+  }
+
+
   componentWillUnmount =()=>{
-    document.onclick = null
+    // document.onclick = null
+    document.removeEventListener('click',this.closeEmotion)
+    this.props.pageNavInit(null)
+  }
+
+
+  componentDidUpdate =()=>{
+    if (!(this.state.tag == 1)) return
+    this.setIn = setTimeout(()=>{
+          this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+    },20)
   }
 
   insertImage =(e)=>{
@@ -275,8 +289,7 @@ export default class myMessage extends Component {
             send:this.props.auth.memberId,
             sendnickname:this.props.auth.nickname
           })
-          this.setState({})
-          this.setHeight()
+          this.setState({setHeight:true})
           this.refs.text.innerHTML = ""
       }else{
           this.props.tipShow({type:"error",msg:"发送失败"})
@@ -287,46 +300,48 @@ export default class myMessage extends Component {
     })
   }
 
-  checkHistory =(sendTo,isTop)=>{
+  checkHistory =(sendTo)=>{
     if(typeof sendTo == "object")sendTo = ''
     getHistory({chatWith:sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
-        var data = data.data.reverse()
 
-        if (data.length == 0) {
-          this.props.tipShow({type:"error",msg:"没有更多的消息"})
-          return
-        };
+        var res = data.data.reverse()
 
         if (this.lastUpdate) {
-          this.state.chatContent = data.concat(this.state.chatContent)
-          this.setState({})
+          this.state.chatContent = res.concat(this.state.chatContent)
+          if (data.data.length < 10) {
+            this.props.tipShow({type:"error",msg:"没有更多的消息"})
+            this.setState({historyFull:true})
+            return
+          };
         }else{
           this.setState({
-            chatContent:data
+            chatContent:res
           })
+          if (data.data.length < 10) {
+            this.setState({historyFull:true})
+            return
+          };
         }
         
-        var sendDate = new Date(data[0].time)
-        if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
-        if(isTop==true){
-          this.setHeight()
-        }
+        var sendDate = new Date(res[0].time)
+        if(res[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
+        // if(isTop==true){
+        //   this.setHeight()
+        // }
     })
-  }
-
-  setHeight=()=>{
-    setTimeout(()=>{
-            this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-    },50)
   }
 
   changeChat =(e,index)=>{
     this.setState({
       msgIndex:index,
-      chatContent:[]
+      chatContent:[],
+      historyFull:false
     })
     this.lastUpdate = ""
-    this.checkHistory(this.state.items[index].memberId,true)
+    this.setState({
+      setHeight:true
+    })
+    this.checkHistory(this.state.items[index].memberId)
   }
 
   replyText =(e)=>{
@@ -336,9 +351,6 @@ export default class myMessage extends Component {
   }
 
   replyNow = (nickname,articleId,replyId)=>{
-    // console.log(nickname)
-    // console.log(articleId)
-    // console.log(replyId)
     this.setState({
       articleId:articleId,
       replyToId:replyId,
@@ -346,7 +358,6 @@ export default class myMessage extends Component {
     var content = <Textarea header="回复内容" handleTextarea = {this.replyText} rows="10" />
 
     this.props.modalShow({header:`回复 ${nickname} 的消息`,content:content,submit:this.submitReply})
-
   }
 
   submitReply = ()=>{
@@ -417,7 +428,7 @@ export default class myMessage extends Component {
             </aside>
             <aside>
               <div className="chatrecent" ref="contentBody">
-                  <p><a onClick={()=>this.checkHistory(this.state.items[this.state.msgIndex].memberId)}>查看更多...</a></p>
+                  {!this.state.historyFull && <p><a onClick={()=>{this.setState({setHeight:false});this.checkHistory(this.state.items[this.state.msgIndex].memberId)}}>查看更多...</a></p>}
                   <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{
                     var time = item.time.DateFormat("yyyy-MM-dd hh:mm")

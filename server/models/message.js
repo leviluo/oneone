@@ -99,5 +99,6 @@ console.log("加载mongo模型")
 //文章评价                    “谁” 在 “文章”                  属于消息（type="articlecomment"）
 //请求入群                    “谁” 请求加入 “社团”            属于消息（type="attendrequest"）
 //文章中回复了你              “谁” 在 “文章”                  属于消息（type="articlereply"）
+
 //关注                        “谁“ 关注了你                   属于通知（type="focusyou"）
 //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"）

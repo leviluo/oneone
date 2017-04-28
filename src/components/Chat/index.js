@@ -18,7 +18,8 @@ export default class Chat extends Component{
 
   state = {
     showEmotion:false,
-    chatContent:[]
+    chatContent:[],
+    setHeight:true
   }
 
   componentWillMount =()=>{
@@ -31,8 +32,6 @@ export default class Chat extends Component{
           text:data.text,
           sendTo:data.sendTo
         })
-        me.setState({})
-        this.setHeight()
       })
   }
 
@@ -41,16 +40,18 @@ export default class Chat extends Component{
   }
 
   componentDidMount =(e)=>{
-    this.Chat = this.refs.chat
     this.contentBody = this.refs.contentBody
   }
 
   componentWillReceiveProps =(nextProps)=>{
     //清空留言板
-    this.refs.chat.innerHTML = ""
+    // this.refs.chat.innerHTML = ""
     if (nextProps.chat.sendTo) {
       this.lastUpdate = ''
-      this.checkHistory(nextProps.chat.sendTo,true)
+      this.setState({
+        setHeight:true
+      })
+      this.checkHistory(nextProps.chat.sendTo)
     }
   }
 
@@ -63,7 +64,7 @@ export default class Chat extends Component{
       return true
   }
 
-  componentDidUpdate =()=>{
+  componentWillUpdate =()=>{
 
   }
 
@@ -112,6 +113,15 @@ export default class Chat extends Component{
     return blob
   }
 
+  componentDidUpdate =()=>{
+    if (this.state.setHeight) {
+      var me = this
+      setTimeout(()=>{
+        me.refs.contentBody.scrollTop = me.refs.contentBody.scrollHeight;
+      },10)
+    }
+  }
+
   submitText =()=>{
 
     var html = this.refs.text.innerHTML;
@@ -140,9 +150,7 @@ export default class Chat extends Component{
             text:html,
             sendTo:this.props.chat.sendTo
           })
-          this.setState({})
-          // this.contentBody.scrollTop = this.contentBody.scrollHeight;
-          this.setHeight()
+          this.setState({setHeight:true})
           this.refs.text.innerHTML = ""
       }else{
           this.props.tipShow({type:"error",msg:"发送失败"})
@@ -178,7 +186,7 @@ export default class Chat extends Component{
     reader.readAsDataURL(file); 
   }
 
-  checkHistory =(sendTo,isTop)=>{
+  checkHistory =(sendTo)=>{
     if(typeof sendTo == "object")sendTo = ''
     getHistory({chatWith:sendTo || this.props.chat.sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
         var data = data.data.reverse()
@@ -187,7 +195,7 @@ export default class Chat extends Component{
           this.props.tipShow({type:"error",msg:"没有更多的消息"})
           return
         };
-
+        // console.log(data)
         if (this.lastUpdate) {
           this.state.chatContent = data.concat(this.state.chatContent)
           this.setState({})
@@ -199,18 +207,7 @@ export default class Chat extends Component{
         
         var sendDate = new Date(data[0].time)
         if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
-        if(isTop==true){
-          // setTimeout(()=>{
-          // this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-          // },10)
-          this.setHeight()
-        }
     })
-  }
-
-  componentDidUpdate=()=>{
-    // this.contentBody.scrollTop = this.contentBody.scrollHeight;
-
   }
 
   addEvent = ()=>{
@@ -241,11 +238,11 @@ export default class Chat extends Component{
     document.onclick = null
   }
 
-  setHeight=()=>{
-    setTimeout(()=>{
-            this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-    },50)
-  }
+  // setHeight=()=>{
+  //   setTimeout(()=>{
+  //           this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+  //   },50)
+  // }
 
   chooseEmotion = (e,index)=>{
     if(e.target.childNodes[0]){
@@ -298,6 +295,7 @@ export default class Chat extends Component{
   render(){
     const{chatTo} = this.props.chat;
     const num = new Array(100).fill(0)
+    console.log(this.state.chatContent)
     return(
         <div id='chat'>
           <div className="content">
@@ -306,8 +304,9 @@ export default class Chat extends Component{
               <h3>{`与${chatTo}的对话`}</h3>
             </div>
             <div className="content-body" ref="contentBody">
-                  <p><a onClick={this.checkHistory}>查看更多...</a></p>
+                  <p><a onClick={()=>{this.setState({setHeight:false});this.checkHistory()}}>查看更多...</a></p>
                   <div className="chat" ref="chat">
+                  
                   {this.state.chatContent.map((item,index)=>{
                      var date = new Date(item.time)
                      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
