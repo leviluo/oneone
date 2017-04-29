@@ -60,21 +60,36 @@ export default class OrganizationsHome extends Component{
           sendFrom:data.sendFrom,
           nickname:data.nickname
         })
-        this.setState({})
-        this.setHeight()
+        this.setState({setHeight:true})
+        // this.setHeight()
     }.bind(this))
     this.checkHistory()
+    document.addEventListener('click', this.closeEmotion, false);
   }
 
-  setHeight=()=>{
-    setTimeout(()=>{
-            this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-    },50)
+  closeEmotion =()=>{
+    if (!this.state.showEmotion) return
+    this.setState({
+        showEmotion:false 
+    })
   }
 
+  // setHeight=()=>{
+  //   setTimeout(()=>{
+  //           this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+  //   },50)
+  // }
+
+  closeEmotion =()=>{
+    if (!this.state.showEmotion) return
+    this.setState({
+          showEmotion:false 
+    })
+  }
 
   componentWillUnmount =()=>{
     // 离开群聊
+    document.removeEventListener('click',this.closeEmotion)
     leaveGroupChat(this.props.params.id)
     this.props.pageNavInit(null)
     document.onclick = null
@@ -102,7 +117,8 @@ export default class OrganizationsHome extends Component{
     verified:'',
     request:{},
     chatContent:[],
-    showEmotion:false
+    showEmotion:false,
+    setHeight:true
 	}
 
   attendOrganization =()=>{
@@ -186,18 +202,12 @@ export default class OrganizationsHome extends Component{
     this.props.pageNavInit(this.activityData)
   }
 
-  isEmotion = ()=>{
-    // console.log("0000")
+  isEmotion = (e)=>{
       this.setState({
         showEmotion:this.state.showEmotion ? false : true
       })
       this.insertContent()
-      document.onclick = function(){
-        if (!this.state.showEmotion) return
-          this.setState({
-            showEmotion:false 
-        })
-      }.bind(this)
+      e.nativeEvent.stopImmediatePropagation();
   }
 
   chooseEmotion = (e,index)=>{
@@ -297,6 +307,7 @@ export default class OrganizationsHome extends Component{
     submitText(fd).then(({data}) => {
       if (data.status==200) {
           this.refs.text.innerHTML = ""
+          this.setState({setHeight:true})
       }else{
           this.props.tipShow(type:"error",msg:data.msg)
       }
@@ -334,34 +345,38 @@ export default class OrganizationsHome extends Component{
   checkHistory =(sendTo,isTop)=>{
     if(typeof sendTo == "object")sendTo = ''
     getHistory({organizationsId:this.props.params.id,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
-        var data = data.data.reverse()
-
-        if (data.length == 0) {
-          return
-        };
+        var res = data.data.reverse()
 
         if (this.lastUpdate) {
-          this.state.chatContent = data.concat(this.state.chatContent)
+          this.state.chatContent = res.concat(this.state.chatContent)
+          if (data.data.length < 10) {
+            this.props.tipShow({type:"error",msg:"没有更多的消息"})
+            this.setState({historyFull:true})
+            return
+          };
           this.setState({})
         }else{
           this.setState({
-            chatContent:data
+            chatContent:res
           })
+          if (data.data.length < 10) {
+            this.setState({historyFull:true})
+            return
+          };
         }
         
-        var sendDate = new Date(data[0].time)
-        if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
-        // if(isTop==true){
-        //   setTimeout(()=>{
-        //   this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-        //   },10)
-        // }
-        this.setHeight()
+        var sendDate = new Date(res[0].time)
+        if(res[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
     })
   }
 
   componentDidUpdate =()=>{
-    // this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
+    if (this.state.setHeight) {
+      var me = this
+      setTimeout(()=>{
+        me.refs.contentBody.scrollTop = me.refs.contentBody.scrollHeight;
+      },10)
+    }
   }
 
   render(){
@@ -440,7 +455,7 @@ export default class OrganizationsHome extends Component{
   				<div>群聊</div>
           <article>
             <div className="content-body" ref="contentBody">
-                  <div><a onClick={this.checkHistory}>查看更多...</a></div>
+                  {!this.state.historyFull && <p className="text-center"><a onClick={()=>{this.setState({setHeight:false});this.checkHistory()}}>查看更多...</a></p>}
                   <p style={{color:"red"}}>{this.state.error}</p>
                   <div className="chat" ref="chat">
                   {this.state.chatContent.map((item,index)=>{

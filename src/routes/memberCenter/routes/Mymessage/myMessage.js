@@ -48,15 +48,36 @@ export default class myMessage extends Component {
   componentWillMount =()=>{
    this.recentChats(1)
    socket.on('message',function(data){
-      var date = new Date()
-      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-      this.state.chatContent.push({
-        time:time,
+      var date = (new Date()).toString()
+      if (this.state.items[this.state.msgIndex].memberId == data.sendFrom) {
+          // var time = date.DateFormat("yyyy-MM-dd hh:mm")
+          this.state.chatContent.push({
+            time:date,
+            text:data.text,
+            sendTo:data.sendTo,
+            sendnickname:data.sendnickname
+          })
+          this.setState({setHeight:true})
+      }
+
+      for (var i = 0; i < this.state.items.length; i++) {
+        if(this.state.items[i].memberId == data.sendFrom){
+          this.changeChat(i)
+          return
+        }
+      }
+
+      this.state.items.unshift({
+        active:1,
+        isSend:0,
+        memberId:data.sendFrom,
+        nickname:data.sendnickname,
         text:data.text,
-        sendTo:data.sendTo,
-        sendnickname:data.sendnickname
+        time:date
       })
-      this.setState({setHeight:true})
+
+      this.changeChat(0)
+     
     }.bind(this)) 
     document.addEventListener('click', this.closeEmotion, false);
   }
@@ -195,7 +216,6 @@ export default class myMessage extends Component {
   }
 
   closeEmotion =()=>{
-    // console.log("2222")
     if (!this.state.showEmotion) return
     this.setState({
           showEmotion:false 
@@ -204,17 +224,18 @@ export default class myMessage extends Component {
 
 
   componentWillUnmount =()=>{
-    // document.onclick = null
     document.removeEventListener('click',this.closeEmotion)
     this.props.pageNavInit(null)
   }
 
-
   componentDidUpdate =()=>{
     if (!(this.state.tag == 1)) return
-    this.setIn = setTimeout(()=>{
-          this.refs.contentBody.scrollTop = this.refs.contentBody.scrollHeight;
-    },20)
+    if (this.state.setHeight) {
+      var me = this
+      setTimeout(()=>{
+        me.refs.contentBody.scrollTop = me.refs.contentBody.scrollHeight;
+      },20)
+    }
   }
 
   insertImage =(e)=>{
@@ -313,6 +334,7 @@ export default class myMessage extends Component {
             this.setState({historyFull:true})
             return
           };
+          this.setState({})
         }else{
           this.setState({
             chatContent:res
@@ -331,7 +353,7 @@ export default class myMessage extends Component {
     })
   }
 
-  changeChat =(e,index)=>{
+  changeChat =(index)=>{
     this.setState({
       msgIndex:index,
       chatContent:[],
@@ -414,7 +436,7 @@ export default class myMessage extends Component {
                 var isRead = item.active == '0'?'未读':'已读'
               }
               item.text = item.text.replace(/<img(.*)>/,"[图片]")
-              return <li key={index} style={{background:this.state.msgIndex == index ? "#efefef" : "#fff"}} onClick={(e)=>this.changeChat(e,index)}>
+              return <li key={index} style={{background:this.state.msgIndex == index ? "#efefef" : "#fff"}} onClick={()=>this.changeChat(index)}>
                 <div><img src={`/originImg?from=member&name=${item.memberId}`} width="40" alt="头像"/><strong><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link></strong></div>
                 <div>
                   <ul>

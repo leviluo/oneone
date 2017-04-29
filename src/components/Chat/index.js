@@ -33,10 +33,24 @@ export default class Chat extends Component{
           sendTo:data.sendTo
         })
       })
+      document.addEventListener('click', this.closeEmotion, false);
   }
 
   sendMessage =()=>{
     
+  }
+
+  closeEmotion =()=>{
+    if (!this.state.showEmotion) return
+    this.setState({
+        showEmotion:false 
+    })
+  }
+
+
+  componentWillUnmount =()=>{
+    document.removeEventListener('click',this.closeEmotion)
+    this.props.pageNavInit(null)
   }
 
   componentDidMount =(e)=>{
@@ -191,18 +205,22 @@ export default class Chat extends Component{
     getHistory({chatWith:sendTo || this.props.chat.sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
         var data = data.data.reverse()
 
-        if (data.length == 0) {
-          this.props.tipShow({type:"error",msg:"没有更多的消息"})
-          return
-        };
-        // console.log(data)
         if (this.lastUpdate) {
-          this.state.chatContent = data.concat(this.state.chatContent)
+          this.state.chatContent = res.concat(this.state.chatContent)
+          if (data.data.length < 10) {
+            this.props.tipShow({type:"error",msg:"没有更多的消息"})
+            this.setState({historyFull:true})
+            return
+          };
           this.setState({})
         }else{
           this.setState({
-            chatContent:data
+            chatContent:res
           })
+          if (data.data.length < 10) {
+            this.setState({historyFull:true})
+            return
+          };
         }
         
         var sendDate = new Date(data[0].time)
@@ -221,21 +239,12 @@ export default class Chat extends Component{
     this.props.imgbrowserShow({currentChoose:0,imgs:[e.target.src.replace(/\/img\?/,'/originImg?')]})
   }
 
-  isEmotion = ()=>{
+  isEmotion = (e)=>{
       this.setState({
         showEmotion:this.state.showEmotion ? false : true
       })
       this.insertContent()
-      document.onclick = function(){
-        if (!this.state.showEmotion) return
-          this.setState({
-            showEmotion:false 
-        })
-      }.bind(this)
-  }
-
-  componentWillUnmount =()=>{
-    document.onclick = null
+      e.nativeEvent.stopImmediatePropagation();
   }
 
   // setHeight=()=>{
@@ -295,7 +304,6 @@ export default class Chat extends Component{
   render(){
     const{chatTo} = this.props.chat;
     const num = new Array(100).fill(0)
-    console.log(this.state.chatContent)
     return(
         <div id='chat'>
           <div className="content">
@@ -304,7 +312,7 @@ export default class Chat extends Component{
               <h3>{`与${chatTo}的对话`}</h3>
             </div>
             <div className="content-body" ref="contentBody">
-                  <p><a onClick={()=>{this.setState({setHeight:false});this.checkHistory()}}>查看更多...</a></p>
+                  {!this.state.historyFull && <p><a onClick={()=>{this.setState({setHeight:false});this.checkHistory()}}>查看更多...</a></p>}
                   <div className="chat" ref="chat">
                   
                   {this.state.chatContent.map((item,index)=>{

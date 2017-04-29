@@ -80,11 +80,13 @@ const memberController = {
         var result = await sqlStr("insert into message set fromMember = ?,toMember = ?,text = ?",[this.session.user,this.request.body.sendTo,text])
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
-            var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
+            var info = await sqlStr("select * from member where id = ?",[this.session.user])
             // 在线发送socket消息
             var toSocket = queryid(toName)
+            console.log("000")
             if (toSocket) {
-                toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
+                console.log("111")
+                toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendFrom:info[0].id,sendnickname:info[0].nickname});
             }else{
                 console.log("不在线")
                 // toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
@@ -134,7 +136,7 @@ const memberController = {
             return
         }
         var id = this.session.user
-        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.id != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone) limit ${this.request.query.limit};`,[id,id,id,id,id])
+        var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.id != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone) order by message.time desc limit ${this.request.query.limit};`,[id,id,id,id,id])
         var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[id,id,id])
         this.body = {status:200,data:result,count:count.length}
     },
