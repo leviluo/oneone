@@ -22,6 +22,7 @@ const memberController = {
         	this.body = { status: 500, msg: "缺少参数" }
             return
         }
+
         if (brief.length > 300) {
             this.body = { status: 500, msg: "简介超过了300个字符" }
             return
@@ -81,16 +82,31 @@ const memberController = {
         if (result.affectedRows == 1) {
             var toName = this.request.body.sendTo;
             var info = await sqlStr("select * from member where id = ?",[this.session.user])
+
+            var message = mongoose.model('Message');
+
+            var data = new message({type:"privatemessage",hostId:this.request.body.sendTo,memberId:this.session.user,nickname:info[0].nickname});
+
+            var resultt = await save(data)
+
+            if (resultt.id) {
+
+            }else{
+
+            }
+
             // 在线发送socket消息
             var toSocket = queryid(toName)
-            console.log("000")
+            // console.log("000")
             if (toSocket) {
-                console.log("111")
+                // console.log("111")
                 toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendFrom:info[0].id,sendnickname:info[0].nickname});
+                toSocket.emit('primessage',{type:"privatemessage",hostId:this.request.body.sendTo,memberId:this.session.user,nickname:info[0].nickname})
             }else{
-                console.log("不在线")
+                // console.log("不在线")
                 // toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
             }
+
 
             this.body = { status: 200}
             return
@@ -137,7 +153,7 @@ const memberController = {
         }
         var id = this.session.user
         var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.id != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone) order by message.time desc limit ${this.request.query.limit};`,[id,id,id,id,id])
-        var count = await sqlStr("select ms.id from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[id,id,id])
+        var count = await sqlStr("select m.phone from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[id,id,id])
         this.body = {status:200,data:result,count:count.length}
     },
     modifyNickname:async function(next){
@@ -279,6 +295,19 @@ const memberController = {
   //文章评价                    “谁” 在 “文章”                  属于消息（type="articlecomment"）
   //请求入群                    “谁” 请求加入 “社团”            属于消息（type="attendrequest"）
   //文章中回复了你              “谁” 在 “文章”                  属于消息（type="articlereply"）
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+        var message = mongoose.model('Message');
+        // if (this.request.query.type == 'noread') {
+
+        var result = await find(message,{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
+        // console.log(result)
+        this.body = {status:200,data:result}
+
+    // }
+
     },
     notices:async function(){
   //关注                        “谁“ 关注了你                   属于通知（type="focusyou"）
@@ -295,7 +324,7 @@ const memberController = {
 
     }else if (this.request.query.type == 'all') {
 
-    var result = await findLimit(notice,{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:this.request.query.limit}) 
+    var result = await findLimit(notice,{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:parseInt(this.request.query.limit)}) 
 
     var count = await aggregate(notice,{_id:"$hostId",total:{$sum:1}})
 

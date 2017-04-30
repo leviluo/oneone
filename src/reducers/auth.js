@@ -5,6 +5,7 @@ import {initSocket} from '../socket'
 // Constants
 // ------------------------------------
 const REQUEST_LOGIN = 'REQUEST_LOGIN'
+const FINISHLOGIN = 'FINISHLOGIN'
 const AUTHIN = 'AUTHIN'
 const AUTHOUT = 'AUTHOUT'
 const MODIFYNICKNAME = 'MODIFYNICKNAME'
@@ -54,10 +55,12 @@ export function isAuth(history) {
 
 
 export function login(items,history) {
+  // console.log(items)
   return (dispatch, getState) => {
     if (getState().auth.fetching) return
     dispatch(requestLOGIN())
     axios.post('/login',items).then(({data}) => {
+      dispatch({type:FINISHLOGIN})
       if (data.status == 200) {
           // localStorage.setItem("nickname",data.nickname)
           dispatch(authIn(data.nickname,data.memberId));
@@ -94,11 +97,14 @@ const ACTION_HANDLERS = {
   [REQUEST_LOGIN]: (state) => {
     return ({...state, fetching: true})
   },
+  [FINISHLOGIN]: (state) => {
+    return ({...state, fetching: false})
+  },
   [AUTHIN]:(state,action)=>{
-    return({...state,isAuth: true,nickname:action.nickname,memberId:action.memberId})
+    return({...state,isAuth: true,fetching:false,nickname:action.nickname,memberId:action.memberId})
   },
   [AUTHOUT]:(state)=>{
-    return({...state,isAuth: false,nickname:'',memberId:''})
+    return({...state,isAuth: false,fetching:false,nickname:'',memberId:''})
   },
   [MODIFYNICKNAME]:(state,action)=>{
     return({...state,nickname:action.nickname})

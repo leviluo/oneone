@@ -22,6 +22,7 @@ export default class Login extends Component{
   };
 
   submit = ()=>{
+    // alert("okkk")
     var pattern = /^[1][34578][0-9]{9}$/;
 
     if (!pattern.test(this.refs.phone.value)) {
@@ -33,7 +34,7 @@ export default class Login extends Component{
         this.props.tipShow({type:"error",msg:'密码格式不正确'})
         return;
     }
-
+  
     this.props.login({phone:this.refs.phone.value,password:this.refs.password.value},this.context.router)
   }
 

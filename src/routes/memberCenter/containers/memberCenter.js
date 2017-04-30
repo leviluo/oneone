@@ -5,7 +5,7 @@ import {Link} from 'react-router'
 // import {isAuth} from '../../../reducers/auth'
 import { connect } from 'react-redux'
 import ImageBrowser from '../../../components/ImageBrowser'
-// import {countMessage,countNotice,countReply,countRequest} from './modules'
+// import {messages,countNotice,countReply,countRequest} from './modules'
 import { tipShow } from '../../../components/Tips/modules/tips'
 // import {asyncConnect} from 'redux-async-connect'
 
@@ -14,7 +14,7 @@ import { tipShow } from '../../../components/Tips/modules/tips'
 //     const promises = [];
 //     if (!getState().catelogues.isloaded) {
 //       console.log("why")
-//       promises.push(dispatch(countMessage()));
+//       promises.push(dispatch(messages()));
 //       promises.push(dispatch(countNotice()));
 //       promises.push(dispatch(countReply()));
 //     }
@@ -24,10 +24,10 @@ import { tipShow } from '../../../components/Tips/modules/tips'
 
 @connect(
   state => ({
-    status:state.message
+    status:state.message,
   }),
   {tipShow}
-  // {tipShow,countMessage,countNotice,countReply,countRequest}
+  // {tipShow,messages,countNotice,countReply,countRequest}
 )
 export default class memberCenter extends Component {
 
@@ -36,7 +36,8 @@ export default class memberCenter extends Component {
     };
 
     componentWillMount =()=>{
-      // this.props.countMessage()
+      // console.log(this.props.status)
+      // this.props.messages()
       // this.props.countNotice()
       // this.props.countReply()
       // this.props.countRequest()
@@ -61,8 +62,8 @@ export default class memberCenter extends Component {
             </ul>
             <h4>其它</h4>
             <ul>
-              <li><Link to="/memberCenter/myMessage" className={this.props.location.pathname == '/memberCenter/myMessage' ? 'active' : ''}>消息{this.props.status.countMessage > 0 && <span className="noRead">{this.props.status.countMessage}</span>}</Link></li>
-              <li><Link to="/memberCenter/myNotice" className={this.props.location.pathname == '/memberCenter/myNotice' ? 'active' : ''}>通知{this.props.status.countNotice > 0 && <span className="noRead">{this.props.status.countNotice}</span>}</Link></li>
+              <li><Link to="/memberCenter/myMessage" className={this.props.location.pathname == '/memberCenter/myMessage' ? 'active' : ''}>消息{this.props.status.messages.length > 0 && <span className="noRead">{this.props.status.messages.length}</span>}</Link></li>
+              <li><Link to="/memberCenter/myNotice" className={this.props.location.pathname == '/memberCenter/myNotice' ? 'active' : ''}>通知{this.props.status.notices.length > 0 && <span className="noRead">{this.props.status.notices.length}</span>}</Link></li>
             </ul>
             </div>
             <div className="memberCenterContentRight">

@@ -75,7 +75,7 @@ var messageSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    hostid: { type: Number, default: 0 },  //   你是谁
+    hostId: { type: Number, default: 0 },  //   你是谁
     memberId: { type: Number, default: 0 },      
     organizationsId: { type: Number, default: 0 },      
     nickname: { type: String, default: '' }

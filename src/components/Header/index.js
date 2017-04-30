@@ -6,12 +6,17 @@ import {connect} from 'react-redux'
 import './Header.scss'
 import 'font-awesome/scss/font-awesome.scss'
 import {tipShow} from '../Tips/modules/tips'
-import {fetchNotice,fetchMessage,updateNotice} from './modules'
+import {fetchNotice,fetchMessage,addMessage,addNotice} from './modules'
 import socket from '../../socket'
 
 @connect(
-  state=>({auth:state.auth}),
-{loginOut,isAuth,tipShow,fetchNotice,fetchMessage,updateNotice})
+  state=>({
+    auth:state.auth,
+    messages:state.message.messages,
+    notices:state.message.notices,
+    chat:state.chat
+  }),
+{loginOut,isAuth,tipShow,fetchNotice,fetchMessage,addMessage,addNotice})
 export default class Header extends Component{
 
   static contextTypes = {
@@ -19,37 +24,42 @@ export default class Header extends Component{
   };
 
   state = {
-    notice:[],
-    message:[],
+    // notice:[],
+    // message:[],
     ifnotice:false,
-    ifmessage:false,
+    // ifmessage:false,
     // currentPage:1,
     // ifAddMore:true,
     // averageNum:5
   }
 
   componentWillMount =()=>{
+    // console.log(this)
     if(!this.props.auth.isAuth)this.props.isAuth()
 
     socket.on('notice',function(data){
-      this.state.notice.unshift(data)
+      // this.props.notices.unshift(data)
+      this.props.addNotice(data)
       this.setState({ifnotice:true})
-      this.updateNotice()
     }.bind(this))
 
-    socket.on('message',function(data){
+    socket.on('primessage',function(data){
+      this.props.addMessage(data)
       console.log(data)
+      if(!this.props.chat.isShow && this.props.context.router.location.pathname != "/memberCenter/myMessage"){
+        
+
+      }
     }.bind(this))
-
+    
     document.addEventListener('click', this.setModal, false);
-
   }
 
   setModal = ()=>{
     this.setState({
         ifnotice:false,
-        ifmessage:false
-      })
+        // ifmessage:false
+    })
   }
 
   componentDidMount =()=>{
@@ -67,55 +77,69 @@ export default class Header extends Component{
 
   componentWillReceiveProps =(nextProps)=>{
     if(nextProps.auth.isAuth){
-        this.updateNotice()
+        this.props.fetchNotice()
         this.props.fetchMessage()
+        // this.props.fetchMessage()
     }
   }
 
-  updateNotice=()=>{
-    this.props.fetchNotice().then(data=>{
-      if (data.status == 200) {
-          this.setState({
-            notice:data.data
-          })
-        }else{
-          this.props.tipShow({type:"error",msg:data.msg})
-        }
-    })
-  }
+  // updateNotice=()=>{
+  //   this.props.fetchNotice().then(data=>{
+  //     if (data.status == 200) {
+  //         this.setState({
+  //           notice:data.data
+  //         })
+  //       }else{
+  //         this.props.tipShow({type:"error",msg:data.msg})
+  //       }
+  //   })
+  // }
+
+  // updateMessage=()=>{
+  //   this.props.fetchMessage().then(data=>{
+  //     if (data.status == 200) {
+  //         this.setState({
+  //           message:data.data
+  //         })
+  //       }else{
+  //         this.props.tipShow({type:"error",msg:data.msg})
+  //       }
+  //   })
+  // }
 
   loginOut =()=>{
     this.props.loginOut(this.context.router);
   }
 
- goMessage =(e)=>{
-    
-    this.setState({
-      ifnotice:this.state.ifnotice ? false : true
-    })
-  }
+ // goMessage =(e)=>{
+ //    this.setState({
+ //      ifmessage:this.state.ifmessage ? false : true
+ //    })
+ //    this.updateMessage()
+ //    // e.nativeEvent.stopImmediatePropagation();
+ //  }
 
  goNotice =(e)=>{
-    e.nativeEvent.stopImmediatePropagation();
+    // console.log(this.state.ifnotice)
     this.setState({
       ifnotice:this.state.ifnotice ? false : true
     })
-    this.updateNotice()
+    // this.updateNotice()
   }
 
-  updateNotice=()=>{
-     this.props.updateNotice().then(data=>{
-      if (data.status == 200) {
-        var notice = this.state.notice;
-        for (var i = 0; i < notice.length; i++) {
-          notice[i].status = 1
-        }
-        this.setState({})
-      }else{
-        this.props.tipShow({type:"error",msg:data.msg})
-      }
-    })
-  }
+  // updateNotice=()=>{
+  //    this.props.updateNotice().then(data=>{
+  //     if (data.status == 200) {
+  //       var notice = this.props.notices;
+  //       for (var i = 0; i < notice.length; i++) {
+  //         notice[i].status = 1
+  //       }
+  //       this.setState({})
+  //     }else{
+  //       this.props.tipShow({type:"error",msg:data.msg})
+  //     }
+  //   })
+  // }
 
   addMore =()=>{
     this.updateNotice(this.state.currentPage + 1)
@@ -133,8 +157,10 @@ export default class Header extends Component{
   //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"） 转到通知页面
 
   render(){
-    var isMessage = this.state.message[0] ? this.state.message[0].status : ''
-    var isNotice = this.state.notice[0] ? this.state.notice[0].status : ''
+    console.log(this.props.messages)
+    console.log(this.props)
+    var isMessage = this.props.messages[0] ? this.props.messages[0].status : ''
+    var isNotice = this.props.notices[0] ? this.props.notices[0].status : ''
     const{auth} = this.props;
     return(
         <header>
@@ -151,17 +177,16 @@ export default class Header extends Component{
              </span>}
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
              <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
-             <span onClick={this.goMessage} className="messageNav" title="消息">
-                <i className={isMessage === 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}></i>
-             </span>
+             <Link to="/memberCenter/myMessage" className="messageNav" title="消息">
+                <i className={isMessage === 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.messages.length > 0 && <b>({this.props.messages.length})</b>}</i>
+             </Link>
              <span onClick={this.goNotice} className="messageNav" title="通知">
                 <i className={isNotice === 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
              </span></span>}
               {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><span className="fa fa-play pull-right" ></span><ul className="details">
-                  {this.state.notice.length == 0 && <li className="text-center">没有新的通知~</li>}
-                  {this.state.notice.map((item,index)=>{
-                    var date = new Date(item.createdate)
-                    var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+                  {this.props.notices.length == 0 && <li className="text-center">没有新的通知~</li>}
+                  {this.props.notices.map((item,index)=>{
+                    var time = item.createdate.DateFormat("yyyy-MM-dd hh:mm")
                     switch(item.type){
                       case 'focusyou':
                         return <li key={index}><div className="focusyou"><img src={`/originImg?name=${item.memberId}&from=member`} width="30" /><Link to={`/memberBrief/${item.memberId}`}><strong>{item.nickname}</strong></Link><span className="lightColor smallFont pull-right">{time}</span></div><p>关注了你</p></li>
@@ -179,4 +204,6 @@ export default class Header extends Component{
       )
   }
 }
+
+
 

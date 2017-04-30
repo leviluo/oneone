@@ -25,14 +25,13 @@ export default class Chat extends Component{
   componentWillMount =()=>{
       var me = this
       socket.on('message',function(data){
-        var date = new Date()
-        var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-        me.state.chatContent.push({
-          time:time,
+        this.state.chatContent.push({
+          time:(new Date()).toString(),
           text:data.text,
           sendTo:data.sendTo
         })
-      })
+        this.setState({})
+      }.bind(this))
       document.addEventListener('click', this.closeEmotion, false);
   }
 
@@ -157,10 +156,8 @@ export default class Chat extends Component{
 
     submitText(fd).then(({data}) => {
       if (data.status==200) {
-          var date = new Date()
-          var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
           this.state.chatContent.push({
-            time:time,
+            time:(new Date()).toString(),
             text:html,
             sendTo:this.props.chat.sendTo
           })
@@ -203,7 +200,7 @@ export default class Chat extends Component{
   checkHistory =(sendTo)=>{
     if(typeof sendTo == "object")sendTo = ''
     getHistory({chatWith:sendTo || this.props.chat.sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
-        var data = data.data.reverse()
+        var res = data.data.reverse()
 
         if (this.lastUpdate) {
           this.state.chatContent = res.concat(this.state.chatContent)
@@ -223,8 +220,8 @@ export default class Chat extends Component{
           };
         }
         
-        var sendDate = new Date(data[0].time)
-        if(data[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
+        var sendDate = new Date(res[0].time)
+        if(res[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
     })
   }
 
@@ -316,8 +313,7 @@ export default class Chat extends Component{
                   <div className="chat" ref="chat">
                   
                   {this.state.chatContent.map((item,index)=>{
-                     var date = new Date(item.time)
-                     var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+                      var time = item.time.DateFormat("yyyy-MM-dd hh:mm")
                      if(item.sendTo == this.props.chat.sendTo){
                        return <article className="sendFrom" key={index}>
                         <p className="text-center lightColor smallFont">{time}</p>

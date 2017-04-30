@@ -148,7 +148,8 @@ header{
                             line-height:30px;
                             margin-left:5px;
                             &:hover{
-                                background:#e5e5e5
+                                background:none;
+                                text-decoration:underline
                             }
                         }
                         img{
@@ -172,6 +173,11 @@ header{
                         float:none;
                     }
                 }
+            }
+        }
+        .sec{
+            ul{
+                left:-196px
             }
         }
     }

@@ -21,6 +21,7 @@ import Textarea from '../../../../components/Textarea'
   state => ({
     auth:state.auth,
     pagenavbar:state.pagenavbar
+
     }),
   {chatShow,tipShow,pageNavInit,modalShow,modalHide}
 )
@@ -37,6 +38,7 @@ export default class myMessage extends Component {
     currentPage:1,
     replyMe:[],
     commentMe:[],
+    requestMe:[],
     flag:{},
     setHeight:true
   }
@@ -49,7 +51,7 @@ export default class myMessage extends Component {
    this.recentChats(1)
    socket.on('message',function(data){
       var date = (new Date()).toString()
-      if (this.state.items[this.state.msgIndex].memberId == data.sendFrom) {
+      if (this.state.items[this.state.msgIndex].memberId == data.sendFrom) { //就在当前聊天页面
           // var time = date.DateFormat("yyyy-MM-dd hh:mm")
           this.state.chatContent.push({
             time:date,
@@ -60,14 +62,14 @@ export default class myMessage extends Component {
           this.setState({setHeight:true})
       }
 
-      for (var i = 0; i < this.state.items.length; i++) {
+      for (var i = 0; i < this.state.items.length; i++) { //在聊天列表里
         if(this.state.items[i].memberId == data.sendFrom){
           this.changeChat(i)
           return
         }
       }
 
-      this.state.items.unshift({
+      this.state.items.unshift({ //没在聊天列表里添加到新列表里
         active:1,
         isSend:0,
         memberId:data.sendFrom,
@@ -422,6 +424,7 @@ export default class myMessage extends Component {
               <span className={this.state.tag == 1 ? "active" : ""} onClick={()=>this.changeTag(1)}>私信</span>
               <span className={this.state.tag == 2 ? "active" : ""} onClick={()=>this.changeTag(2)}>评论</span>
               <span className={this.state.tag == 3 ? "active" : ""} onClick={()=>this.changeTag(3)}>回复</span>
+              <span className={this.state.tag == 4 ? "active" : ""} onClick={()=>this.changeTag(4)}>入社请求</span>
           </div>
           <div className="content">
           {this.state.tag == 1 && <article className="chat">
@@ -508,6 +511,15 @@ export default class myMessage extends Component {
               {this.state.replyMe.map((item,index)=>{
                 var time = item.createdAt.DateFormat("yyyy-MM-dd hh:mm")
                 return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;在&nbsp;<Link to={`/article/${item.articleId}`}>{item.title}</Link>&nbsp;中回复了你<span className="pull-right lightColor smallFont">{time}</span> <a onClick={()=>this.replyNow(item.nickname,item.articleId,item.replyId)} className="pull-right">立即回复</a><p dangerouslySetInnerHTML={{__html:item.comment}} className="lightBackground"></p></li>
+              })}
+            </ul>
+            </article>}
+          {this.state.tag == 4 && <article className="replys">
+            <ul>
+              {this.state.requestMe.length == 0 && <li className="text-center">暂时没有记录</li>}
+              {this.state.requestMe.map((item,index)=>{
+                var time = item.createdAt.DateFormat("yyyy-MM-dd hh:mm")
+                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;请求加入&nbps;<span className="pull-right lightColor smallFont">{time}</span></li>
               })}
             </ul>
             </article>}

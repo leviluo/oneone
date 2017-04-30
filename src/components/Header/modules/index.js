@@ -3,10 +3,14 @@ import axios from 'axios'
 // Constants
 // ------------------------------------
 
-const COUNTMESSAGE = 'COUNTMESSAGE'
-const COUNTNOTICE = 'COUNTNOTICE'
-const COUNTREPLY = 'COUNTREPLY'
+const MESSAGEREQUEST = 'MESSAGEREQUEST'
+const NOTICEREQUEST = 'NOTICEREQUEST'
+const ADDMESSAGE = 'ADDMESSAGE'
+const ADDNOTICE = 'ADDNOTICE'
 const COUNTREQUEST = 'COUNTREQUEST'
+const COUNTMESSAGE = 'COUNTMESSAGE'
+// const COUNTREPLY = 'COUNTREPLY'
+// const COUNTREQUEST = 'COUNTREQUEST'
 
 // ------------------------------------
 // Actions
@@ -30,22 +34,25 @@ const COUNTREQUEST = 'COUNTREQUEST'
 //   }
 // }
 
-export function updateNotice() {
+export function addMessage(data) {
   return (dispatch, getState) => {
-    return axios.put('/notices').then(({data}) => {
-      // if (data.status == 200) {
-      //     dispatch(authIn(data.nickname,data.memberId));
-      //     history.push('/memberCenter')
-      // }else{
-      //     dispatch(tipResult({type:"error",msg:data.msg}))
-      // }
-      return data
-    })
+    dispatch({type:ADDMESSAGE,value:data})
+  }
+}
+
+export function addNotice(data) {
+  return (dispatch, getState) => {
+    dispatch({type:ADDNOTICE,value:data})
   }
 }
 
 export function fetchNotice() {
   return (dispatch, getState) => {
+
+    if (getState().message.noticefetching || getState().message.noticeisloaded) {
+      return
+    }
+    dispatch({type:NOTICEREQUEST})
     return axios.get('/notices?type=noread').then(({data}) => {
       // if (data.status == 200) {
       //     dispatch(authIn(data.nickname,data.memberId));
@@ -53,13 +60,18 @@ export function fetchNotice() {
       // }else{
       //     dispatch(tipResult({type:"error",msg:data.msg}))
       // }
-      return data
+      dispatch({type:NOTICEREQUEST,value:data.data})
+      // return data
     })
   }
 }
 
 export function fetchMessage() {
   return (dispatch, getState) => {
+    if (getState().message.messagefetching || getState().message.messageisloaded) {
+      return
+    }
+    dispatch({type:MESSAGEREQUEST})
     return axios.get('/messages').then(({data}) => {
       // if (data.status == 200) {
       //     dispatch(authIn(data.nickname,data.memberId));
@@ -67,7 +79,8 @@ export function fetchMessage() {
       // }else{
       //     dispatch(tipResult({type:"error",msg:data.msg}))
       // }
-      return data
+      dispatch({type:COUNTMESSAGE,value:data.data})
+      // return data
     })
   }
 }
@@ -77,16 +90,22 @@ export function fetchMessage() {
 // ------------------------------------
 const ACTION_HANDLERS = {
   [COUNTMESSAGE]:(state,action)=>{
-    return({...state,isloaded:true,countMessage:action.value})
+    return({...state,isloaded:true,messages:action.value,messagefetching:false,messageisloaded:true})
   },
-  [COUNTNOTICE]:(state,action)=>{
-    return({...state,isloaded:true,countNotice:action.value})
+  [NOTICEREQUEST]:(state,action)=>{
+    return({...state,isloaded:true,notices:action.value,noticeisloaded:true,noticefetching:false})
   },
-  [COUNTREPLY]:(state,action)=>{
-    return({...state,isloaded:true,countReply:action.value})
+  [ADDMESSAGE]:(state,action)=>{
+    return({...state,isloaded:true,messages:state.messages.concat(action.value)})
   },
-  [COUNTREQUEST]:(state,action)=>{
-    return({...state,isloaded:true,countRequest:action.value})
+  [ADDNOTICE]:(state,action)=>{
+    return({...state,isloaded:true,notices:state.notices.concat(action.value)})
+  },
+  [MESSAGEREQUEST]:(state,action)=>{
+    return({...state,messagefetching:true})
+  },
+  [NOTICEREQUEST]:(state,action)=>{
+    return({...state,noticefetching:true})
   }
 }
 
@@ -96,11 +115,12 @@ const ACTION_HANDLERS = {
 //var isAuth = localStorage.getItem('token') ? true : false
 //console.log(isAuth)
 export const initialState = {
-  countMessage:0,
-  countNotice:0,
-  countReply:0,
-  countRequest:0,
-  isloaded:false
+  messages:[],
+  notices:[],
+  noticeisloaded:false,
+  messageisloaded:false,
+  noticefetching:false,
+  messagefetching:false
 }
 export default function (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
