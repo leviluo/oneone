@@ -83,11 +83,13 @@ const memberController = {
             var toName = this.request.body.sendTo;
             var info = await sqlStr("select * from member where id = ?",[this.session.user])
 
-            var message = mongoose.model('Message');
+            // var message = mongoose.model('Message');
 
-            var data = new message({type:"privatemessage",hostId:this.request.body.sendTo,memberId:this.session.user,nickname:info[0].nickname});
+            var items = {type:"privatemessage",hostId:this.request.body.sendTo,memberId:this.session.user,nickname:info[0].nickname};
 
-            var resultt = await save(data)
+            // var resultt = await save(data)
+
+            var resultt = await save('Message',items)
 
             if (resultt.id) {
 
@@ -299,10 +301,10 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var message = mongoose.model('Message');
+        // var message = mongoose.model('Message');
         // if (this.request.query.type == 'noread') {
 
-        var result = await find(message,{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
+        var result = await find("Message",{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
         // console.log(result)
         this.body = {status:200,data:result}
 
@@ -316,17 +318,17 @@ const memberController = {
         this.body = { status: 600, msg: "尚未登录" }
         return
     }
-    var notice = mongoose.model('Notice');
+    // var notice = mongoose.model('Notice');
     if (this.request.query.type == 'noread') {
 
-    var result = await find(notice,{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
+    var result = await find("Notice",{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
     this.body = {status:200,data:result}
 
     }else if (this.request.query.type == 'all') {
 
-    var result = await findLimit(notice,{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:parseInt(this.request.query.limit)}) 
+    var result = await findLimit("Notice",{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:parseInt(this.request.query.limit)}) 
 
-    var count = await aggregate(notice,{_id:"$hostId",total:{$sum:1}})
+    var count = await aggregate("Notice",{_id:"$hostId",total:{$sum:1}})
 
     this.body = {status:200,data:result,count:count[0].total}
 
@@ -338,8 +340,8 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var notice = mongoose.model('Notice');
-        var updates = await update(notice,{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+        // var notice = mongoose.model('Notice');
+        var updates = await update("notice",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
         // console.log(updates)
         if(updates.ok){
             this.body = {status:200}
@@ -352,8 +354,8 @@ const memberController = {
         this.body = { status: 600, msg: "尚未登录" }
         return
     }
-    var notice = mongoose.model('Notice');
-    var result = await find(notice,{hostId:this.session.user},{sort:{'_id':-1}}) 
+    // var notice = mongoose.model('Notice');
+    var result = await find("Notice",{hostId:this.session.user},{sort:{'_id':-1}}) 
     
     this.body = {status:200,data:result}
     },
@@ -458,11 +460,11 @@ const memberController = {
                 var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
                 
                 // 取关后通知
-                var notice = mongoose.model('Notice');
+                // var notice = mongoose.model('Notice');
 
-                var data = new notice({type:"focusyou",hostId:id,memberId:this.session.user,nickname:nickname[0].nickname});
+                var items = {type:"focusyou",hostId:id,memberId:this.session.user,nickname:nickname[0].nickname};
 
-                var resultt = await save(data)
+                var resultt = await save('Notice',items)
                 
                 if(resultt.id){
 
@@ -496,8 +498,8 @@ const memberController = {
         if (result.affectedRows == 1) {
             this.body ={status:200}
             // 取关后删除通知
-                var notice = mongoose.model('Notice');
-                var resultt = await remove(notice,{hostId:id,memberId:this.session.user,type:"focusyou"})
+                // var notice = mongoose.model('Notice');
+                var resultt = await remove("Notice",{hostId:id,memberId:this.session.user,type:"focusyou"})
                 if(resultt.result.n > 0){
                     this.body = {status:200}
                     return

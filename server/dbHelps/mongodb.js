@@ -9,16 +9,8 @@ export default function(){
 	return db; 
 }
 
-export function save(data){
-	return new Promise((reslove,reject)=>{
-		data.save(function(err, docs) {
-            if (err) reject(err);
-            reslove(docs)
-        })
-	})
-}
 
-export function saveData(obj,items){
+export function save(obj,items){
 	var model = mongoose.model(obj);
 	var data = new model(items);
 	return new Promise((reslove,reject)=>{
@@ -30,8 +22,9 @@ export function saveData(obj,items){
 }
 
 export function findOne(data,condition){
+	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		data.findOne(condition, function(err, docs) {
+		model.findOne(condition, function(err, docs) {
 			if (err) reject(err);
             reslove(docs)
 		})
@@ -40,8 +33,10 @@ export function findOne(data,condition){
 
 export function findLimit(data,condition,options){
 	var options = options ? options : {}
+	var model = mongoose.model(data);
+	
 	return new Promise((reslove,reject)=>{
-		data.find(condition).sort(options.sort?options.sort:{'_id':1}).skip(options.p?(options.p-1)*options.limit:0).limit(options.limit?options.limit:10).exec(function(err,docs){
+		model.find(condition).sort(options.sort?options.sort:{'_id':1}).skip(options.p?(options.p-1)*options.limit:0).limit(options.limit?options.limit:10).exec(function(err,docs){
 			if (err) reject(err);
             reslove(docs)
 		})
@@ -50,8 +45,9 @@ export function findLimit(data,condition,options){
 
 export function find(data,condition){
 	var options = options ? options : {}
+	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		data.find(condition).exec(function(err,docs){
+		model.find(condition).exec(function(err,docs){
 			if (err) reject(err);
             reslove(docs)
 		})
@@ -59,9 +55,10 @@ export function find(data,condition){
 }
 
 export function remove(data,condition){
+	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		console.log(condition)
-		data.remove(condition,function(err,docs){
+		// console.log(condition)
+		model.remove(condition,function(err,docs){
 			if (err) reject(err);
             reslove(docs)
 		})
@@ -70,7 +67,7 @@ export function remove(data,condition){
 
 export function update(data,condition,update,options){
 	var options = options ? options : {}
-	var model = var model = mongoose.model(data);
+	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
 		model.update(condition, update, options,function(err, docs) {
 			if (err) reject(err);
@@ -83,8 +80,9 @@ export function update(data,condition,update,options){
 
 export function aggregate(data,options){
 	var options = options ? options : {}
+	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		data.aggregate([{$group:options}]).exec(function(err, docs) {
+		model.aggregate([{$group:options}]).exec(function(err, docs) {
 			if (err) reject(err);
             reslove(docs)
 		})

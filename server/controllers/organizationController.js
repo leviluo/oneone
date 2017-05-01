@@ -1,7 +1,7 @@
 import { sqlStr,getByItems } from '../dbHelps/mysql'
 import chat,{queryid} from '../routers/chat.js'
 import mongoose from 'mongoose'
-import {save,find,remove,update,saveData} from '../dbHelps/mongodb'
+import {save,find,remove,update} from '../dbHelps/mongodb'
 
 const organizationController = {
     addOrganization:async function(next) {
@@ -154,7 +154,7 @@ const organizationController = {
           var result = await sqlStr("insert into article set title = ?,type = ?,organizationsId =?,memberId = ?",[header,data.type[0],data.organizationId[0],this.session.user])
           if (result.insertId) {
               var items = {articleId:result.insertId,content:content};
-              var resulttt = await saveData('Article',items)
+              var resulttt = await save('Article',items)
             // 写入更新表
               var resultt = await sqlStr("insert into memberupdates set articleId = ?,memberId = ?",[result.insertId,this.session.user])
           }
@@ -209,7 +209,7 @@ const organizationController = {
         var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
 
         var items = {type:"attendrequest",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname};
-        var resultt = await saveData('Message',items)
+        var resultt = await save('Message',items)
         
         if(resultt.id){
 
@@ -263,8 +263,8 @@ const organizationController = {
         }
       var result = await sqlStr("select a.*,m.nickname from article as a left join member as m on m.id = a.memberId where a.id = ?",[this.request.query.id])
 
-      var article = mongoose.model('Article');
-      var content = await find(article,{articleId:this.request.query.id})
+      // var article = mongoose.model('Article');
+      var content = await find("Article",{articleId:this.request.query.id})
       if (content[0]) {
       result[0].content = content[0].content
       }
@@ -295,7 +295,7 @@ const organizationController = {
 
               // var data = new message({type:"articlereply",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
 
-              // var resultt = await save(data)
+              // var resultt = await data)
 
               this.body = {status:200,insertId:result.insertId}
               return
@@ -429,7 +429,7 @@ const organizationController = {
 
             // 通过入社请求通知
             var items = {type:"attendapprove",hostId:info[0].memberId,organizationsId:info[0].organizationsId,organizationsname:info[0].name,organizationshead:info[0].head};
-            var resultt = await saveData('Notice',items)
+            var resultt = await save('Notice',items)
 
             if(resultt.id){
 
