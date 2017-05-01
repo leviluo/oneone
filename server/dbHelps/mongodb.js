@@ -18,6 +18,17 @@ export function save(data){
 	})
 }
 
+export function saveData(obj,items){
+	var model = mongoose.model(obj);
+	var data = new model(items);
+	return new Promise((reslove,reject)=>{
+		data.save(function(err, docs) {
+            if (err) reject(err);
+            reslove(docs)
+        })
+	})
+}
+
 export function findOne(data,condition){
 	return new Promise((reslove,reject)=>{
 		data.findOne(condition, function(err, docs) {
@@ -59,8 +70,9 @@ export function remove(data,condition){
 
 export function update(data,condition,update,options){
 	var options = options ? options : {}
+	var model = var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		data.update(condition, update, options,function(err, docs) {
+		model.update(condition, update, options,function(err, docs) {
 			if (err) reject(err);
             reslove(docs)
 		})

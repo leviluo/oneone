@@ -44,11 +44,9 @@ export default class Header extends Component{
     }.bind(this))
 
     socket.on('primessage',function(data){
-      this.props.addMessage(data)
       console.log(data)
       if(!this.props.chat.isShow && this.props.context.router.location.pathname != "/memberCenter/myMessage"){
-        
-
+        this.props.addMessage(data)
       }
     }.bind(this))
     
@@ -159,8 +157,8 @@ export default class Header extends Component{
   render(){
     console.log(this.props.messages)
     console.log(this.props)
-    var isMessage = this.props.messages[0] ? this.props.messages[0].status : ''
-    var isNotice = this.props.notices[0] ? this.props.notices[0].status : ''
+    // var isMessage = this.props.messages[0] ? this.props.messages[0].status : ''
+    // var isNotice = this.props.notices[0] ? this.props.notices[0].status : ''
     const{auth} = this.props;
     return(
         <header>
@@ -178,10 +176,10 @@ export default class Header extends Component{
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
              <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
              <Link to="/memberCenter/myMessage" className="messageNav" title="消息">
-                <i className={isMessage === 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.messages.length > 0 && <b>({this.props.messages.length})</b>}</i>
+                <i className={this.props.messages.length > 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.messages.length > 0 && <b>({this.props.messages.length})</b>}</i>
              </Link>
              <span onClick={this.goNotice} className="messageNav" title="通知">
-                <i className={isNotice === 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
+                <i className={this.props.notices.length > 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
              </span></span>}
               {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><span className="fa fa-play pull-right" ></span><ul className="details">
                   {this.props.notices.length == 0 && <li className="text-center">没有新的通知~</li>}

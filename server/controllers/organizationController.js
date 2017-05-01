@@ -1,7 +1,7 @@
 import { sqlStr,getByItems } from '../dbHelps/mysql'
 import chat,{queryid} from '../routers/chat.js'
 import mongoose from 'mongoose'
-import {save,find,remove,update} from '../dbHelps/mongodb'
+import {save,find,remove,update,saveData} from '../dbHelps/mongodb'
 
 const organizationController = {
     addOrganization:async function(next) {
@@ -149,14 +149,12 @@ const organizationController = {
             return
       }
 
-      var article = mongoose.model('Article');
-
       if (!data.articleId) {
 
           var result = await sqlStr("insert into article set title = ?,type = ?,organizationsId =?,memberId = ?",[header,data.type[0],data.organizationId[0],this.session.user])
           if (result.insertId) {
-              var data = new article({articleId:result.insertId,content:content});
-              var resulttt = await save(data)
+              var items = {articleId:result.insertId,content:content};
+              var resulttt = await saveData('Article',items)
             // 写入更新表
               var resultt = await sqlStr("insert into memberupdates set articleId = ?,memberId = ?",[result.insertId,this.session.user])
           }
@@ -166,13 +164,13 @@ const organizationController = {
           }
       }else{
         var result = await sqlStr("update article set title =?,type=?,updatedAt=now() where id = ?",[header,data.type[0],data.articleId[0]])
-        var updates = await update(article,{articleId:data.articleId},{$set:{content:content}},{multi:true})
+        var updates = await update("article",{articleId:data.articleId},{$set:{content:content}},{multi:true})
         // if (result.affectedRows == 1) {
         //       this.body = {status:200}
         //       return
         // }
-        console.log(result)
-        console.log(updates)
+        // console.log(result)
+        // console.log(updates)
         if(updates.ok == 1 && result.affectedRows == 1){
             this.body = {status:200}
             return
@@ -209,11 +207,9 @@ const organizationController = {
         // 发出入社请求消息
         var info = await sqlStr("select m.memberId,o.name from memberOrganizations as m left join organizations as o on o.id = m.organizationsId where m.organizationsId = ?",[this.request.body.id])
         var nickname = await sqlStr("select nickname from member where id = ?",[this.session.user])
-        var message = mongoose.model('Message');
 
-        var data = new message({type:"attendrequest",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
-
-        var resultt = await save(data)
+        var items = {type:"attendrequest",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname};
+        var resultt = await saveData('Message',items)
         
         if(resultt.id){
 
@@ -294,6 +290,13 @@ const organizationController = {
       if (this.request.body.replyToId) { 
         var resultt = await sqlStr("insert into reReply set commentsId = (select id from comments where memberId = ? and articleId=? order by id desc limit 1),replyTo = ?",[this.session.user,this.request.body.articleId,this.request.body.replyToId])
         if (result.affectedRows == 1 && resultt.affectedRows == 1) {
+              // 通知回复
+              // var message = mongoose.model('Message');
+
+              // var data = new message({type:"articlereply",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
+
+              // var resultt = await save(data)
+
               this.body = {status:200,insertId:result.insertId}
               return
         }
@@ -303,6 +306,13 @@ const organizationController = {
               return
         }
       }
+
+      // 通知评论
+      // var message = mongoose.model('Message');
+
+      // var data = new message({type:"articlecomment",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
+
+      // var resultt = await save(data)
 
       this.body = {status:500,msg:"插入失败"}
     },
@@ -418,13 +428,9 @@ const organizationController = {
           // if (result.affectedRows > 0) {
 
             // 通过入社请求通知
+            var items = {type:"attendapprove",hostId:info[0].memberId,organizationsId:info[0].organizationsId,organizationsname:info[0].name,organizationshead:info[0].head};
+            var resultt = await saveData('Notice',items)
 
-            var notice = mongoose.model('Notice');
-
-            var data = new notice({type:"attendapprove",hostId:info[0].memberId,organizationsId:info[0].organizationsId,organizationsname:info[0].name,organizationshead:info[0].head});
-
-            var resultt = await save(data)
-            
             if(resultt.id){
 
                 var toSocket = queryid(info[0].memberId)
