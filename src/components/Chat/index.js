@@ -49,7 +49,7 @@ export default class Chat extends Component{
 
   componentWillUnmount =()=>{
     document.removeEventListener('click',this.closeEmotion)
-    this.props.pageNavInit(null)
+    // this.props.pageNavInit(null)
   }
 
   componentDidMount =(e)=>{

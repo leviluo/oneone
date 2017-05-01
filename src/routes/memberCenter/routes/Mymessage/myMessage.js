@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import './myMessage.scss'
 import { connect } from 'react-redux'
 import { tipShow } from '../../../../components/Tips/modules/tips'
-import {messageList,getHistory,submitText,getReplyMe,submitReply,getcommentData} from './modules/myMessage'
+import {messageList,getHistory,submitText,getReplyMe,submitReply,getcommentData,getrequestData} from './modules/myMessage'
 import Chat,{chatShow} from '../../../../components/Chat'
 import {asyncConnect} from 'redux-async-connect'
 import {Link} from 'react-router'
@@ -20,8 +20,8 @@ import Textarea from '../../../../components/Textarea'
 @connect(
   state => ({
     auth:state.auth,
-    pagenavbar:state.pagenavbar
-
+    pagenavbar:state.pagenavbar,
+    messages:state.message.messages
     }),
   {chatShow,tipShow,pageNavInit,modalShow,modalHide}
 )
@@ -40,6 +40,10 @@ export default class myMessage extends Component {
     commentMe:[],
     requestMe:[],
     flag:{},
+    privatemessage:0,
+    articlecomment:0,
+    attendrequest:0,
+    articlereply:0,
     setHeight:true
   }
 
@@ -133,7 +137,22 @@ export default class myMessage extends Component {
       this.props.pageNavInit(this.commentData)
     }else if (index == 3) { // 获取回复
       this.props.pageNavInit(this.replyData)
+    }else if (index == 4) { // 入社请求
+      this.props.pageNavInit(this.requestData)
     }
+  }
+
+  requestData =(currentPage)=>{
+     return getrequestData(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+      if (data.status == 200) { 
+        this.setState({
+          requestMe:data.data
+        })
+      return Math.ceil(data.count/this.state.averagenum)
+      }else{
+       this.props.tipShow({type:'error',msg:data.msg})
+      }
+    })
   }
 
   commentData = (currentPage)=>{
@@ -415,16 +434,50 @@ export default class myMessage extends Component {
     })
   }
 
+  componentWillReceiveProps =(nextProps)=>{
+    // console.log(nextProps)
+    var messages = nextProps.messages
+    if (messages.length == 0) return
+    var articlereply = 0,
+        articlecomment = 0,
+        privatemessage = 0,
+        attendrequest = 0
+
+    console.log(articlereply)
+
+    for (var i = 0; i < messages.length; i++) {
+      switch(messages[i].type){
+        case 'privatemessage':
+              privatemessage += 1
+              break;
+        case 'articlecomment':
+              articlecomment += 1
+              break;
+        case 'attendrequest':
+              attendrequest += 1
+              break;
+        case 'articlereply':
+              articlereply += 1
+      }
+    }
+    this.setState({
+      privatemessage:privatemessage,
+      articlecomment:articlecomment,
+      attendrequest:attendrequest,
+      articlereply:articlereply,
+    })
+  }
+
   render () {
     const num = new Array(100).fill(0)
     return (
     <div>
        <div id="message">
           <div className="top">
-              <span className={this.state.tag == 1 ? "active" : ""} onClick={()=>this.changeTag(1)}>私信</span>
-              <span className={this.state.tag == 2 ? "active" : ""} onClick={()=>this.changeTag(2)}>评论</span>
-              <span className={this.state.tag == 3 ? "active" : ""} onClick={()=>this.changeTag(3)}>回复</span>
-              <span className={this.state.tag == 4 ? "active" : ""} onClick={()=>this.changeTag(4)}>入社请求</span>
+              <span className={this.state.tag == 1 ? "active" : ""} onClick={()=>this.changeTag(1)}>私信{this.state.privatemessage > 0 && <span>{this.state.privatemessage}</span>}</span>
+              <span className={this.state.tag == 2 ? "active" : ""} onClick={()=>this.changeTag(2)}>评论{this.state.articlecomment > 0 && <span>{this.state.articlecomment}</span>}</span>
+              <span className={this.state.tag == 3 ? "active" : ""} onClick={()=>this.changeTag(3)}>回复{this.state.articlereply > 0 && <span>{this.state.articlereply}</span>}</span>
+              <span className={this.state.tag == 4 ? "active" : ""} onClick={()=>this.changeTag(4)}>入社请求{this.state.attendrequest > 0 && <span>{this.state.attendrequest}</span>}</span>
           </div>
           <div className="content">
           {this.state.tag == 1 && <article className="chat">
@@ -519,7 +572,7 @@ export default class myMessage extends Component {
               {this.state.requestMe.length == 0 && <li className="text-center">暂时没有记录</li>}
               {this.state.requestMe.map((item,index)=>{
                 var time = item.createdAt.DateFormat("yyyy-MM-dd hh:mm")
-                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;请求加入&nbps;<span className="pull-right lightColor smallFont">{time}</span></li>
+                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;请求加入&nbsp;<Link to={`/organizationsHome/${item.organizationsId}`}>{item.name}</Link><span className="pull-right lightColor smallFont">{time}</span><a className="pull-right" style={{marginLeft:"10px"}}>通过</a><a className="pull-right">拒绝</a><p dangerouslySetInnerHTML={{__html:item.verified}} className="lightBackground"></p></li>
               })}
             </ul>
             </article>}

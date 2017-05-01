@@ -21,6 +21,10 @@ export function getcommentData(limit){
 	return axios.get('/commentsme?limit='+limit)
 }
 
+export function getrequestData(limit){
+	return axios.get('/requestorganizations?limit='+limit)
+}
+
 export function submitReply(text) {
       return axios.post('/organizations/reply',text)
 }

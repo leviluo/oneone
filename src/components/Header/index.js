@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { IndexLink, Link } from 'react-router'
+import { IndexLink, Link,browserHistory } from 'react-router'
 import {loginOut,isAuth} from '../../reducers/auth'
 import Location from '../Location'
 import {connect} from 'react-redux'
@@ -19,9 +19,10 @@ import socket from '../../socket'
 {loginOut,isAuth,tipShow,fetchNotice,fetchMessage,addMessage,addNotice})
 export default class Header extends Component{
 
-  static contextTypes = {
-    router:PropTypes.object.isRequired
-  };
+  // static contextTypes = {
+  //   router: React.PropTypes.object.isRequired
+  // };
+
 
   state = {
     // notice:[],
@@ -45,9 +46,17 @@ export default class Header extends Component{
 
     socket.on('primessage',function(data){
       console.log(data)
-      if(!this.props.chat.isShow && this.props.context.router.location.pathname != "/memberCenter/myMessage"){
-        this.props.addMessage(data)
+      // console.log(this.props)
+      if(this.props.chat.isShow || browserHistory.getCurrentLocation().pathname == "/memberCenter/myMessage"){
+        if (data.type != "privatemessage") {
+          this.props.addMessage(data)
+        }
+      }else{
+          this.props.addMessage(data)
       }
+
+
+
     }.bind(this))
     
     document.addEventListener('click', this.setModal, false);
@@ -67,6 +76,8 @@ export default class Header extends Component{
     //     ifmessage:false
     //   })
     // }.bind(this)
+    // console.log(this.props)
+    // console.log()
   }
 
   componentWillUnMount =()=>{
@@ -155,8 +166,6 @@ export default class Header extends Component{
   //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"） 转到通知页面
 
   render(){
-    console.log(this.props.messages)
-    console.log(this.props)
     // var isMessage = this.props.messages[0] ? this.props.messages[0].status : ''
     // var isNotice = this.props.notices[0] ? this.props.notices[0].status : ''
     const{auth} = this.props;

@@ -148,7 +148,7 @@ export default class OrganizationsHome extends Component{
     attendOrganization({id:this.props.params.id,verified:this.state.verified}).then(({data})=>{
        this.state.request['submitAttend'] = false
       if (data.status == 200) {
-        this.props.tipShow({type:"error",msg:"发送请求成功,等待管理员审核"})
+        this.props.tipShow({type:"success",msg:"发送请求成功,等待管理员审核"})
       }else{
           this.props.tipShow({type:"error",msg:data.msg})
           return
@@ -180,7 +180,6 @@ export default class OrganizationsHome extends Component{
 
   postArticle = (e) =>{
     if (!this.state.isAttended && (this.props.auth.memberId != this.state.BasicInfo.memberId)) {
-      console.log(this.props.tipShow)
       this.props.tipShow({type:"error",msg:"请先加入这个社团才能发帖"})
       return
     }

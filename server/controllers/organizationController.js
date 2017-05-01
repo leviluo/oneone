@@ -216,7 +216,7 @@ const organizationController = {
             var toSocket = queryid(info[0].memberId)
 
             if (toSocket) {
-                toSocket.emit('message',resultt);
+                toSocket.emit('primessage',resultt);
             }
 
             this.body = {status:200}
@@ -272,9 +272,10 @@ const organizationController = {
       this.body = {status:200,data:result[0]}
     },
     reply:async function(){   //评论
-        var comment = this.request.body.comment.trim().html2Escape()
+      var comment = this.request.body.comment.trim().html2Escape()
+      var articleId = this.request.body.articleId
 
-      if (!comment || !this.request.body.articleId) {
+      if (!comment || !articleId) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
@@ -286,34 +287,51 @@ const organizationController = {
           this.body = { status: 500, msg: "回复内容不多于1000个字符" }
           return
         }
-      var result = await sqlStr("insert into comments set memberId = ?,articleId=?,comment=?",[this.session.user,this.request.body.articleId,comment])
+      var result = await sqlStr("insert into comments set memberId = ?,articleId=?,comment=?",[this.session.user,articleId,comment])
       if (this.request.body.replyToId) { 
-        var resultt = await sqlStr("insert into reReply set commentsId = (select id from comments where memberId = ? and articleId=? order by id desc limit 1),replyTo = ?",[this.session.user,this.request.body.articleId,this.request.body.replyToId])
+        var resultt = await sqlStr("insert into reReply set commentsId = (select id from comments where memberId = ? and articleId=? order by id desc limit 1),replyTo = ?",[this.session.user,articleId,this.request.body.replyToId])
         if (result.affectedRows == 1 && resultt.affectedRows == 1) {
               // 通知回复
-              // var message = mongoose.model('Message');
+              var info = await sqlStr("select m.id from member as m left join comments as c on c.memberId = m.id where c.id = ?",[this.request.body.replyToId])
+              var resultt = await save('Message',{type:"articlereply",hostId:info[0].id,articleId:articleId})
+              if (resultt.id) { 
 
-              // var data = new message({type:"articlereply",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
+                var toSocket = queryid(info[0].id)
 
-              // var resultt = await data)
+                if (toSocket) {
+                    toSocket.emit('primessage',resultt);
+                }
 
-              this.body = {status:200,insertId:result.insertId}
-              return
+                this.body = {status:200,insertId:result.insertId}
+                return
+              }
         }
       }else{
         if (result.affectedRows == 1) {
+             // 通知评论
+            var info = await sqlStr("select m.id from member as m left join article as a on a.memberId = m.id where a.id = ?",[articleId])
+            if (info[0].id != this.session.user) {
+              var resultt = await save('Message',{type:"articlecomment",hostId:info[0].id,articleId:articleId})
+              if (resultt.id) { 
+
+                var toSocket = queryid(info[0].id)
+
+                if (toSocket) {
+                    toSocket.emit('primessage',resultt);
+                }
+
+                this.body = {status:200,insertId:result.insertId}
+                return
+              }else{
+                this.body = {status:500,msg: "插入消息失败" }
+                return
+              }
+            }else{
               this.body = {status:200,insertId:result.insertId}
               return
+            }
         }
       }
-
-      // 通知评论
-      // var message = mongoose.model('Message');
-
-      // var data = new message({type:"articlecomment",hostId:info[0].memberId,organizationsId:this.request.body.id,organizationsname:info[0].name,memberId:this.session.user,nickname:nickname[0].nickname});
-
-      // var resultt = await save(data)
-
       this.body = {status:500,msg:"插入失败"}
     },
     ArticleReply:async function(){
@@ -449,13 +467,14 @@ const organizationController = {
         }
 
       }
-      // else{   //忽略
+
         var result = await sqlStr("delete from organizationsrequest where id = ?", [id])
+        var resultt = await remove("Message",{type:"attendrequest",hostId:this.session.user,memberId:info[0].memberId,organizationsId:info[0].organizationsId}) 
         if (result.affectedRows > 0) {
-        this.body = {status:200}
-        return
+          this.body = {status:200}
+          return
         }
-      // }
+
         this.body= {status:500,msg:"发生错误"}
     },
     // getApproveMe:async function(){

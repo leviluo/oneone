@@ -3,7 +3,7 @@
 	.top{
 		height:30px;
 		box-sizing:content-box;
-		span{
+		&>span{
 			height:30px;
 			line-height:30px;
 			display:inline-block;
@@ -12,6 +12,13 @@
 			letter-spacing:5px;
 			&:hover{
 				background:#efefef;
+			}
+			span{
+				color: #fff;
+			    background: #ff7f00;
+			    text-align: right;
+			    padding-left: 4px;
+			    border-radius: 10px;
 			}
 		}
 		.active{

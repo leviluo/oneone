@@ -78,7 +78,8 @@ var messageSchema = new mongoose.Schema({
     hostId: { type: Number, default: 0 },  //   你是谁
     memberId: { type: Number, default: 0 },      
     organizationsId: { type: Number, default: 0 },      
-    nickname: { type: String, default: '' }
+    nickname: { type: String, default: '' },
+    articleId: { type: Number, default: 0 },
 })
 
 var articleSchema = new mongoose.Schema({

@@ -9,7 +9,6 @@ export default function(){
 	return db; 
 }
 
-
 export function save(obj,items){
 	var model = mongoose.model(obj);
 	var data = new model(items);
@@ -34,7 +33,6 @@ export function findOne(data,condition){
 export function findLimit(data,condition,options){
 	var options = options ? options : {}
 	var model = mongoose.model(data);
-	
 	return new Promise((reslove,reject)=>{
 		model.find(condition).sort(options.sort?options.sort:{'_id':1}).skip(options.p?(options.p-1)*options.limit:0).limit(options.limit?options.limit:10).exec(function(err,docs){
 			if (err) reject(err);
@@ -57,7 +55,6 @@ export function find(data,condition){
 export function remove(data,condition){
 	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		// console.log(condition)
 		model.remove(condition,function(err,docs){
 			if (err) reject(err);
             reslove(docs)
@@ -75,8 +72,6 @@ export function update(data,condition,update,options){
 		})
 	})
 }
-
-// db.notices.aggregate([{$group:{_id:"$hostId",total:{$sum:1}}}])
 
 export function aggregate(data,options){
 	var options = options ? options : {}
