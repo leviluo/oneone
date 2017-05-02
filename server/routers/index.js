@@ -148,7 +148,7 @@ export default function routers(router){
 // 获取評論
 	router.get("/commentsme",organizationController.commentsme,router.allowedMethods());
 // 获取入社请求
-	router.get("/requestorganizations",memberController.requestorganizations,router.allowedMethods());
+	router.get("/requestorganizations",organizationController.requestorganizations,router.allowedMethods());
 // 获取通知
 	// router.get("/organizations/getApproveMe",organizationController.getApproveMe,router.allowedMethods());
 // 获取入社申请

@@ -48,8 +48,7 @@ export function addNotice(data) {
 
 export function fetchNotice() {
   return (dispatch, getState) => {
-
-    if (getState().message.noticefetching || getState().message.noticeisloaded) {
+    if (getState().message.noticefetching) {
       return
     }
     dispatch({type:NOTICEREQUEST})
@@ -60,7 +59,7 @@ export function fetchNotice() {
       // }else{
       //     dispatch(tipResult({type:"error",msg:data.msg}))
       // }
-      dispatch({type:NOTICEREQUEST,value:data.data})
+      dispatch({type:COUNTREQUEST,value:data.data})
       // return data
     })
   }
@@ -68,7 +67,7 @@ export function fetchNotice() {
 
 export function fetchMessage() {
   return (dispatch, getState) => {
-    if (getState().message.messagefetching || getState().message.messageisloaded) {
+    if (getState().message.messagefetching) {
       return
     }
     dispatch({type:MESSAGEREQUEST})
@@ -92,7 +91,7 @@ const ACTION_HANDLERS = {
   [COUNTMESSAGE]:(state,action)=>{
     return({...state,isloaded:true,messages:action.value,messagefetching:false,messageisloaded:true})
   },
-  [NOTICEREQUEST]:(state,action)=>{
+  [COUNTREQUEST]:(state,action)=>{
     return({...state,isloaded:true,notices:action.value,noticeisloaded:true,noticefetching:false})
   },
   [ADDMESSAGE]:(state,action)=>{

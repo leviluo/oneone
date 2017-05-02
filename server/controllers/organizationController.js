@@ -396,6 +396,15 @@ const organizationController = {
       var result = await sqlStr("select m.id as memberId,m.nickname,c.createdAt,c.comment,c.id as replyId,a.id as articleId,r.status,a.title,o.name,o.id as organizationsId from reReply as r left join comments as c on c.id = r.commentsId left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId left join organizations as o on o.id = a.organizationsId left join comments as cc on cc.id = r.replyTo where cc.memberId = ? order by r.id desc limit "+this.request.query.limit,[this.session.user])
       var count = await sqlStr("select count(r.id) as count from reReply as r left join comments as c on c.id = r.replyTo where c.memberId = ?",[this.session.user])
       // var resultt = await sqlStr("update reReply set status = 1 where replyTo in (select id from comments where memberId = ?) and status = 0 order by id desc limit "+this.request.query.limit,[this.session.user])
+
+      var updates = await update("Message",{hostId:this.session.user,status:0,type:"articlereply"},{$set:{status:1}},{multi:true})
+      // console.log(updates)
+      if(updates.ok){
+          this.body = {status:200,data:result,count:count[0].count}
+      }else{
+          this.body = {status:500,msg:"更新通知状态失败"}
+      }
+
       this.body = {status:200,data:result,count:count[0].count}
     },
     commentsme:async function(){
@@ -406,7 +415,14 @@ const organizationController = {
       var result = await sqlStr("select m.id as memberId,m.nickname,a.title,a.id as articleId,c.comment,c.createdAt,c.id as replyId from comments as c left join member as m on m.id = c.memberId left join article as a on a.id = c.articleId where a.memberId = ? order by c.id desc limit "+this.request.query.limit,[this.session.user])
       var count = await sqlStr("select count(c.id) as count from comments as c left join article as a on a.id = c.articleId where a.memberId = ?",[this.session.user])
 
-      this.body = {status:200,data:result,count:count[0].count}
+      var updates = await update("Message",{hostId:this.session.user,status:0,type:"articlecomment"},{$set:{status:1}},{multi:true})
+      // console.log(updates)
+      if(updates.ok){
+          this.body = {status:200,data:result,count:count[0].count}
+      }else{
+          this.body = {status:500,msg:"更新通知状态失败"}
+      }
+
     },
     getrequestData:async function(){
       if (!this.session.user) {
@@ -418,10 +434,8 @@ const organizationController = {
           return
       };
       var result = await sqlStr("select m.id as memberId,m.nickname,ro.createdAt,ro.verified,ro.id from organizationsrequest as ro left join member as m on m.id = ro.memberId where ro.status = 0 and ro.organizationsId = ? limit "+this.request.query.limit,[this.request.query.id])
-      // 更新消息状态
-      // var notice = mongoose.model('Notice');
-
       var count = await sqlStr("select count(id) as count from organizationsrequest where organizationsId = ? and status = 0",[this.request.query.id])
+
       this.body = {status:200,data:result,count:count[0].count}
     },
     isApprove:async function(){
@@ -541,6 +555,23 @@ const organizationController = {
         }
         this.body = {status:200,data:result}
     },
+    requestorganizations:async function(){
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+        var result = await sqlStr("select ro.*,m.nickname,o.name from organizationsRequest as ro left join member as m on m.id = ro.memberId left join organizations as o on o.id = ro.organizationsId where o.createById = ? order by ro.id desc limit "+ this.request.query.limit,[this.session.user])
+        var count = await sqlStr("select count(ro.id) as count from organizationsRequest as ro left join organizations as o on o.id = ro.organizationsId where o.createById = ?",[this.session.user])
+
+       var updates = await update("Message",{hostId:this.session.user,status:0,type:"attendrequest"},{$set:{status:1}},{multi:true})
+
+        // console.log(updates)
+        if(updates.ok){
+            this.body = {status:200,data:result,count:count[0].count}
+        }else{
+            this.body = {status:500,msg:"更新通知状态失败"}
+        }
+    }
 }
 export default organizationController;
 

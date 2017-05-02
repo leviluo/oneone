@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { tipShow } from '../../../../components/Tips/modules/tips'
 import {messageList,getHistory,submitText,getReplyMe,submitReply,getcommentData,getrequestData} from './modules/myMessage'
 import Chat,{chatShow} from '../../../../components/Chat'
+import {fetchMessage} from '../../../../components/Header/modules'
 import {asyncConnect} from 'redux-async-connect'
 import {Link} from 'react-router'
 import socket from '../../../../socket'
@@ -23,7 +24,7 @@ import Textarea from '../../../../components/Textarea'
     pagenavbar:state.pagenavbar,
     messages:state.message.messages
     }),
-  {chatShow,tipShow,pageNavInit,modalShow,modalHide}
+  {chatShow,tipShow,pageNavInit,modalShow,modalHide,fetchMessage}
 )
 
 export default class myMessage extends Component {
@@ -86,12 +87,18 @@ export default class myMessage extends Component {
      
     }.bind(this)) 
     document.addEventListener('click', this.closeEmotion, false);
+    // if (this.props.messages.length > 0) {  //只有最后一条消息的尴尬
+      this.initNum(this.props.messages)
+    // }
   }
+
+
 
   recentChats = (currentPage)=>{
     if (this.state.isEnd) {return}
     messageList(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
       if (data.status == 200) {
+        if(this.state.privatemessage)this.props.fetchMessage()
         if (currentPage == 1) {
             this.setState({
               items:data.data
@@ -140,6 +147,8 @@ export default class myMessage extends Component {
     }else if (index == 4) { // 入社请求
       this.props.pageNavInit(this.requestData)
     }
+    // console.log(this.props.fetchMessage)
+    
   }
 
   requestData =(currentPage)=>{
@@ -148,6 +157,7 @@ export default class myMessage extends Component {
         this.setState({
           requestMe:data.data
         })
+      if(this.state.attendrequest)this.props.fetchMessage() //更新状态信息
       return Math.ceil(data.count/this.state.averagenum)
       }else{
        this.props.tipShow({type:'error',msg:data.msg})
@@ -161,6 +171,7 @@ export default class myMessage extends Component {
         this.setState({
           commentMe:data.data
         })
+        if(this.state.articlecomment)this.props.fetchMessage()
       return Math.ceil(data.count/this.state.averagenum)
       }else{
        this.props.tipShow({type:'error',msg:data.msg})
@@ -174,6 +185,7 @@ export default class myMessage extends Component {
         this.setState({
           replyMe:data.data
         })
+        if(this.state.articlereply)this.props.fetchMessage()
       return Math.ceil(data.count/this.state.averagenum)
       }else{
        this.props.tipShow({type:'error',msg:data.msg})
@@ -434,17 +446,22 @@ export default class myMessage extends Component {
     })
   }
 
+
+
   componentWillReceiveProps =(nextProps)=>{
     // console.log(nextProps)
     var messages = nextProps.messages
-    if (messages.length == 0) return
+    // if (messages.length > 0){ 
+      this.initNum(messages)
+    // }
+  }
+
+  initNum =(messages)=>{
     var articlereply = 0,
         articlecomment = 0,
         privatemessage = 0,
         attendrequest = 0
-
-    console.log(articlereply)
-
+        // console.log("000")
     for (var i = 0; i < messages.length; i++) {
       switch(messages[i].type){
         case 'privatemessage':

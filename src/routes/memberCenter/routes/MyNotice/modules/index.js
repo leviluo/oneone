@@ -9,7 +9,7 @@ import axios from 'axios'
 // 	return axios.get('/organizations/getApproveMe')
 // }
 
-export function fetchNotice(items) {
+export function fetchNotices(items) {
     return axios.get(`/notices?type=all&p=${items.p}&limit=${items.limit}`).then(({data}) => {
       return data
     })

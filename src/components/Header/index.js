@@ -12,8 +12,7 @@ import socket from '../../socket'
 @connect(
   state=>({
     auth:state.auth,
-    messages:state.message.messages,
-    notices:state.message.notices,
+    message:state.message,
     chat:state.chat
   }),
 {loginOut,isAuth,tipShow,fetchNotice,fetchMessage,addMessage,addNotice})
@@ -39,13 +38,13 @@ export default class Header extends Component{
     if(!this.props.auth.isAuth)this.props.isAuth()
 
     socket.on('notice',function(data){
-      // this.props.notices.unshift(data)
+      // this.props.message.notices.unshift(data)
       this.props.addNotice(data)
       this.setState({ifnotice:true})
     }.bind(this))
 
     socket.on('primessage',function(data){
-      console.log(data)
+      // console.log(data)
       // console.log(this.props)
       if(this.props.chat.isShow || browserHistory.getCurrentLocation().pathname == "/memberCenter/myMessage"){
         if (data.type != "privatemessage") {
@@ -85,10 +84,11 @@ export default class Header extends Component{
   }
 
   componentWillReceiveProps =(nextProps)=>{
-    if(nextProps.auth.isAuth){
-        this.props.fetchNotice()
+    if(nextProps.auth.isAuth && !this.props.message.messageisloaded){
         this.props.fetchMessage()
-        // this.props.fetchMessage()
+    }
+    if(nextProps.auth.isAuth && !this.props.message.noticeisloaded){
+        this.props.fetchNotice()
     }
   }
 
@@ -139,7 +139,7 @@ export default class Header extends Component{
   // updateNotice=()=>{
   //    this.props.updateNotice().then(data=>{
   //     if (data.status == 200) {
-  //       var notice = this.props.notices;
+  //       var notice = this.props.message.notices;
   //       for (var i = 0; i < notice.length; i++) {
   //         notice[i].status = 1
   //       }
@@ -166,8 +166,8 @@ export default class Header extends Component{
   //通知                        “社团” 通过了你的加入请求       属于通知（type="attendapprove"） 转到通知页面
 
   render(){
-    // var isMessage = this.props.messages[0] ? this.props.messages[0].status : ''
-    // var isNotice = this.props.notices[0] ? this.props.notices[0].status : ''
+    // var isMessage = this.props.message.messages[0] ? this.props.message.messages[0].status : ''
+    // var isNotice = this.props.message.notices[0] ? this.props.message.notices[0].status : ''
     const{auth} = this.props;
     return(
         <header>
@@ -185,14 +185,14 @@ export default class Header extends Component{
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
              <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
              <Link to="/memberCenter/myMessage" className="messageNav" title="消息">
-                <i className={this.props.messages.length > 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.messages.length > 0 && <b>({this.props.messages.length})</b>}</i>
+                <i className={this.props.message.messages.length > 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.message.messages.length > 0 && <b>({this.props.message.messages.length})</b>}</i>
              </Link>
              <span onClick={this.goNotice} className="messageNav" title="通知">
-                <i className={this.props.notices.length > 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
+                <i className={this.props.message.notices.length > 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
              </span></span>}
               {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><span className="fa fa-play pull-right" ></span><ul className="details">
-                  {this.props.notices.length == 0 && <li className="text-center">没有新的通知~</li>}
-                  {this.props.notices.map((item,index)=>{
+                  {this.props.message.notices.length == 0 && <li className="text-center">没有新的通知~</li>}
+                  {this.props.message.notices.map((item,index)=>{
                     var time = item.createdate.DateFormat("yyyy-MM-dd hh:mm")
                     switch(item.type){
                       case 'focusyou':

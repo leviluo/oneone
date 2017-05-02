@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import {Link} from 'react-router'
 import {asyncConnect} from 'redux-async-connect'
 import { tipShow } from '../../../../components/Tips/modules/tips'
-import {fetchNotice} from './modules'
+import {fetchNotices} from './modules'
 import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
 // import {countNotice} from '../../containers/modules'
+import {fetchNotice} from '../../../../components/Header/modules'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -21,9 +22,9 @@ import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
 @connect(
   state => ({
     auth:state.auth,
-
+    notices:state.message.notices
     }),
-  {tipShow,pageNavInit}
+  {tipShow,pageNavInit,fetchNotice}
 )
 
 export default class myNotice extends Component {
@@ -56,11 +57,13 @@ export default class myNotice extends Component {
     }
 
     fetchData =(p)=>{
-        return fetchNotice({p:p,limit:this.state.averagenum}).then(data=>{
+        return fetchNotices({p:p,limit:this.state.averagenum}).then(data=>{
           if (data.status == 200) {
               this.setState({
                 notice:data.data
               })
+              // console.log(this.props.notices)
+              if(this.props.notices.length)this.props.fetchNotice()
               return Math.ceil(data.count/this.state.averagenum)
             }else{
               this.props.tipShow({type:"error",msg:data.msg})

@@ -132,7 +132,17 @@ const memberController = {
         var result = await sqlStr("select m.text,m.time,mF.id as send,mF.nickname as sendnickname,mT.id as sendTo,mT.nickname as sendTonickname from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where ((m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?)) and unix_timestamp(m.time) < unix_timestamp(?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith,lastUpdate])
         }else{ 
         var result = await sqlStr("select m.text,m.time,mF.id as send,mF.nickname as sendnickname,mT.id as sendTo,mT.nickname as sendTonickname from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
+
+            var updates = await update("Message",{hostId:this.session.user,status:0,type:"privatemessage"},{$set:{status:1}},{multi:true})
+            // console.log(updates)
+            if(updates.ok){
+                this.body = {status:200,data:result}
+            }else{
+                this.body = {status:500,msg:"更新通知状态失败"}
+            }
+
         }
+
         this.body = {status:200,data:result}
     },
     updateActive:async function(next){
@@ -301,14 +311,9 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        // var message = mongoose.model('Message');
-        // if (this.request.query.type == 'noread') {
 
         var result = await find("Message",{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
-        // console.log(result)
         this.body = {status:200,data:result}
-
-    // }
 
     },
     notices:async function(){
@@ -321,16 +326,29 @@ const memberController = {
     // var notice = mongoose.model('Notice');
     if (this.request.query.type == 'noread') {
 
-    var result = await find("Notice",{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
-    this.body = {status:200,data:result}
+        var result = await find("Notice",{hostId:this.session.user,status:0},{sort:{'_id':-1}}) 
 
+        var updates = await update("Notice",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+
+        if(updates.ok){
+            this.body = {status:200,data:result}
+        }else{
+            this.body = {status:500,msg:"更新通知状态失败"}
+        }
+        
     }else if (this.request.query.type == 'all') {
 
-    var result = await findLimit("Notice",{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:parseInt(this.request.query.limit)}) 
+        var result = await findLimit("Notice",{hostId:this.session.user},{sort:{'_id':-1},p:this.request.query.p,limit:parseInt(this.request.query.limit)}) 
 
-    var count = await aggregate("Notice",{_id:"$hostId",total:{$sum:1}})
+        var count = await aggregate("Notice",{_id:"$hostId",total:{$sum:1}})
 
-    this.body = {status:200,data:result,count:count[0].total}
+        var updates = await update("Notice",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+
+        if(updates.ok){
+            this.body = {status:200,data:result,count:count[0].total}
+        }else{
+            this.body = {status:500,msg:"更新通知状态失败"}
+        }
 
     }
 
@@ -341,7 +359,7 @@ const memberController = {
             return
         }
         // var notice = mongoose.model('Notice');
-        var updates = await update("notice",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+        var updates = await update("Notice",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
         // console.log(updates)
         if(updates.ok){
             this.body = {status:200}
@@ -572,15 +590,6 @@ const memberController = {
         }
         var result = await sqlStr("select mu.id,m.nickname,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by mu.id desc limit "+this.request.query.limit,[this.session.user])
         this.body = {status:200,data:result}
-    },
-    requestorganizations:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var result = await sqlStr("select ro.*,m.nickname,o.name from organizationsRequest as ro left join member as m on m.id = ro.memberId left join organizations as o on o.id = ro.organizationsId where o.createById = ? order by ro.id desc limit "+ this.request.query.limit,[this.session.user])
-        var count = await sqlStr("select count(ro.id) as count from organizationsRequest as ro left join organizations as o on o.id = ro.organizationsId where o.createById = ?",[this.session.user])
-        this.body = {status:200,data:result,count:count[0].count}
     }
 }
 export default memberController;
