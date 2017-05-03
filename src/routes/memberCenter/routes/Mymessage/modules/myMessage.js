@@ -28,3 +28,7 @@ export function getrequestData(limit){
 export function submitReply(text) {
       return axios.post('/organizations/reply',text)
 }
+
+export function isApprove(flag,id){
+	return axios.get(`/organizations/isApprove?flag=${flag}&id=${id}`)
+}

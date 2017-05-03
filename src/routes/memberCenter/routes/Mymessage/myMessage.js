@@ -2,15 +2,17 @@ import React, {Component} from 'react'
 import './myMessage.scss'
 import { connect } from 'react-redux'
 import { tipShow } from '../../../../components/Tips/modules/tips'
-import {messageList,getHistory,submitText,getReplyMe,submitReply,getcommentData,getrequestData} from './modules/myMessage'
+import {messageList,getHistory,submitText,getReplyMe,submitReply,getcommentData,getrequestData,isApprove} from './modules/myMessage'
 import Chat,{chatShow} from '../../../../components/Chat'
 import {fetchMessage} from '../../../../components/Header/modules'
+import {loadingShow,loadingHide} from '../../../../components/Loading'
 import {asyncConnect} from 'redux-async-connect'
 import {Link} from 'react-router'
 import socket from '../../../../socket'
 import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
 import Modal,{modalShow,modalHide} from '../../../../components/Modal'
 import Textarea from '../../../../components/Textarea'
+
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -24,7 +26,7 @@ import Textarea from '../../../../components/Textarea'
     pagenavbar:state.pagenavbar,
     messages:state.message.messages
     }),
-  {chatShow,tipShow,pageNavInit,modalShow,modalHide,fetchMessage}
+  {chatShow,tipShow,pageNavInit,modalShow,modalHide,fetchMessage,loadingShow,loadingHide}
 )
 
 export default class myMessage extends Component {
@@ -485,6 +487,33 @@ export default class myMessage extends Component {
     })
   }
 
+  isApprove =(e,flag,id)=>{
+    this.props.loadingShow()
+    isApprove(flag,id).then(({data})=>{
+      this.props.loadingHide()
+      if (data.status == 200) {
+        this.props.tipShow({type:'success',msg:"操作成功"})
+          for (var i = 0; i < this.state.requestMe.length; i++) {
+            if(this.state.requestMe[i].id == id){
+              this.state.requestMe.splice(i,1)
+              this.setState({})
+              break
+            }
+          }
+        }else if (data.status==600) {
+          this.props.dispatch({type:"AUTHOUT"})
+          this.context.router.push('/login')
+        }{
+          this.props.tipShow({type:'error',msg:data.msg})
+        }
+    })
+  }
+
+  static contextTypes = {
+      router: React.PropTypes.object.isRequired
+  };
+
+
   render () {
     const num = new Array(100).fill(0)
     return (
@@ -589,7 +618,7 @@ export default class myMessage extends Component {
               {this.state.requestMe.length == 0 && <li className="text-center">暂时没有记录</li>}
               {this.state.requestMe.map((item,index)=>{
                 var time = item.createdAt.DateFormat("yyyy-MM-dd hh:mm")
-                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;请求加入&nbsp;<Link to={`/organizationsHome/${item.organizationsId}`}>{item.name}</Link><span className="pull-right lightColor smallFont">{time}</span><a className="pull-right" style={{marginLeft:"10px"}}>通过</a><a className="pull-right">拒绝</a><p dangerouslySetInnerHTML={{__html:item.verified}} className="lightBackground"></p></li>
+                return <li key={index}><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>&nbsp;请求加入&nbsp;<Link to={`/organizationsHome/${item.organizationsId}`}>{item.name}</Link><span className="pull-right lightColor smallFont">{time}</span><a className="pull-right" onClick={(e)=>this.isApprove(e,1,item.id)} style={{marginLeft:"10px"}}>通过</a><a onClick={(e)=>this.isApprove(e,0,item.id)} className="pull-right">拒绝</a><p dangerouslySetInnerHTML={{__html:item.verified}} className="lightBackground"></p></li>
               })}
             </ul>
             </article>}
