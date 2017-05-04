@@ -30,7 +30,7 @@ export default class updates extends Component {
       updates:[],
       averagenum:2,
       currentPage:1,
-      request:{}
+      // request:{}
     }
 
     static contextTypes = {
@@ -47,12 +47,12 @@ export default class updates extends Component {
 
     getData = (currentPage)=>{
 
-      if(this.state.request['getData'])return
-      this.state.request['getData'] = true;
+      // if(this.state.request['getData'])return
+      // this.state.request['getData'] = true;
 
       getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
 
-      this.state.request['getData'] = false;
+      // this.state.request['getData'] = false;
         if (data.status == 200) {
           if (data.data.length < this.state.averagenum) {
                 this.setState({

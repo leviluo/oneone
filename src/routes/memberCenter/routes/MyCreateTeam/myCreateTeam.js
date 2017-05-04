@@ -10,6 +10,7 @@ import Modal,{modalShow,modalHide,modalUpdate} from '../../../../components/Moda
 import {addOrganization,getCatelogy,getOrganizationByMe,modifyOrganization,deleteOrganization,getMyOrganization} from './modules'
 // import {fetchCatelogue} from '../../../../reducers/category'
 import {asyncConnect} from 'redux-async-connect'
+import {loadingShow,loadingHide} from '../../../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -26,7 +27,7 @@ import {asyncConnect} from 'redux-async-connect'
     auth:state.auth,
     // catelogues:state.catelogues
     }),
-  {modalShow,modalHide,modalUpdate,tipShow,confirmShow}
+  {modalShow,modalHide,modalUpdate,tipShow,confirmShow,loadingShow,loadingHide}
 )
 
 export default class myCreateTeam extends Component {
@@ -202,8 +203,9 @@ export default class myCreateTeam extends Component {
     fd.append('name',name)
     fd.append('brief',brief)
     fd.append('id',id)
-
+    this.props.loadingShow()
     modifyOrganization(fd).then(({data})=>{
+      this.props.loadingHide()
       if (data.status == 200) {
         this.state[oname] = false
         this.setState({})
@@ -260,7 +262,10 @@ export default class myCreateTeam extends Component {
     var brief = this.refs.organizationBrief.value;
     var speciality = this.refs.speciality.getValue();
     var fd = this.verfied(name,brief,speciality)
+
+    this.props.loadingShow()
     addOrganization(fd).then(({data})=>{
+      this.props.loadingHide()
       if (data.status == 200) {
         this.setState({
           isShowAdd:false
@@ -286,7 +291,9 @@ export default class myCreateTeam extends Component {
       this.props.tipShow({type:"error",msg:"未选中条目"})
       return
     }
+    this.props.loadingShow()
     deleteOrganization(this.state.deleteId).then(({data})=>{
+      this.props.loadingHide()
       // console.log(data)
       if (data.status == 200) {
           for (var i = this.state.OrganizationByMe.length - 1; i >= 0; i--) {

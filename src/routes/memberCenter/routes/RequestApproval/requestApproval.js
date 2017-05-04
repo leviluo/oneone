@@ -7,6 +7,7 @@ import { tipShow } from '../../../../components/Tips/modules/tips'
 import {getrequestData,isApprove} from './modules'
 import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
 // import {countRequest} from '../../containers/modules'
+import {loadingShow,loadingHide} from '../../../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -22,7 +23,7 @@ import PageNavBar,{pageNavInit} from '../../../../components/PageNavBar'
   state => ({
     auth:state.auth,
     }),
-  {tipShow,pageNavInit}
+  {tipShow,pageNavInit,loadingShow,loadingHide}
 )
 
 export default class requestApproval extends Component {
@@ -30,7 +31,7 @@ export default class requestApproval extends Component {
     state = {
       requestData:[],
       averagenum:5,
-      request:{}
+      // request:{}
     }
 
     static contextTypes = {
@@ -43,11 +44,11 @@ export default class requestApproval extends Component {
 
     requestData = (currentPage)=>{
 
-    if(this.state.request['requestData'])return
-    this.state.request['requestData'] = true;
+    // if(this.state.request['requestData'])return
+    // this.state.request['requestData'] = true;
 
     return getrequestData(this.props.params.id,`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
-    this.state.request['requestData'] = false;
+    // this.state.request['requestData'] = false;
         if (data.status == 200) {
           this.setState({
             requestData:data.data
@@ -64,11 +65,12 @@ export default class requestApproval extends Component {
 
   isApprove =(e,flag,id)=>{
     
-    if(this.state.request['isApprove'])return
-    this.state.request['isApprove'] = true;
-
+    // if(this.state.request['isApprove'])return
+    // this.state.request['isApprove'] = true;
+    this.props.loadingShow()
     isApprove(flag,id).then(({data})=>{
-    this.state.request['isApprove'] = false;
+      this.props.loadingHide()
+    // this.state.request['isApprove'] = false;
       if (data.status == 200) {
         // this.props.countRequest()
         this.props.tipShow({type:'success',msg:"操作成功"})

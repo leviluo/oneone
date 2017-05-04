@@ -64,6 +64,7 @@ export default class memberCenter extends Component {
             <ul>
               <li><Link to="/memberCenter/myMessage" className={this.props.location.pathname == '/memberCenter/myMessage' ? 'active' : ''}>消息{this.props.status.messages.length > 0 && <span className="noRead">{this.props.status.messages.length}</span>}</Link></li>
               <li><Link to="/memberCenter/myNotice" className={this.props.location.pathname == '/memberCenter/myNotice' ? 'active' : ''}>通知{this.props.status.notices.length > 0 && <span className="noRead">{this.props.status.notices.length}</span>}</Link></li>
+              <li><Link to="/memberCenter/suggestions" className={this.props.location.pathname == '/memberCenter/suggestions' ? 'active' : ''}>投诉与建议</Link></li>
             </ul>
             </div>
             <div className="memberCenterContentRight">

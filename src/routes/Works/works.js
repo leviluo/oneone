@@ -8,6 +8,7 @@ import { tipShow } from '../../components/Tips/modules/tips'
 import {getworksData,addLike,deletePhoto,getMemberInfo} from './modules'
 import Confirm,{confirmShow} from '../../components/Confirm'
 import Share from '../../components/Share'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -23,7 +24,7 @@ import Share from '../../components/Share'
   state => ({
     auth:state.auth,
     }),
-  {tipShow,confirmShow}
+  {tipShow,confirmShow,loadingShow,loadingHide}
 )
 
 export default class photos extends Component {
@@ -34,7 +35,7 @@ export default class photos extends Component {
       imgs:[],
       currentPage:1,
       memberInfo:[],
-      request:{}
+      // request:{}
     }
 
     static contextTypes = {
@@ -94,12 +95,12 @@ export default class photos extends Component {
         return
     }
 
-    if(this.state.request['addLike'])return
-    this.state.request['addLike'] = true;
-
+    // if(this.state.request['addLike'])return
+    // this.state.request['addLike'] = true;
+    this.props.loadingShow()
     addLike(id).then(({data})=>{
-      
-    this.state.request['addLike'] = false;
+      this.props.loadingHide()
+    // this.state.request['addLike'] = false;
         if (data.status == 200) {
           if(this.state.worksData[index].isLiked){
             this.state.worksData[index].isLiked = 0;
@@ -128,10 +129,12 @@ export default class photos extends Component {
   }
 
   confirmDelete =()=>{
-    if (this.state.request['confirmDelete']) return
-        this.state.request['confirmDelete'] = true
+    // if (this.state.request['confirmDelete']) return
+        // this.state.request['confirmDelete'] = true
+      this.props.loadingShow()
     deletePhoto(this.state.deleteId,this.state.deleteWork).then(({data})=>{
-        this.state.request['confirmDelete'] = false
+      this.props.loadingHide()
+        // this.state.request['confirmDelete'] = false
         if (data.status == 200) {
           this.state.worksData.splice(this.state.deleteindex,1)
           this.setState({})

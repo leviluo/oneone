@@ -9,6 +9,7 @@ import {getworksData,addLike,deletePhoto,getMemberInfo} from './modules'
 import Confirm,{confirmShow} from '../../components/Confirm'
 import Share from '../../components/Share'
 import loading from './asset/loading2.gif'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -24,7 +25,7 @@ import loading from './asset/loading2.gif'
   state => ({
     auth:state.auth,
     }),
-  {tipShow,confirmShow}
+  {tipShow,confirmShow,loadingShow,loadingHide}
 )
 
 export default class photoList extends Component {
@@ -33,7 +34,7 @@ export default class photoList extends Component {
       worksData:[],
       averagenum:15,
       memberInfo:[],
-      request:{}
+      // request:{}
     }
 
     static contextTypes = {
@@ -110,10 +111,12 @@ export default class photoList extends Component {
   }
 
   confirmDelete =()=>{
-    if (this.state.request['confirmDelete']) return
-        this.state.request['confirmDelete'] = true
+    // if (this.state.request['confirmDelete']) return
+        // this.state.request['confirmDelete'] = true
+      this.props.loadingShow()
     deletePhoto(this.state.deleteId,this.state.deleteWork).then(({data})=>{
-        this.state.request['confirmDelete'] = false
+      this.props.loadingHide()
+        // this.state.request['confirmDelete'] = false
         if (data.status == 200) {
           this.state.worksData.splice(this.state.currentLargePhoto,1)
           this.setState({})

@@ -7,6 +7,7 @@ import Radio from '../../components/Radio'
 import { tipShow } from '../../components/Tips/modules/tips'
 import { findDOMNode } from 'react-dom'
 import {submitArticle,getArticle} from './modules'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 const colorItems = [
                     "#000000",
@@ -83,14 +84,14 @@ for (var i = 2; i <= 10; i++) {
 
 @connect(
   state=>({auth:state.auth}),
-{tipShow})
+{tipShow,loadingShow,loadingHide})
 export default class PostArticle extends Component{
         state = {
             isColor:false,
             isFontFamily:false,
             isFontSize:false,
             type:0,
-            request:{}
+            // request:{}
         }
 
         componentDidMount=()=>{
@@ -302,10 +303,12 @@ export default class PostArticle extends Component{
           fd.append("text",content)
           fd.append("organizationId",this.props.params.id)
 
-          if (this.state.request['submitArticle']) return
-            this.state.request['submitArticle'] = true
+          // if (this.state.request['submitArticle']) return
+            // this.state.request['submitArticle'] = true
+            this.props.loadingShow()
           submitArticle(fd).then(({data})=>{
-            this.state.request['submitArticle'] = false
+            this.props.loadingHide()
+            // this.state.request['submitArticle'] = false
             if (data.status == 200) {
                 this.props.tipShow({type:"success",msg:"发布成功,2S后跳回上一页"})
                 setTimeout(()=>{

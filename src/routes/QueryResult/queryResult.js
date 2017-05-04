@@ -7,6 +7,7 @@ import Select from '../../components/Select'
 import {query} from './modules'
 import PageNavBar,{pageNavInit} from '../../components/PageNavBar'
 import {tipShow} from '../../components/Tips'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 const optionsItems = [{key:1,value:"用户"},{key:2,value:"社团"},{key:3,value:"文章"}]
 
@@ -15,13 +16,13 @@ const optionsItems = [{key:1,value:"用户"},{key:2,value:"社团"},{key:3,value
     auth:state.auth,
     pagenavbar:state.pagenavbar
   }),
-{pageNavInit,tipShow})
+{pageNavInit,tipShow,loadingShow,loadingHide})
 export default class queryResult extends Component{
 
   state = {
     results:[],
     averagenum:10,
-    request:{}
+    // request:{}
   }
 
   query =()=>{
@@ -36,10 +37,12 @@ export default class queryResult extends Component{
 
   getData = (currentPage)=>{
       var type = this.refs.queryType.getValue()
-    if (this.state.request['getData']) return
-        this.state.request['getData'] = true
+    // if (this.state.request['getData']) return
+        // this.state.request['getData'] = true
+        this.props.loadingShow()
     return query({type:type,queryStr:this.refs.queryStr.value,limit:`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`}).then(({data})=>{
-        this.state.request['getData'] = false
+      this.props.loadingHide()
+        // this.state.request['getData'] = false
       if (data.status == 200) { 
           this.setState({ 
               results:data.data,

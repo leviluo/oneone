@@ -5,13 +5,14 @@ import { connect } from 'react-redux';
 import { fetchRegister } from '../modules/register'
 import { tipShow } from '../../../components/Tips/modules/tips'
 import {login} from '../../../reducers/auth'
+import {loadingShow,loadingHide} from '../../../components/Loading'
 
 @connect(
   state => ({
     register: state.register,
     mylocation: state.mylocation.text
     }),
-  {tipShow,login}
+  {tipShow,login,loadingShow,loadingHide}
 )
 export default class Register extends Component {
 
@@ -21,7 +22,7 @@ export default class Register extends Component {
 
   state = {
     sex:0,
-    request:{}
+    // request:{}
   }
 
   sexChange =(e)=>{
@@ -62,8 +63,9 @@ export default class Register extends Component {
 
 
     let address = this.props.mylocation[0] ? this.props.mylocation[0] :'';
-    if (this.state.request['submit']) return
-        this.state.request['submit'] = true
+    // if (this.state.request['submit']) return
+        // this.state.request['submit'] = true
+      this.props.loadingShow()
     fetchRegister({
       phone:phone,
       password:password,
@@ -72,7 +74,8 @@ export default class Register extends Component {
       sex:this.state.sex,
       location:address
     }).then(({data}) => {
-        this.state.request['submit'] = false
+      this.props.loadingHide()
+        // this.state.request['submit'] = false
       if (data.status==200) {
           this.props.tipShow({type:"success",msg:"注册成功,3S后自动跳转个人中心"})
           setTimeout(()=>{

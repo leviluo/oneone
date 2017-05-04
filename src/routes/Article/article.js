@@ -12,6 +12,7 @@ import PageNavBar from '../../components/PageNavBar'
 import ImageBrowser,{imgbrowserShow} from '../../components/ImageBrowser'
 import Share from '../../components/Share'
 import {asyncConnect} from 'redux-async-connect'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -23,7 +24,7 @@ import {asyncConnect} from 'redux-async-connect'
     auth:state.auth,
     pagenavbar:state.pagenavbar
   }),
-{tipShow,pageNavInit,imgbrowserShow,confirmShow})
+{tipShow,pageNavInit,imgbrowserShow,confirmShow,loadingShow,loadingHide})
 export default class Article extends Component{
 
 	state = {
@@ -32,7 +33,7 @@ export default class Article extends Component{
     replyData:[],
     isReply:false,
     replyToId:'',
-    request:{}
+    // request:{}
 	}
 
   componentWillMount =()=>{
@@ -69,10 +70,12 @@ export default class Article extends Component{
       this.props.tipShow({type:"error",msg:"回复在1 ~ 1000个字符"})
       return
     }
-    if(this.state.request['reply'])return
-    this.state.request['reply'] = true;
+    // if(this.state.request['reply'])return
+    // this.state.request['reply'] = true;
+    this.props.loadingShow()
     submitReply({comment:comment,articleId:this.props.params.id,replyToId:this.state.replyToId}).then(({data})=>{
-    this.state.request['reply'] = false;
+    this.props.loadingHide()
+    // this.state.request['reply'] = false;
          if (data.status==200) {
             this.state.replyData.push({
               comment:comment.html2Escape(),
@@ -121,10 +124,12 @@ export default class Article extends Component{
   }
 
   deleteReply =(e,index)=>{
-    if(this.state.request['deleteReply'])return
-    this.state.request['deleteReply'] = true;
+    // if(this.state.request['deleteReply'])return
+    // this.state.request['deleteReply'] = true;
+    this.props.loadingShow()
     deleteReply(this.state.replyData[index].id).then(({data})=>{
-      this.state.request['deleteReply'] = false;
+    this.props.loadingHide()
+      // this.state.request['deleteReply'] = false;
        if (data.status==200) {
             this.state.replyData.splice(index,1)
             this.setState({})

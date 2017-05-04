@@ -8,6 +8,7 @@ import myNotice from './routes/MyNotice'
 import requestApproval from './routes/RequestApproval'
 import updates from './routes/Updates'
 import myUpdates from './routes/MyUpdates'
+import suggestions from './routes/Suggestions'
 
 
 export default (store) => ({
@@ -30,5 +31,6 @@ export default (store) => ({
         mymessage(store),
         requestApproval(store),
         myUpdates(store),
+        suggestions(store),
     ]
 })

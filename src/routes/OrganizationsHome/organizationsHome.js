@@ -11,13 +11,14 @@ import Modal,{modalShow,modalHide} from '../../components/Modal'
 import Textarea from '../../components/Textarea'
 import {tipShow} from '../../components/Tips'
 import socket,{initGroupChat,leaveGroupChat} from '../../socket'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 @connect(
   state=>({
     auth:state.auth,
     pagenavbar:state.pagenavbar
   }),
-{tipShow,pageNavInit,modalHide,modalShow})
+{tipShow,pageNavInit,modalHide,modalShow,loadingShow,loadingHide})
 export default class OrganizationsHome extends Component{
 
 
@@ -115,7 +116,7 @@ export default class OrganizationsHome extends Component{
     averagenum:10,
     type:0, //文章类型
     verified:'',
-    request:{},
+    // request:{},
     chatContent:[],
     showEmotion:false,
     setHeight:true
@@ -143,10 +144,12 @@ export default class OrganizationsHome extends Component{
         return
     }
     this.props.modalHide()
-    if (this.state.request['submitAttend']) return
-        this.state.request['submitAttend'] = true
+    // if (this.state.request['submitAttend']) return
+        // this.state.request['submitAttend'] = true
+      this.props.loadingShow()
     attendOrganization({id:this.props.params.id,verified:this.state.verified}).then(({data})=>{
-       this.state.request['submitAttend'] = false
+      this.props.loadingHide()
+       // this.state.request['submitAttend'] = false
       if (data.status == 200) {
         this.props.tipShow({type:"success",msg:"发送请求成功,等待管理员审核"})
       }else{
@@ -163,10 +166,12 @@ export default class OrganizationsHome extends Component{
       this.props.tipShow({type:"error",msg:"尚未登录"})
       return
     }
-    if (this.state.request['quitOrganization']) return
-        this.state.request['quitOrganization'] = true
+    // if (this.state.request['quitOrganization']) return
+        // this.state.request['quitOrganization'] = true
+      this.props.loadingShow()
     quitOrganization(this.props.params.id).then(({data})=>{
-       this.state.request['quitOrganization'] = false
+      this.props.loadingHide()
+       // this.state.request['quitOrganization'] = false
       if (data.status == 200) {
           this.setState({
             isAttended:false

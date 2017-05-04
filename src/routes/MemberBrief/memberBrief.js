@@ -8,7 +8,7 @@ import ImageBrowser,{imgbrowserShow} from '../../components/ImageBrowser'
 import Chat,{chatShow} from '../../components/Chat'
 import Share from '../../components/Share'
 import {Link} from 'react-router'
-
+import {loadingShow,loadingHide} from '../../components/Loading'
 import {asyncConnect} from 'redux-async-connect'
 
 @asyncConnect([{
@@ -19,7 +19,7 @@ import {asyncConnect} from 'redux-async-connect'
 
 @connect(
   state=>({auth:state.auth}),
-{tipShow,imgbrowserShow,chatShow})
+{tipShow,imgbrowserShow,chatShow,loadingShow,loadingHide})
 export default class MemberBrief extends Component{
 
   state = {
@@ -29,7 +29,7 @@ export default class MemberBrief extends Component{
     myUpdates:[],
     averagenum:10,
     currentPage:1,
-    request:{}
+    // request:{}
   }
 
   static contextTypes = {
@@ -68,10 +68,12 @@ export default class MemberBrief extends Component{
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
-      if(this.state.request['followIt'])return
-      this.state.request['followIt'] = true;
+      // if(this.state.request['followIt'])return
+      // this.state.request['followIt'] = true;
+    this.props.loadingShow()
       followOne(this.state.memberInfo.id).then(({data})=>{
-        this.state.request['followIt'] = false;
+        this.props.loadingHide()
+        // this.state.request['followIt'] = false;
         if (data.status == 200) {
             this.state.memberInfo.fans = this.state.memberInfo.fans + 1
             this.state.memberInfo.isFollowed = 1
@@ -90,10 +92,12 @@ export default class MemberBrief extends Component{
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
-      if(this.state.request['followOut'])return
-      this.state.request['followOut'] = true;
+      // if(this.state.request['followOut'])return
+      // this.state.request['followOut'] = true;
+    this.props.loadingShow()
       followOutOne(this.state.memberInfo.id).then(({data})=>{
-        this.state.request['followOut'] = false;
+    this.props.loadingHide()
+        // this.state.request['followOut'] = false;
           if (data.status == 200) {
             this.state.memberInfo.fans = this.state.memberInfo.fans - 1
             this.state.memberInfo.isFollowed = 0

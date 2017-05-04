@@ -42,7 +42,7 @@ export default class myMessage extends Component {
     replyMe:[],
     commentMe:[],
     requestMe:[],
-    flag:{},
+    // flag:{},
     privatemessage:0,
     articlecomment:0,
     attendrequest:0,
@@ -331,10 +331,12 @@ export default class myMessage extends Component {
     // fd.append('file',file)
     fd.append('text',content)
     fd.append('sendTo',this.state.items[this.state.msgIndex].memberId)
-    if (this.state.flag['sendMsg']) return
-    this.state.flag['sendMsg'] = true;
+    // if (this.state.flag['sendMsg']) return
+    // this.state.flag['sendMsg'] = true;
+    this.props.loadingShow()
     submitText(fd).then(({data}) => {
-      this.state.flag['sendMsg'] = false;
+      // this.state.flag['sendMsg'] = false;
+      this.props.loadingHide()
       if (data.status==200) {
           var date = new Date()
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
@@ -429,10 +431,10 @@ export default class myMessage extends Component {
       this.props.tipShow({type:"error",msg:"回复内容不超过1000个字符"})
       return
     }
-    if (this.state.flag['submitReply']) return
-    this.state.flag['submitReply'] = true;
+      this.props.loadingShow()
     submitReply({comment:comment,articleId:this.state.articleId,replyToId:this.state.replyToId}).then(data=>{
-      this.state.flag['submitReply'] = false;
+      this.props.loadingHide()
+
       if (data.status == 200) {
         this.props.tipShow({
           type:"success",
@@ -500,10 +502,10 @@ export default class myMessage extends Component {
               break
             }
           }
-        }else if (data.status==600) {
+        }else if (data.status == 600) {
           this.props.dispatch({type:"AUTHOUT"})
           this.context.router.push('/login')
-        }{
+        }else{
           this.props.tipShow({type:'error',msg:data.msg})
         }
     })

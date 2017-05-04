@@ -7,6 +7,7 @@ import {asyncConnect} from 'redux-async-connect'
 import { tipShow } from '../../components/Tips/modules/tips'
 import {getFollows,getFans,followOne,followOutOne} from './modules'
 import Confirm,{confirmShow} from '../../components/Confirm'
+import {loadingShow,loadingHide} from '../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -22,7 +23,7 @@ import Confirm,{confirmShow} from '../../components/Confirm'
   state => ({
     auth:state.auth,
     }),
-  {tipShow,confirmShow}
+  {tipShow,confirmShow,loadingShow,loadingHide}
 )
 
 export default class follows extends Component {
@@ -58,7 +59,7 @@ export default class follows extends Component {
       currentPage:1,
       items:[],
       addWho:this.getFollowData,
-      request:{}
+      // request:{}
     }
 
     getFanData =(currentPage)=>{
@@ -118,10 +119,12 @@ export default class follows extends Component {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
-      if (this.state.request['followIt']) return
-        this.state.request['followIt'] = true
+      // if (this.state.request['followIt']) return
+        // this.state.request['followIt'] = true
+      this.props.loadingShow()
       followOne(id).then(({data})=>{
-        this.state.request['followIt'] = false
+        this.props.loadingHide()
+        // this.state.request['followIt'] = false
         if (data.status == 200) {
             // this.state.memberInfo.fans = this.state.memberInfo.fans + 1
             // this.state.memberInfo.isFollowed = 1
@@ -141,10 +144,12 @@ export default class follows extends Component {
             this.props.tipShow({type:'error',msg:'您还未登录,请先登录'})
             return
         }
-      if (this.state.request['followOut']) return
-        this.state.request['followOut'] = true
+      // if (this.state.request['followOut']) return
+        // this.state.request['followOut'] = true
+        this.props.loadingShow()
       followOutOne(id).then(({data})=>{
-        this.state.request['followOut'] = false
+        this.props.loadingHide()
+        // this.state.request['followOut'] = false
           if (data.status == 200) {
             this.state.items.splice(index,1)
             this.setState({})

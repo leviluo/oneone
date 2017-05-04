@@ -12,6 +12,7 @@ import {fetchCatelogue} from '../../../../reducers/category'
 import {modifyNickname as modifyname} from '../../../../reducers/auth'
 import {asyncConnect} from 'redux-async-connect'
 import {Link} from 'react-router'
+import {loadingShow,loadingHide} from '../../../../components/Loading'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -32,7 +33,7 @@ import {Link} from 'react-router'
     myspecialities:state.myspecialities,
     catelogues:state.catelogues
     }),
-  {modalShow,modalHide,tipShow,commitHeadImg,addSpeciatity,modifyname,updateSpeciality,fetchSpeciality,confirmShow}
+  {modalShow,modalHide,tipShow,commitHeadImg,addSpeciatity,modifyname,updateSpeciality,fetchSpeciality,confirmShow,loadingShow,loadingHide}
 )
 
 export default class BasicInfo extends Component {
@@ -42,7 +43,7 @@ export default class BasicInfo extends Component {
     memberInfo: [],
     imgs:[],
     headImg:'',
-    request:{}
+    // request:{}
   }
 
   static contextTypes = {
@@ -129,10 +130,12 @@ export default class BasicInfo extends Component {
     var fd=new FormData();
     fd.append('file',this.convertBase64UrlToBlob(url));
     // console.log(fd)
-    if (this.state.request['modifyHeadSubmit']) return
-        this.state.request['modifyHeadSubmit'] = true
+    // if (this.state.request['modifyHeadSubmit']) return
+        // this.state.request['modifyHeadSubmit'] = true
+        this.props.loadingShow()
     this.props.commitHeadImg(fd).then((data)=>{
-        this.state.request['modifyHeadSubmit'] = false
+      this.props.loadingHide()
+        // this.state.request['modifyHeadSubmit'] = false
       if (data.status == 200) {
         this.setState({
           headImg:"/originImg?from=member&name="+this.state.memberInfo.id+"&"+Math.random()
@@ -217,11 +220,13 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:"error",msg:"相关经验在1~300个字符"})
       return
     }
-    if(this.state.request['addSpeciatity'])return
-    this.state.request['addSpeciatity'] = true;
+    // if(this.state.request['addSpeciatity'])return
+    // this.state.request['addSpeciatity'] = true;
+    this.props.loadingShow()
     this.props.addSpeciatity({speciality:speciality,brief:brief,experience:experience})
     .then(({data}) => {
-    this.state.request['addSpeciatity'] = false;
+    this.props.loadingHide()
+    // this.state.request['addSpeciatity'] = false;
       if (data.status==200) {
           this.setState({showAddSpeciality:false})
           var items = {
@@ -301,10 +306,12 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:'error',msg:`昵称${flag}`})
       return
     }
-    if(this.state.request['saveNickname'])return
-    this.state.request['saveNickname'] = true;
+    // if(this.state.request['saveNickname'])return
+    // this.state.request['saveNickname'] = true;
+    this.props.loadingShow()
     modifyNickname({nickname:nickname}).then(({data})=>{
-    this.state.request['saveNickname'] = false;
+      this.props.loadingHide()
+    // this.state.request['saveNickname'] = false;
       if (data.status == 200) {
         this.props.modifyname(nickname)
         this.setState({
@@ -326,10 +333,12 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:'error',msg:`地址${flag}`})
       return
     }
-    if(this.state.request['saveAddress'])return
-    this.state.request['saveAddress'] = true;
+    // if(this.state.request['saveAddress'])return
+    // this.state.request['saveAddress'] = true;
+  this.props.loadingShow()
     modifyAddress({address:address}).then(({data})=>{
-    this.state.request['saveAddress'] = false;
+  this.props.loadingHide()
+    // this.state.request['saveAddress'] = false;
       if (data.status == 200) {
             this.state.memberInfo.address = address
             this.setState({
@@ -370,10 +379,12 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:"error",msg:"相关经验在1~300个字符"})
       return
     }
-    if(this.state.request['saveSpeciality'])return
-    this.state.request['saveSpeciality'] = true;
+    // if(this.state.request['saveSpeciality'])return
+    // this.state.request['saveSpeciality'] = true;
+    this.props.loadingShow()
     modifySpeciality({speciality:speciality,brief:brief,experience:experience}).then(({data})=>{
-    this.state.request['saveSpeciality'] = false;
+    this.props.loadingHide()
+    // this.state.request['saveSpeciality'] = false;
       if (data.status == 200) {
         this.state[speciality] = false
         this.setState({})
@@ -392,10 +403,12 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:"error",msg:"专业不为空"})
       return
     }
-    if(this.state.request['confirmDelete'])return
-    this.state.request['confirmDelete'] = true;
+    // if(this.state.request['confirmDelete'])return
+    // this.state.request['confirmDelete'] = true;
+  this.props.loadingShow()
     deleteSpeciality({speciality:this.state.speciality}).then(({data})=>{
-    this.state.request['confirmDelete'] = false;
+  this.props.loadingHide()
+    // this.state.request['confirmDelete'] = false;
       if (data.status == 200) {
           var data = this.props.myspecialities.text.concat();
           for (var i = data.length - 1; i >= 0; i--) {
@@ -444,11 +457,12 @@ export default class BasicInfo extends Component {
     }
     fd.append("id", id)
 
-    if(this.state.request['savePhotos'])return
-    this.state.request['savePhotos'] = true;
-
+    // if(this.state.request['savePhotos'])return
+    // this.state.request['savePhotos'] = true;
+    this.props.loadingShow()
     submitPhotos(fd).then(({data})=>{
-    this.state.request['savePhotos'] = false;
+    this.props.loadingHide()
+    // this.state.request['savePhotos'] = false;
       if (data.status == 200) {
           this.props.tipShow({type:'success',msg:"上传成功"})
           this.props.fetchSpeciality()
