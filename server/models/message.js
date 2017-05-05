@@ -87,11 +87,17 @@ var articleSchema = new mongoose.Schema({
     content: { type: String, default: '' }
 })
 
+var suggestionchema = new mongoose.Schema({
+    contact: { type: String, default: '' },
+    content: { type: String, default: '' }
+})
+
 // var News = mongoose.model('News', NewsSchema);
 // mongoose.model('User', UserSchema);
 mongoose.model('Message', messageSchema);
 mongoose.model('Notice', noticeSchema);
 mongoose.model('Article', articleSchema);
+mongoose.model('Suggestion', suggestionchema);
 
 console.log("加载mongo模型")
 

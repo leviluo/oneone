@@ -35,6 +35,7 @@ export default class Register extends Component {
     var phone = this.refs.phone.value.trim()
     var password = this.refs.password.value.trim()
     var nickname = this.refs.nickname.value.trim()
+    
 
     var pattern = /^[1][34578][0-9]{9}$/;
     if (!pattern.test(phone)) {

@@ -174,7 +174,7 @@ export default class Header extends Component{
           <nav>
           <span className="pull-left">
             <h1 ><IndexLink to="/" className="brand">OneOne</IndexLink></h1>
-            <h4 >一个有用的人</h4><Location />
+            <h4 >一个奇趣的人</h4><Location />
           </span>
               <Link className="item pull-left" to="/"><strong><i className="fa fa-home"></i>&nbsp;首页</strong></Link>
               <Link className="item pull-left" to="/Organization"><strong><i className="fa fa-users"></i>&nbsp;社团</strong></Link>
