@@ -92,26 +92,25 @@ const memberController = {
             var resultt = await save('Message',items)
 
             if (resultt.id) {
+                // 在线发送socket消息
+                var toSocket = queryid(toName)
+                // console.log("000")
+                if (toSocket) {
+                    // console.log("111")
+                    toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendFrom:info[0].id,sendnickname:info[0].nickname});
+                    toSocket.emit('primessage',{type:"privatemessage",hostId:this.request.body.sendTo,memberId:this.session.user,nickname:info[0].nickname})
+                }else{
+                    // console.log("不在线")
+                    // toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
+                }
 
+                this.body = { status: 200}
+                return
             }else{
-
+                 this.body = { status: 500, msg:"保存消息失败"}
+                return
             }
 
-            // 在线发送socket消息
-            var toSocket = queryid(toName)
-            // console.log("000")
-            if (toSocket) {
-                // console.log("111")
-                toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendFrom:info[0].id,sendnickname:info[0].nickname});
-                toSocket.emit('primessage',{type:"privatemessage",hostId:this.request.body.sendTo,memberId:this.session.user,nickname:info[0].nickname})
-            }else{
-                // console.log("不在线")
-                // toSocket.emit('message',{text:text,sendTo:this.request.body.sendTo,sendnickname:nickname[0].nickname});
-            }
-
-
-            this.body = { status: 200}
-            return
         }else{
             this.body = { status: 500,msg:'数据库插入失败'}
         }
@@ -590,6 +589,34 @@ const memberController = {
         }
         var result = await sqlStr("select mu.id,m.nickname,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by mu.id desc limit "+this.request.query.limit,[this.session.user])
         this.body = {status:200,data:result}
+    },
+    suggestions:async function(next){
+          await next;
+          if (!this.session.user) {
+                this.body = { status: 600, msg: "尚未登录" }
+                return
+            }
+
+          var data = this.request.body
+          var contact = data.contact[0].trim().html2Escape()
+          var content = data.text[0]
+
+          if (!contact || contact.length > 40) {
+                this.body = { status: 500, msg: "标题不能为空或者大于40个字符" }
+                return
+          }
+
+
+        var resultt = await save('Suggestion',{contact:contact,content:content})
+
+        if (resultt.id) {
+            this.body = {status:200,msg:"谢谢您的建议！我们已收到"}
+            return
+        }else{
+            this.body = {status:500,msg:"数据保存失败"}
+            return
+        }
+
     }
 }
 export default memberController;

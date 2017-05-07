@@ -83,6 +83,22 @@ export default class Suggestions extends Component {
        }   
   }
 
+
+  convertBase64UrlToBlob =(data)=>{
+    // var data=url.split(',')[1];
+    if (!data) {return}
+
+    data=window.atob(data);
+    var ia = new Uint8Array(data.length);
+    for (var i = 0; i < data.length; i++) {
+        ia[i] = data.charCodeAt(i);
+    };
+    // canvas.toDataURL 返回的默认格式就是 image/png
+    var blob=new Blob([ia], {type:"image/png"});
+
+    return blob
+  }
+
   submit =()=>{
 
       var html = this.refs.text.innerHTML;
@@ -117,7 +133,9 @@ export default class Suggestions extends Component {
       submitText(fd).then(({data}) => {
         this.props.loadingHide()
         if (data.status==200) {
+            this.props.tipShow({type:"success",msg:data.msg})
             this.refs.text.innerHTML = ""
+            this.refs.contact.value = ""
         }else{
             this.props.tipShow({type:"error",msg:"发送失败"})
         }

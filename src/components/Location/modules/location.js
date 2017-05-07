@@ -26,6 +26,7 @@ export function fetchLocation () {
     }).then(function(data) {
       dispatch(receiveLocation(data.content.address))
     }).catch(function(ex) {
+      dispatch(receiveLocation("上海市"))
       console.log('parsing failed', ex)
     })
   }

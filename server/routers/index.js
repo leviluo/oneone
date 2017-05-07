@@ -162,7 +162,8 @@ export default function routers(router){
 	router.get("/notices",memberController.notices,router.allowedMethods());
 // 更新通知
 	router.put("/notices",memberController.updatenotices,router.allowedMethods());
-
+// 提交建议与意见
+	router.post("/suggestions",memberController.suggestions,fileController.uploadSuggestionImg,router.allowedMethods());
 
 	// router.get('*', async function (next){
 	    // this.res.sendFile(paths.client('static'))

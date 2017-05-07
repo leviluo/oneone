@@ -301,6 +301,20 @@ const fileController = {
         }
         this.request.body = result.msg
     },
+    uploadSuggestionImg:async function(next){   //上传文章时
+        if (!this.session.user) {
+            this.body = { status: 600, msg: "尚未登录" }
+            return
+        }
+        var name = this.session.user
+        var result = await UploadMessageImage(this.req,name,config.suggestionImgDir,'suggestion')
+
+        if (result.status != 200) {
+            this.body = {status:500,msg:'上传失败'}
+            return
+        }
+        this.request.body = result.msg
+    },
     deletePhoto:async function(next){
         var result = await deleteImgs([this.request.query.name],config.specialityImgDir)
         if(!result){

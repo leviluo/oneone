@@ -87,7 +87,7 @@ var articleSchema = new mongoose.Schema({
     content: { type: String, default: '' }
 })
 
-var suggestionchema = new mongoose.Schema({
+var suggestionSchema = new mongoose.Schema({
     contact: { type: String, default: '' },
     content: { type: String, default: '' }
 })
@@ -97,7 +97,7 @@ var suggestionchema = new mongoose.Schema({
 mongoose.model('Message', messageSchema);
 mongoose.model('Notice', noticeSchema);
 mongoose.model('Article', articleSchema);
-mongoose.model('Suggestion', suggestionchema);
+mongoose.model('Suggestion', suggestionSchema);
 
 console.log("加载mongo模型")
 
