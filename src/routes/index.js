@@ -3,7 +3,9 @@ import MyCoreLayout from '../layouts/CoreLayout'
 import Home from './Home'
 import Register from './Register'
 import memberCenter from './memberCenter'
+import admincenter from './AdminCenter'
 import Login from './Login'
+import AdminLogin from './AdminLogin'
 import Categories from './Categories'
 import MemberBrief from './MemberBrief'
 import organization from './Organizations'
@@ -25,7 +27,9 @@ export const createRoutes = (store) => ({
   childRoutes: [
     Register(store),
     memberCenter(store),
+    admincenter(store),
     Login(store),
+    AdminLogin(store),
     Categories(store),
     MemberBrief(store),
     organization(store),

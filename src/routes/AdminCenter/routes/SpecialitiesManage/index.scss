@@ -1,0 +1,37 @@
+#specialitiesManage{
+	margin:0px auto;
+	padding-top:20px;
+	.items{
+		padding-left:0;
+		&>li{
+			border:1px solid #e5e5e5;
+			button{
+				margin:5px;
+			}
+			&>a{
+				cursor:auto;
+				&>strong{
+					background:#efefef;
+					padding:0 30px;
+					margin-left:20px;
+					&:hover{
+						background:#ccc
+					}
+					cursor:pointer;
+				}
+				width:100%;
+				display:block;
+				text-align:center;
+				height:50px;
+				line-height:50px;
+			}
+			&>ul{
+				li{
+					border-top:1px solid #e5e5e5;
+					height:50px;
+					line-height:50px;
+				}
+			}
+		}
+	}
+}

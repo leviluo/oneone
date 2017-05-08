@@ -1,0 +1,60 @@
+.admincentercontent{
+	min-height:900px;
+	.noRead{
+		padding:0 5px;
+		background:#ff7f00;
+		color:white;
+		border-radius:10px;
+		margin-left:5px;
+	}
+	.memberCenterContentLeft{
+		background:#fff;
+		width:200px;
+		float:left;
+		text-align:center;
+		min-height:850px;
+		box-shadow:0 0 5px #ccc;
+		h4{
+			color:#1C86EE;
+			width:80%;
+			margin:0 auto;
+			height:30px;
+			line-height:30px;
+			border-bottom:1px dotted #1C86EE;
+			font-size:110%;
+		}
+		ul{
+			padding:0;
+			li{
+				a{
+					color:rgb(88, 99, 118);
+					height:30px;
+					line-height:30px;
+					display:block;
+					&:hover{
+						color:#1C86EE; 
+						cursor:pointer;
+						background:#f0f8ff
+					}
+				}
+				.active{
+					color:#1C86EE; 
+					background:#f0f8ff;
+					border-right:2px solid #1c86ee;
+				}
+			}
+		}
+	}
+	.memberCenterContentRight{
+		margin-bottom:10px;
+		margin-left:210px;
+		background:#fff;
+		min-height:900px;
+		.text-center{
+			text-align:center
+		}
+		&>div{
+			width:900px;
+		}
+	}
+}

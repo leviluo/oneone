@@ -18,9 +18,9 @@ import socket from '../../socket'
 {loginOut,isAuth,tipShow,fetchNotice,fetchMessage,addMessage,addNotice})
 export default class Header extends Component{
 
-  // static contextTypes = {
-  //   router: React.PropTypes.object.isRequired
-  // };
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
+  };
 
 
   state = {
@@ -38,7 +38,6 @@ export default class Header extends Component{
     if(!this.props.auth.isAuth)this.props.isAuth()
 
     socket.on('notice',function(data){
-      // this.props.message.notices.unshift(data)
       this.props.addNotice(data)
       this.setState({ifnotice:true})
     }.bind(this))
@@ -84,6 +83,7 @@ export default class Header extends Component{
   }
 
   componentWillReceiveProps =(nextProps)=>{
+    if (nextProps.auth.memberId === 0) return
     if(nextProps.auth.isAuth && !this.props.message.messageisloaded){
         this.props.fetchMessage()
     }
@@ -183,13 +183,14 @@ export default class Header extends Component{
              <Link to='/register'>注册</Link>
              </span>}
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
-             <Link to="/memberCenter" title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
-             <Link to="/memberCenter/myMessage" className="messageNav" title="消息">
+             <Link to={this.props.auth.memberId > 0 ? "/memberCenter" : "/admincenter"} title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
+             {this.props.auth.memberId > 0 && <Link to="/memberCenter/myMessage" className="messageNav" title="消息">
                 <i className={this.props.message.messages.length > 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.message.messages.length > 0 && <b>({this.props.message.messages.length})</b>}</i>
-             </Link>
-             <span onClick={this.goNotice} className="messageNav" title="通知">
+             </Link>}
+             {this.props.auth.memberId > 0 && <span onClick={this.goNotice} className="messageNav" title="通知">
                 <i className={this.props.message.notices.length > 0 ? "fa fa-bell alternate" : "fa fa-bell"}></i>
-             </span></span>}
+             </span>}
+             </span>}
               {this.state.ifnotice && <span ref="notice" className={this.state.isNotice ? "messagemove message" : "message"}><span className="fa fa-play pull-right" ></span><ul className="details">
                   {this.props.message.notices.length == 0 && <li className="text-center">没有新的通知~</li>}
                   {this.props.message.notices.map((item,index)=>{

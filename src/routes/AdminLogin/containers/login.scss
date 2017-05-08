@@ -1,0 +1,83 @@
+.loginContainer{
+	background:#fff;
+	padding-top:50px;
+	min-height:900px;
+	min-width:1200px;
+	margin-bottom:10px;
+	h2{
+	 text-align:center;
+	 color:#555
+	}
+	hr{
+	margin: 15px auto;
+	border:1px solid #ccc
+	}
+	div[name="content"]{
+	 width:300px;
+	 margin:0 auto;
+	 text-align:center;
+	 padding-bottom:30px;
+	 input{
+	 	width:300px;
+	 	height:40px;
+	 	background:#efefef;
+	 	-webkit-tap-highlight-color:none;
+	 	border:none;
+	 	text-indent:5px
+	 }
+	 input:focus{
+	 	border:1px solid #1C86EE
+	 }
+	 input[name="code"]{
+	 	position:relative;
+	 	width:250px;
+	 	padding:0;
+	 }
+	 label{
+	 	width:80px;
+	 }
+	 button[type="submit"]{
+	 	width:100%;
+	 	margin-top:15px;
+	 }
+	}
+	.others{
+		margin:10px 0;
+		a:first-of-type{
+			float:left
+		}
+		a:last-of-type{
+			float:right
+		}
+	}
+	.otherlogins{
+		button{
+			width:40px;
+			height:40px;
+			border:none;
+			&:hover{
+			cursor:pointer
+			}
+			&:first-of-type{
+				background-image:url("../assert/icons.png");
+				background-size:150px;
+				background-position:-2% 80%;
+			}
+			&:nth-of-type(2){
+				background-image:url("../assert/icons.png");
+				background-size:150px;
+				background-position:50% 80%;
+			}
+			&:nth-of-type(3){
+				background-image:url("../assert/icons.png");
+				background-size:150px;
+				background-position:50% 2%;
+			}
+		}
+
+	}
+}
+
+.registerContent{
+
+}

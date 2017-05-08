@@ -185,17 +185,18 @@ function UploadMessageImage(ob,name,url,type){
 
 const fileController = {
     loadImg:async function(next){
-        switch(this.request.query.from){
-        case 'chat':
-            var result = await getThumbImage(this.request.query.name,config.messageImgDir);
-            break
-        case 'speciality':
-            var result = await getThumbImage(this.request.query.name,config.specialityImgDir);
-            break
-        case 'article':
-            var result = await getThumbImage(this.request.query.name,config.articleImgDir);
-            break
-        }
+        // switch(this.request.query.from){
+        // case 'chat':
+        //     var result = await getThumbImage(this.request.query.name,config.messageImgDir);
+        //     break
+        // case 'speciality':
+        //     var result = await getThumbImage(this.request.query.name,config.specialityImgDir);
+        //     break
+        // case 'article':
+        //     var result = await getThumbImage(this.request.query.name,config.articleImgDir);
+        //     break
+        // }
+        var result = await getThumbImage(this.request.query.name,config[this.request.query.from + 'ImgDir']);
         this.res.writeHead(200, { "Content-Type": "image/png" });
         this.res.write(result, "binary");
         this.res.end();

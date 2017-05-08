@@ -64,7 +64,11 @@ export function login(items,history) {
       if (data.status == 200) {
           // localStorage.setItem("nickname",data.nickname)
           dispatch(authIn(data.nickname,data.memberId));
-          history.push('/memberCenter')
+          if (items.type) {
+            history.push('/admincenter')
+          }else{
+            history.push('/memberCenter')
+          }
       }else{
           dispatch(tipResult({type:"error",msg:data.msg}))
       }
@@ -77,6 +81,7 @@ export function loginOut (history) {
     axios.get('/loginOut').then(({data}) => {
       if (data.status == 200) {
       // localStorage.removeItem("nickname")
+      console.log(history)
       dispatch(authOut())
       history.push('/')
       }
