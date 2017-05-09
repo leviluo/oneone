@@ -1,9 +1,17 @@
 #suggestionsManage{
 	margin:0px auto;
 	padding-top:20px;
+	padding-bottom:60px;
 	ul{
+		padding-left:0;
 		li{
-		text-align:left
+			text-align:left;
+			border-bottom:1px solid #efefef;
+			margin-bottom:10px;
+			p{
+				background:#FFE7BA;
+				padding:5px;
+			}
 		}
 	}
 }

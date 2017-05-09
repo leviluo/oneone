@@ -42,7 +42,6 @@ export default class myMessage extends Component {
     replyMe:[],
     commentMe:[],
     requestMe:[],
-    // flag:{},
     privatemessage:0,
     articlecomment:0,
     attendrequest:0,
@@ -265,6 +264,7 @@ export default class myMessage extends Component {
 
   componentDidUpdate =()=>{
     if (!(this.state.tag == 1)) return
+    if (!this.props.auth.isAuth) return   //退出页面时报错
     if (this.state.setHeight) {
       var me = this
       setTimeout(()=>{

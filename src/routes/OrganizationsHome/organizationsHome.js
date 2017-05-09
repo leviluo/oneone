@@ -3,7 +3,7 @@ import './organizationsHome.scss'
 // import {getSpecialities} from './modules/memberBrief'
 import Helmet from 'react-helmet'
 import {connect} from 'react-redux'
-import {getBasicInfo,attendOrganization,getMembers,quitOrganization,getArticleList,submitText,getHistory} from './modules'
+import {getBasicInfo,attendOrganization,getMembers,quitOrganization,getArticleList,submitText,getHistory,deleteMember} from './modules'
 import {Link} from 'react-router'
 // import {pageNavInit} from '../../components/PageNavBar/modules/pagenavbar'
 import PageNavBar,{pageNavInit} from '../../components/PageNavBar'
@@ -12,13 +12,14 @@ import Textarea from '../../components/Textarea'
 import {tipShow} from '../../components/Tips'
 import socket,{initGroupChat,leaveGroupChat} from '../../socket'
 import {loadingShow,loadingHide} from '../../components/Loading'
+import Confirm,{confirmShow} from '../../components/Confirm'
 
 @connect(
   state=>({
     auth:state.auth,
     pagenavbar:state.pagenavbar
   }),
-{tipShow,pageNavInit,modalHide,modalShow,loadingShow,loadingHide})
+{tipShow,pageNavInit,modalHide,modalShow,loadingShow,loadingHide,confirmShow})
 export default class OrganizationsHome extends Component{
 
 
@@ -383,6 +384,34 @@ export default class OrganizationsHome extends Component{
     }
   }
 
+  // showDelete =(index)=>{
+  //   if (this.props.auth.memberId != this.state.BasicInfo.memberId) return
+  //     console.log(index)
+  //   this.state.flag[index] = true
+  // }
+  deleteMember =(e,memberId,index)=>{
+    var confirmDelete = function(){
+      this.props.loadingShow()
+      deleteMember(memberId,this.props.params.id).then(({data})=>{
+        this.props.loadingHide()
+         if (data.status==200) {
+            this.props.tipShow({type:"success",msg:"操作成功"})
+            this.state.Members.splice(index,1)
+            this.setState({})
+        }else if (data.status==600) {
+            this.props.dispatch({type:"AUTHOUT"})
+            this.context.router.push('/login')
+        }else{
+          this.props.tipShow({type:'error',msg:data.msg})
+        }
+      }).catch((e)=>{
+        this.props.loadingHide()
+      })
+    }.bind(this)
+    this.props.confirmShow({submit:confirmDelete,text:"确定剔除这名成员吗？"})
+    e.nativeEvent.stopImmediatePropagation();
+  }
+
   render(){
   	var headImg = this.state.BasicInfo.head ? `/originImg?name=${this.state.BasicInfo.head}&from=organizations` : ''
     if (this.state.BasicInfo.time) {
@@ -447,10 +476,11 @@ export default class OrganizationsHome extends Component{
               {this.state.Members.map((item,index)=>{
                 var headImg = `/originImg?from=member&name=${item.id}`
                 var link = `/memberBrief/${item.id}`
-                return <Link to={link} key={index}>
+                return <span key={index}>
                           <img src={headImg} width="30" alt="" />
-                          {item.nickname}
-                        </Link>
+                          <Link to={link}>{item.nickname}</Link>
+                          {(this.props.auth.memberId == this.state.BasicInfo.memberId && index != 0) && <span onClick={(e)=>this.deleteMember(e,item.id,index)} className="pull-right" style={{color:"red",marginRight:"10px",padding:"0 5px"}}>剔除</span>}
+                      </span>
               })}
           </div>
         </div>
@@ -501,7 +531,7 @@ export default class OrganizationsHome extends Component{
             </div>
           </article>
       	</div>
-
+        <Confirm />
         <Modal />
       </div>
       )

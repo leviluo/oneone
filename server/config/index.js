@@ -1,6 +1,6 @@
 const config = {
 	headDir:'./server/upload/headImages/',
-	messageImgDir:'./server/upload/messageImages/',
+	chatImgDir:'./server/upload/messageImages/',
 	specialityImgDir:'./server/upload/specialityImages/',
 	organizationImgDir:'./server/upload/organizationImages/',
 	articleImgDir:'./server/upload/articleImages/',

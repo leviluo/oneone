@@ -60,7 +60,7 @@ export default class BasicInfo extends Component {
         }else if (data.status==600) {
             this.props.dispatch({type:"AUTHOUT"})
             this.context.router.push('/login')
-        }{
+        }else{
           this.props.tipShow({type:'error',msg:data.msg})
         }
       })

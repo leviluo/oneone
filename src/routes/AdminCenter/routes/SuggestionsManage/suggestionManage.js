@@ -31,7 +31,7 @@ export default class suggestionsManage extends Component {
 
   state = {
     items:[],
-    averagePage:2
+    averagePage:5
   }
 
 
@@ -58,11 +58,11 @@ export default class suggestionsManage extends Component {
     return (
     <div id="suggestionsManage">
         <h3>同志们的建议</h3>
-        <ul className="items">
+        <ul>
             {this.state.items.map((item,index)=>{
               return <li key={index}>
-              联系方式：<span dangerouslySetInnerHTML={{__html:item.contact}}></span>
-              内容：<p dangerouslySetInnerHTML={{__html:item.content}}></p>
+              {index+1}-联系方式：<span dangerouslySetInnerHTML={{__html:item.contact}}></span>
+              <p dangerouslySetInnerHTML={{__html:item.content}}></p>
               </li>
             })}
         </ul>

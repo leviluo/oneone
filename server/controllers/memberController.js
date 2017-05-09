@@ -132,13 +132,13 @@ const memberController = {
         }else{ 
         var result = await sqlStr("select m.text,m.time,mF.id as send,mF.nickname as sendnickname,mT.id as sendTo,mT.nickname as sendTonickname from message as m left join member as mF on mF.id = m.fromMember left join member as mT on mT.id=m.toMember where (m.fromMember = ? and m.toMember = ?) or (m.toMember = ? and m.fromMember = ?) order by m.time desc limit 10",[this.session.user,chatWith,this.session.user,chatWith])
 
-            var updates = await update("Message",{hostId:this.session.user,status:0,type:"privatemessage"},{$set:{status:1}},{multi:true})
-            // console.log(updates)
-            if(updates.ok){
-                this.body = {status:200,data:result}
-            }else{
-                this.body = {status:500,msg:"更新通知状态失败"}
-            }
+            // var updates = await update("Message",{hostId:this.session.user,status:0,type:"privatemessage"},{$set:{status:1}},{multi:true})
+            // // console.log(updates)
+            // if(updates.ok){
+            //     this.body = {status:200,data:result}
+            // }else{
+            //     this.body = {status:500,msg:"更新通知状态失败"}
+            // }
 
         }
 
@@ -165,7 +165,15 @@ const memberController = {
         var id = this.session.user
         var result = await sqlStr(`select message.time,message.text,message.active,member.nickname,member.id as memberId,if(message.fromMember=?,1,0) as isSend from message left join member on (member.id = message.fromMember or member.id = message.toMember) and member.id != ? where message.id in (select max(ms.id) from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone) order by message.time desc limit ${this.request.query.limit};`,[id,id,id,id,id])
         var count = await sqlStr("select m.phone from message as ms left join member as m on (m.id = ms.toMember or m.id = ms.fromMember) and m.id != ? where ms.fromMember = ? or ms.toMember = ? group by m.phone;",[id,id,id])
-        this.body = {status:200,data:result,count:count.length}
+        var updates = await update("Message",{hostId:this.session.user,status:0,type:"privatemessage"},{$set:{status:1}},{multi:true})
+            // console.log(updates)
+        if(updates.ok){
+            // this.body = {status:200,data:result}
+            this.body = {status:200,data:result,count:count.length}
+        }else{
+            this.body = {status:500,msg:"更新通知状态失败"}
+        }
+            
     },
     modifyNickname:async function(next){
 

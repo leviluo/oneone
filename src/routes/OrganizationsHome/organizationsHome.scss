@@ -126,7 +126,6 @@
 			font-size:110%;
 		}
 		&>div{
-			margin-top:10px;
 			height:400px;
 			overflow:auto;
 			&::-webkit-scrollbar{
@@ -143,7 +142,7 @@
                     height: 20px;
                     background-color: #e5e5e5;
             }
-			a{
+			&>span{
 				height:40px;
 				line-height:40px;
 				display:block;
@@ -155,10 +154,16 @@
 					border-radius:15px;
 					border:2px solid #e5e5e5;
 				}
-				cursor:pointer;
 				&:hover{
-					color:#ff7f00;
-					background:#efefef;
+					background:#efefef
+				}
+				&>span{
+					cursor:pointer
+				}
+				a{
+					&:hover{
+						text-decoration:underline
+					}
 				}
 			}
 		}
@@ -272,10 +277,10 @@
 			            padding:5px 0;
 			            border-top:1px solid #efefef;
 			            &>div{
-			                height:90px;
+			                height:80px;
 			                padding:5px;
+			                margin:5px;
 			                color:#666;
-			                margin:0 auto;
 			                border:1px solid #ccc;
 			                overflow:auto;
 			                img{

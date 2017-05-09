@@ -563,13 +563,27 @@ const organizationController = {
         var result = await sqlStr("select ro.*,m.nickname,o.name from organizationsRequest as ro left join member as m on m.id = ro.memberId left join organizations as o on o.id = ro.organizationsId where o.createById = ? order by ro.id desc limit "+ this.request.query.limit,[this.session.user])
         var count = await sqlStr("select count(ro.id) as count from organizationsRequest as ro left join organizations as o on o.id = ro.organizationsId where o.createById = ?",[this.session.user])
 
-       var updates = await update("Message",{hostId:this.session.user,status:0,type:"attendrequest"},{$set:{status:1}},{multi:true})
+        var updates = await update("Message",{hostId:this.session.user,status:0,type:"attendrequest"},{$set:{status:1}},{multi:true})
 
         // console.log(updates)
         if(updates.ok){
             this.body = {status:200,data:result,count:count[0].count}
         }else{
             this.body = {status:500,msg:"更新通知状态失败"}
+        }
+    },
+    deleteMember:async function(){
+       var id = this.request.query.id
+       var organizationsId = this.request.query.organizationsId
+       if (!id || !organizationsId) {
+            this.body = { status: 500, msg: "缺少参数" }
+            return
+        }
+        var result = await sqlStr("delete from memberOrganizations where memberId = ? and organizationsId = ?",[id,organizationsId])
+        if (result.affectedRows > 0) {
+          this.body = { status: 200 }
+        }else{
+          this.body = { status: 500, msg: "操作出错" }
         }
     }
 }

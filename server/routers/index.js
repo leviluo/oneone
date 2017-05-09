@@ -163,7 +163,8 @@ export default function routers(router){
 	router.put("/notices",memberController.updatenotices,router.allowedMethods());
 // 提交建议与意见
 	router.post("/suggestions",memberController.suggestions,fileController.uploadSuggestionImg,router.allowedMethods());
-
+// 删除社团会员
+	router.delete("/organizationsMembers",organizationController.deleteMember,authController.islogin,router.allowedMethods());
 
 
 // 	后台管理部分 

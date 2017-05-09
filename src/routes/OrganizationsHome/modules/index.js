@@ -33,6 +33,10 @@ export function getHistory(data){
     return axios.get(`/groupmessages?lastUpdate=${data.lastUpdate}&organizationsId=${data.organizationsId}`)
 }
 
+export function deleteMember(id,organizationsId){
+    return axios.delete(`/organizationsMembers?id=${id}&organizationsId=${organizationsId}`)
+}
+
 // export function modifyNickname(item) {
 //       return axios.post('/member/modifyNickname',item)
 // }
