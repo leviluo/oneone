@@ -397,21 +397,27 @@ const memberController = {
         return
       }
       if (names.length > 0) {
-        var str = ''
-        var arr = []
-        for (var i = 0; i < names.length; i++) {
-          str += `(?,?),`,
-          arr.push(id)
-          arr.push(names[i])
-        }
-        var result = await sqlStr("insert into works(`memberSpecialityId`,`name`) values "+str.slice(0,-1),arr)
-        if(names.length > 8){
-            names = names.splice(0,8) 
-        }
-        var resultt = await sqlStr("insert into memberupdates set memberId = ?,works = ?,memberSpecialityId=?",[this.session.user,names.join(','),id])
-       if (result.affectedRows > 0 && resultt.affectedRows == 1) {
-            this.body = {status:200}
-            return
+
+        var resultt = await sqlStr("insert into memberupdates set memberId = ?,type = ?",[this.session.user,'image'])
+        if (resultt.insertId) {
+
+            var str = ''
+            var arr = []
+            for (var i = 0; i < names.length; i++) {
+              str += `(?,?,?),`,
+              arr.push(id)
+              arr.push(names[i])
+              arr.push(resultt.insertId)
+            }
+            var result = await sqlStr("insert into works(`memberSpecialityId`,`name`,`updateId`) values "+str.slice(0,-1),arr)
+            // if(names.length > 8){
+            //     names = names.splice(0,8) 
+            // }
+           if (result.affectedRows > 0 && resultt.affectedRows == 1) {
+                this.body = {status:200}
+                return
+            }
+
         }
         this.body= {status:500,msg:"写入数据库失败"}
       }else{

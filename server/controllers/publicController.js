@@ -1,25 +1,10 @@
 import { sqlStr } from '../dbHelps/mysql'
-
-function merge(result,host,merge){
-  var items = []
-  go:
-    for (var i = 0; i < result.length; i++) {
-      for (var j = 0; j < items.length; j++) {
-        if(items[j][host] == result[i][host]){
-          items[j][merge].push(result[i][merge])
-          continue go
-        }
-    }
-    result[i][merge] = [result[i][merge]]
-    items.push(result[i])
-  }
-  return items
-}
+import {merge,mergeMulti} from './utils'
 
 const publicController = {
     catelogues:async function(next){
         var result = await sqlStr("select specialities.name as childCatelogue,specialityCategory.name as parentCatelogue from specialityCategory left join specialities on specialityCategory.id = specialities.categoryId")
-        var items = merge(result,'parentCatelogue','childCatelogue')
+        var items = merge(result,'parentCatelogue',['childCatelogue'])
         this.body = {status:200,data:items}
     },
     items:async function(next){
@@ -137,9 +122,9 @@ const publicController = {
             return
         }
 
-        var result = await sqlStr("select mu.id,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId where mu.memberId = ? order by mu.id desc limit "+limit,[id])
-
-        this.body = {status:200,data:result}
+        var result = await sqlStr("select mu.id,mu.type,a.id as articleId,w.name as workName,w.id as workId,a.title,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from memberUpdates as mu left join article as a on a.updateId = mu.id left join organizations as o on o.id = a.organizationsId left join works as w on w.updateId = mu.id where mu.memberId = ? order by mu.id desc limit "+limit,[id])
+        var items = mergeMulti(result,'id',['workName','workId'])
+        this.body = {status:200,data:items}
     },
     getPhotoUpdates:async function(){
       // console.log("请求更新")
@@ -180,7 +165,7 @@ const publicController = {
       }
       if (type == 1) {  //搜索用户
         var result = await sqlStr("select m.id,m.nickname,m.location,m.phone,m.sex,m.brief,s.name as specialityName from member as m left join memberSpeciality as ms on ms.memberId = m.id left join specialities as s on s.id = ms.specialitiesId where m.phone like ? or m.nickname like ? limit "+limit,[`%${queryStr}%`,`%${queryStr}%`])
-        result = merge(result,"id","specialityName")
+        result = merge(result,"id",["specialityName"])
         var count = await sqlStr("select count(id) as count from member where phone like ? or nickname like ? ",[`%${queryStr}%`,`%${queryStr}%`])
       }else if (type == 2) {  //搜索社团
         var result = await sqlStr("select o.name,o.head,o.id,s.name as specialityName from organizations as o left join specialities as s on s.id = o.categoryId where o.name like ? limit "+limit,[`%${queryStr}%`])

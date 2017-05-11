@@ -151,16 +151,20 @@ const organizationController = {
 
       if (!data.articleId) {
 
-          var result = await sqlStr("insert into article set title = ?,type = ?,organizationsId =?,memberId = ?",[header,data.type[0],data.organizationId[0],this.session.user])
+          // 写入更新表
+          var resultt = await sqlStr("insert into memberupdates set memberId = ?,type = ?",[this.session.user,'article'])
+          if (resultt.insertId) {
+
+          var result = await sqlStr("insert into article set title = ?,type = ?,organizationsId =?,memberId = ?,updateId =?",[header,data.type[0],data.organizationId[0],this.session.user,resultt.insertId])
           if (result.insertId) {
               var items = {articleId:result.insertId,content:content};
               var resulttt = await save('Article',items)
-            // 写入更新表
-              var resultt = await sqlStr("insert into memberupdates set articleId = ?,memberId = ?",[result.insertId,this.session.user])
           }
           if (result.affectedRows == 1 && resultt.affectedRows == 1 && result.insertId == resulttt.articleId) {
                   this.body = {status:200}
                   return
+          }
+
           }
       }else{
         var result = await sqlStr("update article set title =?,type=?,updatedAt=now() where id = ?",[header,data.type[0],data.articleId[0]])

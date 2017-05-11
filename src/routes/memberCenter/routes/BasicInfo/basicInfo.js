@@ -470,9 +470,12 @@ export default class BasicInfo extends Component {
         }else if (data.status==600) {
           this.props.dispatch({type:"AUTHOUT"})
           this.context.router.push('/login')
-        }{
+        }else{
           this.props.tipShow({type:'error',msg:data.msg})
         }
+    }).catch(err=>{
+      this.props.tipShow({type:'error',msg:"请求错误或超时"})
+      this.props.loadingHide()
     })
   }
 
@@ -529,6 +532,11 @@ export default class BasicInfo extends Component {
       this.props.tipShow({type:'error',msg:'上传前请先提交其它已选择的照片'})
       return
     }
+    if ((e.target.files.length + this.state.imgs.length) > 20) {
+      this.props.tipShow({type:'error',msg:'一次最多只能提交20张图片'})
+      return
+    }
+
           var value = e.target.value
           var filextension=value.substring(value.lastIndexOf("."),value.length);
           filextension = filextension.toLowerCase();
@@ -566,7 +574,6 @@ export default class BasicInfo extends Component {
       items.push({key:item.parentCatelogue,list:item.childCatelogue})
     })
     let nickname = this.props.auth.nickname
-    // var headSrc = "/originImg?from=member&name="+this.state.memberInfo.phone
     return (
     <div>
           <div id="basicInfo">

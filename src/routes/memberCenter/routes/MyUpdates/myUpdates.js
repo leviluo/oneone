@@ -28,7 +28,7 @@ export default class myUpdates extends Component {
 
     state = {
       myUpdates:[],
-      averagenum:2,
+      averagenum:50,
       currentPage:1,
       // request:{}
     }

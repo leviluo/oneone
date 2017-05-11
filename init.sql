@@ -39,9 +39,10 @@ CREATE TABLE `follows` (
 CREATE TABLE `memberupdates` (  
   `id` int unsigned auto_increment,
   `memberId` int unsigned not null default 0,
-  `articleId` int unsigned not null default 0,
-  `memberSpecialityId` int unsigned not null default 0,
-  `works` varchar(300) not null default '',
+  -- `articleId` int unsigned not null default 0,
+  -- `memberSpecialityId` int unsigned not null default 0,
+  -- `works` varchar(300) not null default '',
+  `type` varchar(15) not null default '',
   `createAt` datetime not null default now(),
   PRIMARY KEY  (`id`)
 );
@@ -77,6 +78,7 @@ CREATE TABLE `works` (
   `memberSpecialityId` int unsigned not null default 0,
   `name` char(30) not null default '',
   `createdAt` datetime not null DEFAULT now(),
+  `updateId` int unsigned not null default 0,
   PRIMARY KEY  (`id`)
 );
 
@@ -115,7 +117,7 @@ CREATE TABLE `organizationsRequest` (
   `organizationsId` int unsigned not null default 0,
   `createdAt` datetime not null DEFAULT now() COMMENT '//',
   `verified` varchar(300) not null default '',
-  -- `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
+  `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
   PRIMARY KEY  (`id`)
 );
 
@@ -124,6 +126,7 @@ CREATE TABLE `article`(
   `id` int unsigned auto_increment,
   `organizationsId` int unsigned not null default 0,
   `memberId` int unsigned not null default 0,
+  `updateId` int unsigned not null default 0,
   `title` varchar(50) not null DEFAULT '' COMMENT '//标题',
   -- `content` text not null,
   `type` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:普通,1:活动,2:公告,3:咨询',
