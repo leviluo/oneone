@@ -7,12 +7,11 @@ import myPost from './routes/MyPost'
 import myNotice from './routes/MyNotice'
 import requestApproval from './routes/RequestApproval'
 import updates from './routes/Updates'
-import myUpdates from './routes/MyUpdates'
 import suggestions from './routes/Suggestions'
 
 
 export default (store) => ({
-    path: 'memberCenter',
+    path: '/memberCenter/updates/:type',
     indexRoute: updates(store),
     getComponent(nextState, cb) {
         require.ensure([], (require) => {
@@ -30,7 +29,6 @@ export default (store) => ({
         myNotice(store),
         mymessage(store),
         requestApproval(store),
-        myUpdates(store),
         suggestions(store),
     ]
 })

@@ -121,23 +121,41 @@ const publicController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
+        // var result = await sqlStr("select mu.id,mu.type,mu.createAt,a.id as articleId,s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId,a.title,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from memberUpdates as mu left join article as a on a.updateId = mu.id left join organizations as o on o.id = a.organizationsId left join works as w on w.updateId = mu.id left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where mu.memberId = ? order by mu.id desc limit "+limit,[id])
+        // var items = mergeMulti(result,'id',['workName','workId'])
+        var result = await sqlStr("select id,type,createAt from memberupdates where memberId = ? order by id desc limit " + limit,[id])
+        for (let i = 0; i < result.length; i++) {
+          if (result[i].type == "article") {
+            var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
+            result[i].list = items
+          }else if (result[i].type == "image") {
+            var items = await sqlStr("select s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where w.updateId = ?",[result[i].id])
+            result[i].list = items
+          }
+        }
 
-        var result = await sqlStr("select mu.id,mu.type,a.id as articleId,w.name as workName,w.id as workId,a.title,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from memberUpdates as mu left join article as a on a.updateId = mu.id left join organizations as o on o.id = a.organizationsId left join works as w on w.updateId = mu.id where mu.memberId = ? order by mu.id desc limit "+limit,[id])
-        var items = mergeMulti(result,'id',['workName','workId'])
-        this.body = {status:200,data:items}
+        this.body = {status:200,data:result}
     },
     getPhotoUpdates:async function(){
-      // console.log("请求更新")
-        var location = this.request.query.location
-        if (!location) {
-            this.body = { status: 500, msg: "缺少参数" }
-            return
+
+        // var location = this.request.query.location
+        // if (!location) {
+        //     this.body = { status: 500, msg: "缺少参数" }
+        //     return
+        // }
+
+        // var result = await sqlStr("select mu.id,m.nickname,s.name as specialityName,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join member as m on m.id = mu.memberId where m.location = ? and mu.works != '' order by mu.id desc limit "+this.request.query.limit,[location])
+        // this.body = {status:200,data:result}
+        // return
+
+        var result = await sqlStr("select id,createAt from memberupdates where type = 'image' order by id desc limit " + this.request.query.limit)
+        for (let i = 0; i < result.length; i++) {
+            var items = await sqlStr("select s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where w.updateId = ?",[result[i].id])
+            result[i].list = items
         }
-        // console.log("333")
-        var result = await sqlStr("select mu.id,m.nickname,s.name as specialityName,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join member as m on m.id = mu.memberId where m.location = ? and mu.works != '' order by mu.id desc limit "+this.request.query.limit,[location])
+
         this.body = {status:200,data:result}
-        // console.log("444")
-        return
+
     },
     getArticleUpdates:async function(){
         var location = this.request.query.location

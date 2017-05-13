@@ -67,7 +67,7 @@ export function login(items,history) {
           if (items.type) {
             history.push('/admincenter')
           }else{
-            history.push('/memberCenter')
+            history.push('/memberCenter/updates/follow')
           }
       }else{
           dispatch(tipResult({type:"error",msg:data.msg}))
@@ -81,7 +81,7 @@ export function loginOut (history) {
     axios.get('/loginOut').then(({data}) => {
       if (data.status == 200) {
       // localStorage.removeItem("nickname")
-      console.log(history)
+      // console.log(history)
       dispatch(authOut())
       history.push('/')
       }

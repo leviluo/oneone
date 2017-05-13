@@ -2,7 +2,7 @@ import { sqlStr,getByItems, insert } from '../dbHelps/mysql'
 import {queryid} from '../routers/chat.js'
 import mongoose from 'mongoose'
 import {save,find,update,remove,aggregate,findLimit} from '../dbHelps/mongodb'
-
+import {mergeMulti} from './utils'
 
 const memberController = {
     addSpeciality:async function(next){
@@ -601,7 +601,20 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        var result = await sqlStr("select mu.id,m.nickname,m.id as memberId,if(a.type = 0,'活动','咨询') as titleType,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by mu.id desc limit "+this.request.query.limit,[this.session.user])
+
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt,a.id as articleId,s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId,a.title,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from memberUpdates as mu left join article as a on a.updateId = mu.id left join organizations as o on o.id = a.organizationsId left join works as w on w.updateId = mu.id left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by mu.id desc limit "+this.request.query.limit,[this.session.user])
+        
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt from memberupdates as mu left join follows as f on f.followId = mu.memberId where f.memberId = ? order by id desc limit "+this.request.query.limit,[this.session.user])
+        for (let i = 0; i < result.length; i++) {
+          if (result[i].type == "article") {
+            var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
+            result[i].list = items
+          }else if (result[i].type == "image") {
+            var items = await sqlStr("select s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where w.updateId = ?",[result[i].id])
+            result[i].list = items
+          }
+        }
+
         this.body = {status:200,data:result}
     },
     suggestions:async function(next){

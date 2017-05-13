@@ -7,6 +7,7 @@ import {fetchItems} from '../modules'
 import {asyncConnect} from 'redux-async-connect'
 import Select from '../../../components/Select'
 import PageNavBar,{pageNavInit} from '../../../components/PageNavBar'
+import Location from '../../../components/Location'
 import {tipShow} from '../../../components/Tips/modules/tips'
 import './categories.scss'
 import Chat,{chatShow} from '../../../components/Chat'
@@ -173,6 +174,10 @@ export default class Categories extends React.Component{
             <div>
                 <table>
                     <tbody>
+                        <tr>
+                            <td>城市:</td>
+                            <td><Location /></td>
+                        </tr>
                         <tr>
                             <td>类别:</td>
                             <td><ul id="categoryItems"><li><a onClick={this.allCategory} name={this.props.params.parentCatelogue}>全部</a></li>{catelogues.text.map((item,index)=>{

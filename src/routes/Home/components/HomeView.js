@@ -28,7 +28,7 @@ import './HomeView.scss'
 
 @connect(state=>({
     catelogues:state.catelogues,
-    mylocation:state.mylocation
+    // mylocation:state.mylocation
 }),{tipShow,imgbrowserShow})
 export default class HomeView extends React.Component{
 
@@ -43,28 +43,29 @@ export default class HomeView extends React.Component{
     // };
 
     componentWillMount =()=>{ //正常进入页面可以直接获取到memberId
-      if(this.props.mylocation.text[0]){
-        this.getData(this.state.currentPage,this.props.mylocation.text[0])
-      }
+      // if(this.props.mylocation.text[0]){
+      //   this.getData(this.state.currentPage,this.props.mylocation.text[0])
+      // }
+        this.getData(this.state.currentPage)
     }
 
     componentWillReceiveProps=(nextProps)=>{ //刷新时获取memberId
-      if ((nextProps.mylocation.text[0] != this.props.mylocation.text[0]) && this.props.mylocation.text[0]) { //在变换城市时
-        this.setState({
-          updates:[],
-        })
-        this.getData(this.state.currentPage,nextProps.mylocation.text[0])
-      }
-      if(nextProps.mylocation.text[0] && !this.state.isloaded){
-        this.setState({
-          isloaded:true
-        })
-        this.getData(this.state.currentPage,nextProps.mylocation.text[0])
-      }
+      // if ((nextProps.mylocation.text[0] != this.props.mylocation.text[0]) && this.props.mylocation.text[0]) { //在变换城市时
+      //   this.setState({
+      //     updates:[],
+      //   })
+      //   this.getData(this.state.currentPage,nextProps.mylocation.text[0])
+      // }
+      // if(nextProps.mylocation.text[0] && !this.state.isloaded){
+      //   this.setState({
+      //     isloaded:true
+      //   })
+      //   this.getData(this.state.currentPage,nextProps.mylocation.text[0])
+      // }
     }
 
     getData = (currentPage,location)=>{
-       getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`,window.encodeURIComponent(location)).then(({data})=>{
+       getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
         if (data.status == 200) {
           if (data.data.length < this.state.averagenum) {
                 this.setState({
@@ -121,20 +122,17 @@ export default class HomeView extends React.Component{
         <div className="updates">
             {this.state.updates.length == 0 && <div style={{textAlign:"center"}}>暂时没有任何动态哦~</div>}
             {this.state.updates.map((item,index)=>{
-              var date = new Date(item.createAt)
-              var works =[];
-              var imgs = item.works.split(',')
-              var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-              return <div key={index} className="lists">
+              var time = item.createAt.DateFormat("yyyy-MM-dd hh:mm")
+             return <div key={index} className="lists">
                   <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
-                  {item.works && <div>
-                    <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>
+                  {item.list && <div>
+                     <div className="header">&nbsp;&nbsp;<span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/works/${item.list[0].memberSpecialityId}`}>{item.list[0].specialityName}</Link>上传了新照片</div>
                     <div className="photoLists">
-                    {imgs.map((item,index)=>{
-                      works.push(`/originImg?from=speciality&name=${item}`)
-                      return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:works,likeFunc:this.like})} style={{backgroundImage:`url(/img?from=speciality&name=${item})`}}></div>
+                    {item.list.map((item,index)=>{
+                      if (index >= 8) return
+                      return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:works,likeFunc:this.like})} style={{backgroundImage:`url(/img?from=speciality&name=${item.workName})`}}></div>
                     })}
-                    <Link to={`/works/${item.memberSpecialityId}`}>查看更多...</Link>
+                    {item.list.length > 8 && <a style={{backgroundImage:`url(/img?from=speciality&name=${item.list[8].workName})`,cursor:"auto"}}>+{item.list.length - 8}</a>}
                     </div>
                   </div>}
               </div>

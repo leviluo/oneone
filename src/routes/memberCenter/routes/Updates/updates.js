@@ -28,7 +28,7 @@ export default class updates extends Component {
 
     state = {
       updates:[],
-      averagenum:2,
+      averagenum:5,
       currentPage:1,
       // request:{}
     }
@@ -38,19 +38,20 @@ export default class updates extends Component {
     };
 
     componentWillMount =()=>{ //正常进入页面可以直接获取到memberId
-      if (this.props.auth.memberId)this.getData(this.state.currentPage,this.props.auth.memberId)
+      
+      if (this.props.auth.memberId)this.getData(this.state.currentPage,this.props.auth.memberId,this.props.params.type)
     }
 
     componentWillReceiveProps=(nextProps)=>{ //刷新时获取memberId
-      if (nextProps.auth.memberId)this.getData(this.state.currentPage,nextProps.auth.memberId)
+      this.setState({
+        updates:[],
+      })
+      if (nextProps.auth.memberId)this.getData(this.state.currentPage,nextProps.auth.memberId,nextProps.params.type)
     }
 
-    getData = (currentPage)=>{
+    getData = (currentPage,id,type)=>{
 
-      // if(this.state.request['getData'])return
-      // this.state.request['getData'] = true;
-
-      getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
+      getupdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`,id,type).then(({data})=>{
 
       // this.state.request['getData'] = false;
         if (data.status == 200) {
@@ -98,21 +99,18 @@ export default class updates extends Component {
     <div id="updates">
         {this.state.updates.length == 0 && <div style={{textAlign:"center"}}>暂时没有任何动态哦~</div>}
         {this.state.updates.map((item,index)=>{
-          var date = new Date(item.createAt)
-          var works =[];
-          var imgs = item.works.split(',')
-          var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+          var time = item.createAt.DateFormat("yyyy-MM-dd hh:mm")
           return <div key={index} className="lists">
               <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
-              {item.title && <div className="header pull-left"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`}>{item.title}({item.titleType})</Link></div>}
-              {item.works && <div>
-                <div className="header">&nbsp;&nbsp;<span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>
+              {item.type == "article" && <div className="header pull-left"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/organizationsHome/${item.list[0].organizationsId}`}>{item.list[0].organizationsName}</Link>发布了<Link to={`/article/${item.list[0].articleId}`}>{item.list[0].title}({item.list[0].titleType})</Link></div>}
+              {item.type == "image" && <div>
+                <div className="header">&nbsp;&nbsp;<span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/works/${item.list[0].memberSpecialityId}`}>{item.list[0].specialityName}</Link>上传了新照片</div>
                 <div className="photoLists">
-                {imgs.map((item,index)=>{
-                  works.push(`/originImg?from=speciality&name=${item}`)
-                  return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:works,likeFunc:this.like})} style={{backgroundImage:`url(/img?from=speciality&name=${item})`}}></div>
+                {item.list.map((item,index)=>{
+                  if (index >= 8) return
+                  return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:works,likeFunc:this.like})} style={{backgroundImage:`url(/img?from=speciality&name=${item.workName})`}}></div>
                 })}
-                <Link to={`/works/${item.memberSpecialityId}`}>查看更多...</Link>
+                {item.list.length > 8 && <a style={{backgroundImage:`url(/img?from=speciality&name=${item.list[8].workName})`,cursor:"auto"}}>+{item.list.length - 8}</a>}
                 </div>
               </div>}
           </div>

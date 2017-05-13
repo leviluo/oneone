@@ -50,8 +50,8 @@ export default class memberCenter extends Component {
             <Helmet title='个人中心' />
             <div className="memberCenterContentLeft">
             <ul>
-              <li><Link to="/memberCenter" className={this.props.location.pathname == '/memberCenter' ? 'active' : ''}>关注动态</Link></li>
-              <li><Link to="/memberCenter/myUpdates" className={this.props.location.pathname == '/memberCenter/myUpdates' ? 'active' : ''}>我的动态</Link></li>
+              <li><Link to="/memberCenter/updates/follow" className={this.props.location.pathname == '/memberCenter/updates/follow' ? 'active' : ''}>关注动态</Link></li>
+              <li><Link to="/memberCenter/updates/my" className={this.props.location.pathname == '/memberCenter/updates/my' ? 'active' : ''}>我的动态</Link></li>
               <li><Link to="/memberCenter/basicInfo" className={this.props.location.pathname == '/memberCenter/basicInfo' || /\/memberCenter\/photos/.test(this.props.location.pathname) ? 'active' : ''}>我的名片</Link></li>
             </ul>
             <h4>社团</h4>

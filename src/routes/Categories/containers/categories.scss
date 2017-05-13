@@ -30,7 +30,10 @@
 						}
 						td{
 							border-bottom:1px dashed #e5e5e5;
-							ul{
+							&:last-of-type{
+								padding-left:20px;
+							}
+							&>ul{
 								padding:0;
 								margin:0;
 								li{
@@ -44,6 +47,9 @@
 										text-align:center;
 										&:hover{
 										color:#3a5fcd;
+										}
+										&:first-of-type{
+											text-align:left;
 										}
 									}
 								}
