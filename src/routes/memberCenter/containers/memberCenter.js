@@ -4,7 +4,7 @@ import './membercenter.scss'
 import {Link} from 'react-router'
 // import {isAuth} from '../../../reducers/auth'
 import { connect } from 'react-redux'
-import ImageBrowser from '../../../components/ImageBrowser'
+// import ImageBrowser from '../../../components/ImageBrowser'
 // import {messages,countNotice,countReply,countRequest} from './modules'
 import { tipShow } from '../../../components/Tips/modules/tips'
 // import {asyncConnect} from 'redux-async-connect'
@@ -72,7 +72,6 @@ export default class memberCenter extends Component {
               {this.props.children}
               </div>
             </div>
-            <ImageBrowser />
           </div>
         )}
   }

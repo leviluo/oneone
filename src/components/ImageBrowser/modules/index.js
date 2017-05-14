@@ -1,9 +1,15 @@
 
 import axios from 'axios'
 
-export function ifliked(name){
-  return axios.get(`/member/ifliked?name=${name}`)
+export function ifliked(id){
+  return axios.get(`/member/ifliked?id=${id}`)
 }
+
+
+export function addLike(name){
+  return axios.get(`/member/addLikeByName?name=${name}`)
+}
+
 
 // ------------------------------------
 // Constants
@@ -32,7 +38,7 @@ export function imgbrowser(text) {
 // ------------------------------------
 const ACTION_HANDLERS = {
   [IMGBROWSER_SHOW]: (state, action) => {
-    return ({...state, isShow:true,currentChoose:action.text.currentChoose,imgs:action.text.imgs,likeFunc:action.text.likeFunc})
+    return ({...state, isShow:true,currentChoose:action.text.currentChoose,imgs:action.text.imgs})
   }
   // [IFLIKED]: (state, action) => {
   //   return ({...state, isliked:action.text.isliked})
@@ -46,8 +52,7 @@ export const initialState = {
   isShow:false,
   currentChoose:0,
   imgs:[],
-  likeFunc:null,
-  ifliked:null,
+  // ifliked:null,
   isliked:0
 }
 

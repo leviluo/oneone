@@ -8,7 +8,8 @@ import {asyncConnect} from 'redux-async-connect'
 
 import { tipShow } from '../../../components/Tips/modules/tips'
 import {getupdates,addLike} from '../modules'
-import ImageBrowser,{imgbrowserShow} from '../../../components/ImageBrowser'
+// import ImageBrowser,{imgbrowserShow} from '../../../components/ImageBrowser'
+import PhotoUpdates from '../../../components/PhotoUpdates'
 
 const imgItems = ["banner1.jpg","banner2.jpg","banner3.jpg","banner4.jpg","banner5.jpg"]
 import './HomeView.scss'
@@ -29,7 +30,7 @@ import './HomeView.scss'
 @connect(state=>({
     catelogues:state.catelogues,
     // mylocation:state.mylocation
-}),{tipShow,imgbrowserShow})
+}),{tipShow})
 export default class HomeView extends React.Component{
 
     state = {
@@ -97,13 +98,13 @@ export default class HomeView extends React.Component{
     this.getData(this.state.currentPage + 1)
   }
 
-  like =(name)=>{
-    if (!this.props.auth.memberId) {
-        this.props.tipShow({type:"error",msg:"请先登录"})
-        return
-    }
-    return addLike(name)
-  }
+  // like =(name)=>{
+  //   if (!this.props.auth.memberId) {
+  //       this.props.tipShow({type:"error",msg:"请先登录"})
+  //       return
+  //   }
+  //   return addLike(name)
+  // }
 
     render(){   
         return <div className="home">
@@ -122,24 +123,10 @@ export default class HomeView extends React.Component{
         <div className="updates">
             {this.state.updates.length == 0 && <div style={{textAlign:"center"}}>暂时没有任何动态哦~</div>}
             {this.state.updates.map((item,index)=>{
-              var time = item.createAt.DateFormat("yyyy-MM-dd hh:mm")
-             return <div key={index} className="lists">
-                  <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
-                  {item.list && <div>
-                     <div className="header">&nbsp;&nbsp;<span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/works/${item.list[0].memberSpecialityId}`}>{item.list[0].specialityName}</Link>上传了新照片</div>
-                    <div className="photoLists">
-                    {item.list.map((item,index)=>{
-                      if (index >= 8) return
-                      return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:works,likeFunc:this.like})} style={{backgroundImage:`url(/img?from=speciality&name=${item.workName})`}}></div>
-                    })}
-                    {item.list.length > 8 && <a style={{backgroundImage:`url(/img?from=speciality&name=${item.list[8].workName})`,cursor:"auto"}}>+{item.list.length - 8}</a>}
-                    </div>
-                  </div>}
-              </div>
+                return <PhotoUpdates key={index} items={item} />
             })}
             {!this.state.ifFull && <p><button className="btn-addMore" onClick={this.addMore}>加载更多...</button></p>}
         </div>
-        <ImageBrowser />
       </div>
     }
 }

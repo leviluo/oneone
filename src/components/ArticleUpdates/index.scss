@@ -1,0 +1,23 @@
+.articleupdates{
+    min-height:80px;
+    padding:20px 0;
+    border-bottom:1px dashed #e5e5e5;
+    a{
+    color:#37a;
+    padding:3px;
+        &:hover{
+            background:#efefef
+        }
+     }
+    &>img{
+        border:2px solid #efefef;
+        border-radius:50px;
+        float:left;
+    }
+    .header{
+        height:50px;
+        line-height:50px;
+        margin-left:10px;
+        margin-bottom:10px;
+    }
+}

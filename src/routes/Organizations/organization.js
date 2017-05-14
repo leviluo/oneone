@@ -8,11 +8,12 @@ import {tipShow} from '../../components/Tips'
 import {OrganizationsSortByHot,getUpdates} from './modules'
 import {Link} from 'react-router'
 import PageNavBar,{pageNavInit} from '../../components/PageNavBar'
+import ArticleUpdates from '../../components/ArticleUpdates'
 
 @connect(
   state=>({
     auth:state.auth,
-    mylocation:state.mylocation,
+    // mylocation:state.mylocation,
     pagenavbar:state.pagenavbar
   }),
 {tipShow,pageNavInit})
@@ -30,23 +31,23 @@ export default class MemberBrief extends Component{
         organizations:data.data
       })
     })
-    if(this.props.mylocation.text[0]){
+    // if(this.props.mylocation.text[0]){
       this.props.pageNavInit(this.getData)
-    }
+    // }
   }
 
   componentWillReceiveProps=(nextProps)=>{ //刷新时获取memberId
-      if ((nextProps.mylocation.text[0] != this.props.mylocation.text[0]) && this.props.mylocation.text[0]) {
-        this.setState({
-          updates:[]
-        })
-      }
-      if(nextProps.mylocation.text[0] && !this.state.isloaded){
-        this.setState({
-          isloaded:true
-        })
-        this.props.pageNavInit(this.getData)
-      }
+      // if ((nextProps.mylocation.text[0] != this.props.mylocation.text[0]) && this.props.mylocation.text[0]) {
+      //   this.setState({
+      //     updates:[]
+      //   })
+      // }
+      // if(nextProps.mylocation.text[0] && !this.state.isloaded){
+      //   this.setState({
+      //     isloaded:true
+      //   })
+      //   this.props.pageNavInit(this.getData)
+      // }
   }
 
   componentWillUnmount =()=>{
@@ -54,7 +55,7 @@ export default class MemberBrief extends Component{
   }
 
   getData = (currentPage)=>{
-      return getUpdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`,window.encodeURIComponent(this.props.mylocation.text[0])).then(({data})=>{
+      return getUpdates(`${this.state.averagenum*(currentPage-1)},${this.state.averagenum}`).then(({data})=>{
         if (data.status == 200) {
                 this.setState({
                     updates:data.data
@@ -82,11 +83,7 @@ export default class MemberBrief extends Component{
                   <div className="updates">
                       {this.state.updates.length == 0 && <div style={{textAlign:"center"}}>暂时没有任何动态哦~</div>}
                       {this.state.updates.map((item,index)=>{
-                        var time = item.createAt.DateFormat("yyyy-MM-dd hh:mm")
-                        return <div key={index} className="lists">
-                            <img width="50" src={`/originImg?from=member&name=${item.memberId}`} alt=""/>
-                            {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;<Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link>在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`} dangerouslySetInnerHTML={{__html:item.title}}></Link></div>}
-                        </div>
+                        return <ArticleUpdates key={index} items = {item} />
                       })}
                       <PageNavBar />
                   </div>

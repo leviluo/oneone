@@ -1,15 +1,16 @@
 import React, { Component, PropTypes } from 'react'
 import './memberBrief.scss'
-import {getSpecialities,memberInfo,followOne,followOutOne,getMyUpdates,addLike} from './modules/memberBrief'
+import {getSpecialities,memberInfo,followOne,followOutOne,getMyUpdates} from './modules/memberBrief'
 import Helmet from 'react-helmet'
 import {connect} from 'react-redux'
 import {tipShow} from '../../components/Tips/modules/tips'
-import ImageBrowser,{imgbrowserShow} from '../../components/ImageBrowser'
 import Chat,{chatShow} from '../../components/Chat'
 import Share from '../../components/Share'
 import {Link} from 'react-router'
 import {loadingShow,loadingHide} from '../../components/Loading'
 import {asyncConnect} from 'redux-async-connect'
+import PhotoUpdates from '../../components/PhotoUpdates'
+import ArticleUpdates from '../../components/ArticleUpdates'
 
 @asyncConnect([{
   promise: ({store: {dispatch, getState}}) => {
@@ -19,7 +20,7 @@ import {asyncConnect} from 'redux-async-connect'
 
 @connect(
   state=>({auth:state.auth}),
-{tipShow,imgbrowserShow,chatShow,loadingShow,loadingHide})
+{tipShow,chatShow,loadingShow,loadingHide})
 export default class MemberBrief extends Component{
 
   state = {
@@ -48,10 +49,6 @@ export default class MemberBrief extends Component{
               this.props.tipShow({type:'error',msg:data.msg})
           }
       })
-  }
-
-  showThisImg =(index,works)=>{
-    this.props.imgbrowserShow({currentChoose:index,imgs:works})
   }
 
   showChat =(name,memberId)=>{
@@ -184,13 +181,13 @@ export default class MemberBrief extends Component{
     this.getData(this.state.currentPage + 1)
   }
 
-  like =(name)=>{
-    if (!this.props.auth.memberId) {
-        this.props.tipShow({type:"error",msg:"请先登录"})
-        return
-    }
-    return addLike(name)
-  }
+  // like =(name)=>{
+  //   if (!this.props.auth.memberId) {
+  //       this.props.tipShow({type:"error",msg:"请先登录"})
+  //       return
+  //   }
+  //   return addLike(name)
+  // }
 
   
 
@@ -239,23 +236,9 @@ export default class MemberBrief extends Component{
               {this.state.pageIndex == 1 && <div className="myUpdates">
                 {this.state.myUpdates.length == 0 && <p style={{textAlign:"center"}}>暂时没有任何动态哦~</p>}
                 {this.state.myUpdates.map((item,index)=>{
-                  var date = new Date(item.createAt)
-                  var works =[];
-                  var imgs = item.works.split(',')
-                  var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-                  return <div key={index} className="lists">
-                      <img width="50" src={`/originImg?from=member&name=${this.props.auth.memberId}`} alt=""/>
-                      {item.title && <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/organizationsHome/${item.organizationsId}`}>{item.organizationName}</Link>发布了<Link to={`/article/${item.articleId}`}>{item.title}({item.titleType})</Link></div>}
-                      {item.works && <div>
-                        <div className="header"><span className="lightColor smallFont">{time}</span>&nbsp;&nbsp;&nbsp;在<Link to={`/works/${item.memberSpecialityId}`}>{item.specialityName}</Link>上传了新照片</div>
-                        <div className="photoLists">
-                        {imgs.map((item,index)=>{
-                          works.push(`/originImg?from=speciality&name=${item}`)
-                          return <div key={index} onClick={(e)=>this.props.imgbrowserShow({currentChoose:index,imgs:works,likeFunc:this.like})} style={{backgroundImage:`url(/img?from=speciality&name=${item})`}}></div>
-                        })}
-                        <Link to={`/works/${item.memberSpecialityId}`}>查看更多...</Link>
-                        </div>
-                      </div>}
+                   return  <div key={index}>
+                      {item.type == "article" && <ArticleUpdates items = {item}/>}
+                      {item.type == "image" && <PhotoUpdates items={item}/>}
                   </div>
                 })}
                 {!this.state.ifFull && <p><button className="btn-addMore" onClick={this.addMore}>加载更多...</button></p>}
@@ -285,8 +268,6 @@ export default class MemberBrief extends Component{
                 </div>}
 
             </div>
-
-            <ImageBrowser />
             <Chat />
         </div>
       )

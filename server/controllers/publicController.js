@@ -121,9 +121,8 @@ const publicController = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        // var result = await sqlStr("select mu.id,mu.type,mu.createAt,a.id as articleId,s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId,a.title,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from memberUpdates as mu left join article as a on a.updateId = mu.id left join organizations as o on o.id = a.organizationsId left join works as w on w.updateId = mu.id left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where mu.memberId = ? order by mu.id desc limit "+limit,[id])
-        // var items = mergeMulti(result,'id',['workName','workId'])
-        var result = await sqlStr("select id,type,createAt from memberupdates where memberId = ? order by id desc limit " + limit,[id])
+
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.memberId = ? order by id desc limit " + limit,[id])
         for (let i = 0; i < result.length; i++) {
           if (result[i].type == "article") {
             var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
@@ -138,17 +137,7 @@ const publicController = {
     },
     getPhotoUpdates:async function(){
 
-        // var location = this.request.query.location
-        // if (!location) {
-        //     this.body = { status: 500, msg: "缺少参数" }
-        //     return
-        // }
-
-        // var result = await sqlStr("select mu.id,m.nickname,s.name as specialityName,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.works,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join member as m on m.id = mu.memberId where m.location = ? and mu.works != '' order by mu.id desc limit "+this.request.query.limit,[location])
-        // this.body = {status:200,data:result}
-        // return
-
-        var result = await sqlStr("select id,createAt from memberupdates where type = 'image' order by id desc limit " + this.request.query.limit)
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' order by id desc limit " + this.request.query.limit)
         for (let i = 0; i < result.length; i++) {
             var items = await sqlStr("select s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where w.updateId = ?",[result[i].id])
             result[i].list = items
@@ -158,13 +147,15 @@ const publicController = {
 
     },
     getArticleUpdates:async function(){
-        var location = this.request.query.location
-        if (!location) {
-            this.body = { status: 500, msg: "缺少参数" }
-            return
+
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'article' order by id desc limit " + this.request.query.limit)
+
+        for (let i = 0; i < result.length; i++) {
+            var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
+            result[i].list = items
         }
-        var result = await sqlStr("select mu.id,m.nickname,a.title,o.name as organizationName,s.name as specialityName,a.organizationsId,mu.memberSpecialityId,mu.articleId,mu.memberId,mu.createAt from memberupdates as mu left join memberSpeciality as ms on ms.id = mu.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join article as a on a.id = mu.articleId left join organizations as o on o.id = a.organizationsId left join member as m on m.id = mu.memberId where a.type = 0 and m.location = ? and mu.articleId != '' order by mu.id desc limit "+this.request.query.limit,[location])
-        var count = await sqlStr("select count(mu.id) as count from memberupdates as mu left join member as m on m.id = mu.memberId left join article as a on a.id = mu.articleId where m.location = ? and a.type = 0 and mu.articleId != '' ",[location])
+
+        var count = await sqlStr("select count(id) as count from memberUpdates where type = 'article'")
 
         this.body = {status:200,data:result,count:count[0].count}
     },

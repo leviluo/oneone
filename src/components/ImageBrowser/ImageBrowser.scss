@@ -7,9 +7,7 @@
     z-index: 99;
     min-width:1200px;
     display:none;
-    img{
-            box-shadow:none;
-        }
+
     .content{
     	height:100%;
     	&>div{
@@ -28,23 +26,39 @@
 	    		right:0;
 	    		margin:auto;
 	    		max-width:100%;
-	    		max-height:80%;
 	    		border:2px solid #fff;
 		    }
 		    button{
 		    	font-size:200%;
 		    	cursor:pointer;
 		    	background:none;
-		    	border:3px solid #ccc;
+		    	border:2px solid #ccc;
 		    	color:#ccc;
-		    	width:60px;
-		    	height:60px;
-		    	line-height:20px;
+		    	width:50px;
+		    	height:50px;
+		    	line-height:30px;
 		    	text-align:center;
 		    	float:right;
 		    	border-radius:30px;
 		    	&:hover{
-	    			border:3px solid #efefef;
+	    			border:2px solid #efefef;
+	    		}
+		    }
+		   	.close{
+		    	font-size: 200%;
+			    cursor: pointer;
+			    background:#222;
+			    position: absolute;
+			    left: 100%;
+			    color: #ccc;
+			    line-height:55px;
+			    width:40px;
+			    height:60px;
+			    text-align: center;
+			    border-radius: 0 30px 30px 0;
+			    z-index: 1;
+		    	&:hover{
+	    			color:#efefef;
 	    		}
 		    }
 		    .like{
@@ -79,22 +93,30 @@
 							background:#999
 						}
 					}
-					.imgShows{
-							float:left;
-							padding:2px 2px 2px 2px; 
-							text-align:center;
-							background:#efefef;
-							margin:0 2px;
-							width:68px;
-							cursor:pointer;
-							background-position:center;
-							background-repeat:no-repeat;
-							background-size:cover;
-							height:60px;
-							&:hover{
-								border:2px solid #ff7f00;
-							}
-					 }
+					.pageDown{
+						float:right
+					}
+					.imgs{
+						display:inline-block;
+						overflow:hidden;
+						text-align:center;
+						.imgShows{
+								display:inline-block;
+								padding:2px 2px 2px 2px; 
+								text-align:center;
+								background:#efefef;
+								margin:0 2px;
+								width:68px;
+								cursor:pointer;
+								background-position:center;
+								background-repeat:no-repeat;
+								background-size:cover;
+								height:60px;
+								&:hover{
+									border:2px solid #ff7f00;
+								}
+						 }
+					}
 				}
 	    }
 	    .page{

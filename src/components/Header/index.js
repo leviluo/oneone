@@ -6,7 +6,7 @@ import {connect} from 'react-redux'
 import './Header.scss'
 import 'font-awesome/scss/font-awesome.scss'
 import {tipShow} from '../Tips/modules/tips'
-import {fetchNotice,fetchMessage,addMessage,addNotice} from './modules'
+import {fetchNotice,fetchMessage,addMessage,addNotice,clearNotice} from './modules'
 import socket from '../../socket'
 
 @connect(
@@ -15,7 +15,7 @@ import socket from '../../socket'
     message:state.message,
     chat:state.chat
   }),
-{loginOut,isAuth,tipShow,fetchNotice,fetchMessage,addMessage,addNotice})
+{loginOut,isAuth,tipShow,fetchNotice,fetchMessage,addMessage,addNotice,clearNotice})
 export default class Header extends Component{
 
   static contextTypes = {
@@ -65,6 +65,7 @@ export default class Header extends Component{
         ifnotice:false,
         // ifmessage:false
     })
+    this.props.clearNotice()
   }
 
   componentDidMount =()=>{
@@ -183,7 +184,7 @@ export default class Header extends Component{
              <Link to='/register'>注册</Link>
              </span>}
              {auth.isAuth && <span><a onClick={this.loginOut}>退出</a>
-             <Link to={this.props.auth.memberId > 0 ? "/memberCenter" : "/admincenter"} title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
+             <Link to={this.props.auth.memberId > 0 ? "/memberCenter/updates/follow" : "/admincenter"} title="个人中心"><i className="fa fa-user-circle"></i>&nbsp;{auth.nickname}</Link>
              {this.props.auth.memberId > 0 && <Link to="/memberCenter/myMessage" className="messageNav" title="消息">
                 <i className={this.props.message.messages.length > 0 ? "fa fa-envelope alternate" :"fa fa-envelope"}>{this.props.message.messages.length > 0 && <b>({this.props.message.messages.length})</b>}</i>
              </Link>}

@@ -273,42 +273,6 @@ const memberController = {
         this.body = {status:500,msg:"删除失败"}
         next
     },
-    // countMessage:async function(){
-    //     if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //     var result = await sqlStr("select count(DISTINCT fromMember) as count from message where toMember = ? and active = 0",[this.session.user])
-    //     this.body = {status:200,data:result[0].count}
-    // },
-    // countNotice:async function(){
-    //     if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //     var result = await sqlStr("select count(*) as count from reReply where replyTo in (select id from comments where memberId = ?) and status = 0",[this.session.user])
-    //     //通过申请
-    //     var resultt = await sqlStr("select count(id) as count from organizationsrequest where memberId = ? and status = 1",[this.session.user])
-       
-    //     this.body = {status:200,data:result[0].count + resultt[0].count}
-    // },
-    // countReply:async function(){
-    //     if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //     //回复通知
-    //     var result = await sqlStr("select count(DISTINCT a.id) as count from article as a left join comments as c on c.articleId = a.id where c.status = 0 and a.memberId = ?;",[this.session.user])
-    //      this.body = {status:200,data:result[0].count}
-    // },
-    // countRequest:async function(){
-    //     if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //     var result = await sqlStr("select count(DISTINCT o.id) as count from organizationsRequest as ro left join organizations as o on ro.organizationsId = o.id where ro.status = 0 and o.createById = ?;",[this.session.user])
-    //     this.body = {status:200,data:result[0].count}
-    // },
     messages:async function(){
   //私信                        “谁” 给你发了私信               属于消息（type="privatemessage"）
   //文章评价                    “谁” 在 “文章”                  属于消息（type="articlecomment"）
@@ -585,11 +549,11 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        if (!this.request.query.name) {
+        if (!this.request.query.id) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("select * from likes where worksId = (select id from works where name = ?) and memberId = ?",[this.request.query.name,this.session.user])
+        var result = await sqlStr("select * from likes where worksId = ? and memberId = ?",[this.request.query.id,this.session.user])
         if (result.length == 1) {
             this.body = { status: 200, msg: 1 }
         } else{
@@ -601,10 +565,8 @@ const memberController = {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-
-        var result = await sqlStr("select mu.id,mu.type,mu.createAt,a.id as articleId,s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId,a.title,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from memberUpdates as mu left join article as a on a.updateId = mu.id left join organizations as o on o.id = a.organizationsId left join works as w on w.updateId = mu.id left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by mu.id desc limit "+this.request.query.limit,[this.session.user])
-        
-        var result = await sqlStr("select mu.id,mu.type,mu.createAt from memberupdates as mu left join follows as f on f.followId = mu.memberId where f.memberId = ? order by id desc limit "+this.request.query.limit,[this.session.user])
+ 
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId left join follows as f on f.followId = mu.memberId where f.memberId = ? order by id desc limit "+this.request.query.limit,[this.session.user])
         for (let i = 0; i < result.length; i++) {
           if (result[i].type == "article") {
             var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
