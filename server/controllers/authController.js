@@ -129,7 +129,7 @@ const authController = {
     islogin:async function(next) {
         // console.log("0000")
         if (!this.session.user) {
-            this.body = { status: 500, msg: "尚未登录" }
+            this.body = { status: 600, msg: "尚未登录" }
             return
         }
         await next

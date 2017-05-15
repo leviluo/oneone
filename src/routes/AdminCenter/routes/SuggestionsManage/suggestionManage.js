@@ -34,7 +34,9 @@ export default class suggestionsManage extends Component {
     averagePage:5
   }
 
-
+ static contextTypes = {
+      router: React.PropTypes.object.isRequired
+    };
 
   componentWillMount =()=>{
     this.props.pageNavInit(this.initData)
@@ -47,8 +49,11 @@ export default class suggestionsManage extends Component {
           items:data.data
         })
         return Math.ceil(data.count/this.state.averagePage)
+      }else if (data.status==600) {
+        this.props.dispatch({type:"AUTHOUT"})
+        this.context.router.push('/')
       }else{
-       this.props.tipShow({type:'error',msg:data.msg})
+        this.props.tipShow({type:'error',msg:data.msg})
       }
     })
   }

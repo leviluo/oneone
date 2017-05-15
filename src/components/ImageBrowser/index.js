@@ -22,8 +22,9 @@ export default class ImageBrowser extends Component{
     imgUrlType:"",
     imgName:"",
     isFirst:false,
-    isEnd:false
-    // request:{}
+    isEnd:false,
+    imglists:[],
+    request:{}
   }
  
   componentDidUpdate =()=>{
@@ -40,14 +41,13 @@ export default class ImageBrowser extends Component{
       ele.style.height = document.body.clientHeight + 'px';
       ele.style.top = scrollTop + 'px';
       ele.style.display = "block"
-      var element = ele.getElementsByClassName('content')[0]
-      element.style.top = scrollTop+'px'
+      // var element = ele.getElementsByClassName('content')[0]
+      // element.style.top = scrollTop+'px'
       document.body.style.width = parseInt(window.getComputedStyle(document.body,null).width.slice(0,-2)) + 'px'
       document.body.style.overflow = "hidden"
       // 定义图片最大尺寸
       var h = window.getComputedStyle(this.refs.photoLists,null).height.slice(0,-2)
       this.refs.bigImage.style.maxHeight = (document.body.clientHeight - 2*h) - 70 + 'px'
-
   }
 
   close=()=>{
@@ -61,6 +61,7 @@ export default class ImageBrowser extends Component{
   componentWillReceiveProps=(nextProps)=>{
     this.setState({
       currentChoose:nextProps.ImageBrowser.currentChoose,
+      imglists:nextProps.ImageBrowser.imgs.slice(0,10)
     })
     if (nextProps.ImageBrowser.currentChoose == 0) {
       this.setState({
@@ -151,10 +152,10 @@ export default class ImageBrowser extends Component{
   }
 
   addLike =()=>{
-    // if (this.state.request['addLike']) return
-    //     this.state.request['addLike'] = true
+    if (this.state.request['addLike']) return
+        this.state.request['addLike'] = true
     addLike(this.props.ImageBrowser.imgs[this.state.currentChoose].match(/[\d]+/)[0]).then(({data})=>{
-      // this.state.request['addLike'] = false
+      this.state.request['addLike'] = false
         if (data.status == 200) {
           this.setState({
                 isliked:this.state.isliked ? 0 : 1
@@ -165,19 +166,10 @@ export default class ImageBrowser extends Component{
         }{
           this.props.tipShow({type:'error',msg:data.msg})
         }
+    }).catch(err=>{
+      this.state.request['addLike'] = false
     })
   }
-
-
-
-  //  like =(name)=>{
-  //   if (!this.props.auth.memberId) {
-  //       this.props.tipShow({type:"error",msg:"请先登录"})
-  //       return
-  //   }
-  //   return addLike(name)
-  // }
-
 
 
   render(){
@@ -188,13 +180,13 @@ export default class ImageBrowser extends Component{
             <div className="page">
               {!this.state.isFirst && <button onClick={this.up} >&lt;</button>}
             </div>
-            <div>
               <img ref="bigImage" alt=""/>
+            <div>
               <div ref="photoLists" className="photoLists">
                 {!this.state.isFirst && <div className="pageUp" onClick={this.up} >&lt;</div>}
                 <a className="close" onClick={this.close} >×</a>
                 <div className="imgs">
-                {this.props.ImageBrowser.imgs.map((item,index)=>{
+                {this.state.imglists.map((item,index)=>{
                   if(index == this.state.currentChoose){
                       var color = "#ff7f00"
                   }else{

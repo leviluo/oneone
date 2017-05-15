@@ -33,14 +33,21 @@ export default class specialitiesManage extends Component {
     items:[]
   }
 
+   static contextTypes = {
+      router: React.PropTypes.object.isRequired
+    };
+
   componentWillMount =()=>{
     getCatelogues().then(({data})=>{
       if (data.status == 200) {
         this.setState({
           items:data.result
         })
+      }else if (data.status==600) {
+        this.props.dispatch({type:"AUTHOUT"})
+        this.context.router.push('/')
       }else{
-        this.props.tipShow({type:"error",msg:data.msg})
+        this.props.tipShow({type:'error',msg:data.msg})
       }
     })
   }
