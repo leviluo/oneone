@@ -89,7 +89,7 @@ export default function routers(router){
 // 取关
 	router.get("/member/followOutOne",memberController.followOutOne,router.allowedMethods());
 // 动态中的图片点赞功能
-	router.get("/member/addLikeByName",memberController.addLikeByName,router.allowedMethods());
+	// router.get("/member/addLikeByName",memberController.addLikeByName,router.allowedMethods());
 // // 计算多少未读消息
 // 	router.get("/member/countMessage",memberController.countMessage,router.allowedMethods());
 // // 计算多少未读通知

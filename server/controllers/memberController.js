@@ -522,28 +522,28 @@ const memberController = {
             this.body ={status:500,msg:"操作失败"}
         }
     },
-    addLikeByName:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        if (!this.request.query.name) {
-            this.body = { status: 500, msg: "缺少参数" }
-            return
-        }
-        var result = await sqlStr("delete from likes where memberId = ? and worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
-        if (result.affectedRows == 1) {
-            this.body = {status:200}
-            return
-        }else if(result.affectedRows == 0){
-            var result = await sqlStr("insert into likes set memberId = ?,worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
-            if (result.affectedRows == 1) {
-            this.body = {status:200}
-            return
-            }
-        }
-        this.body = {status:500,msg:"操作数据库失败"}
-    },
+    // addLikeByName:async function(){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     if (!this.request.query.name) {
+    //         this.body = { status: 500, msg: "缺少参数" }
+    //         return
+    //     }
+    //     var result = await sqlStr("delete from likes where memberId = ? and worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
+    //     if (result.affectedRows == 1) {
+    //         this.body = {status:200}
+    //         return
+    //     }else if(result.affectedRows == 0){
+    //         var result = await sqlStr("insert into likes set memberId = ?,worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
+    //         if (result.affectedRows == 1) {
+    //         this.body = {status:200}
+    //         return
+    //         }
+    //     }
+    //     this.body = {status:500,msg:"操作数据库失败"}
+    // },
     ifliked:async function(){
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }

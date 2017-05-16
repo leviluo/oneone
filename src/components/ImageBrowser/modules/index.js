@@ -6,8 +6,8 @@ export function ifliked(id){
 }
 
 
-export function addLike(name){
-  return axios.get(`/member/addLikeByName?name=${name}`)
+export function addLike(workId){
+  return axios.get(`/member/addLike?id=${workId}`)
 }
 
 

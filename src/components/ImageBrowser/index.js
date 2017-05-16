@@ -24,7 +24,8 @@ export default class ImageBrowser extends Component{
     isFirst:false,
     isEnd:false,
     imglists:[],
-    request:{}
+    request:{},
+    page:1
   }
  
   componentDidUpdate =()=>{
@@ -59,9 +60,11 @@ export default class ImageBrowser extends Component{
   }
 
   componentWillReceiveProps=(nextProps)=>{
+
     this.setState({
       currentChoose:nextProps.ImageBrowser.currentChoose,
-      imglists:nextProps.ImageBrowser.imgs.slice(0,10)
+      imglists:nextProps.ImageBrowser.imgs.slice(0,10),
+      firstPage:true
     })
     if (nextProps.ImageBrowser.currentChoose == 0) {
       this.setState({
@@ -84,10 +87,33 @@ export default class ImageBrowser extends Component{
 
   up=()=>{
     if (this.state.currentChoose == 1) {
-      this.setState({
-        isFirst:true
-      })
-    };
+      // console.log(this.state.page)
+      if (this.state.page == 1) {
+        this.setState({
+          isFirst:true
+        })
+      }
+    }else if (this.state.currentChoose == 0) {
+      if (this.state.page != 2) {
+          this.setState({
+            lastPage:false,
+            page:this.state.page - 1,
+            currentChoose:9,
+            imglists:this.props.ImageBrowser.imgs.slice((this.state.page -1 )*5,10 + (this.state.page - 1)*5)
+          })
+          this.update(this.props.ImageBrowser.imgs.slice((this.state.page -1 )*5,10 + (this.state.page - 1)*5)[9])
+        }else{
+          this.setState({
+            page:this.state.page - 1,
+            firstPage:true,
+            currentChoose:9,
+            lastPage:false,
+            imglists:this.props.ImageBrowser.imgs.slice(0,10) 
+          })
+          this.update(this.props.ImageBrowser.imgs.slice(0,10)[9])
+        }
+        return
+    }
     if (this.state.isEnd) {
       this.setState({
         isEnd:false
@@ -97,26 +123,50 @@ export default class ImageBrowser extends Component{
     this.setState({
       currentChoose:this.state.currentChoose - 1
     })
-    this.update(this.props.ImageBrowser.imgs[this.state.currentChoose-1])
+    this.update(this.state.imglists[this.state.currentChoose-1])
   }
 
   next=()=>{
-    if (this.state.currentChoose == this.props.ImageBrowser.imgs.length-2) {
-      this.setState({
-        isEnd:true
-      })
-    };
+    if (this.state.currentChoose == 9) {
+        if ((10 + this.state.page * 5) > this.props.ImageBrowser.imgs.length) {
+        this.setState({
+          page:this.state.page + 1,
+          firstPage:false,
+          currentChoose:0,
+          imglists:this.props.ImageBrowser.imgs.slice(this.state.page*5,10 + this.state.page*5)
+        })
+        this.update(this.props.ImageBrowser.imgs.slice(this.state.page*5,10 + this.state.page*5)[0])
+      }else{
+        this.setState({
+          page:this.state.page + 1,
+          lastPage:true,
+          firstPage:false,
+          currentChoose:0,
+          imglists:this.props.ImageBrowser.imgs.slice(this.props.ImageBrowser.imgs.length - 11,this.props.ImageBrowser.imgs.length - 1) 
+        })
+      this.update(this.props.ImageBrowser.imgs.slice(this.props.ImageBrowser.imgs.length - 11,this.props.ImageBrowser.imgs.length - 1)[0])
+      }
+      return
+    }else if (this.state.currentChoose == 8) {
+      if ((10 + this.state.page * 5) > this.props.ImageBrowser.imgs.length) {
+        this.setState({
+          isEnd:true,
+        })
+    }
+  }
+
     if (this.state.isFirst) {
       this.setState({
         isFirst:false
       })
     }
     this.refs.bigImage.src = loading
+
     this.setState({
       currentChoose:this.state.currentChoose + 1
     })
-    // this.refs.src.src = this.props.ImageBrowser.imgs[this.state.currentChoose+1]
-    this.update(this.props.ImageBrowser.imgs[this.state.currentChoose+1])
+
+    this.update(this.state.imglists[this.state.currentChoose+1])
   }
 
   go =(e,index)=>{
@@ -124,8 +174,59 @@ export default class ImageBrowser extends Component{
     this.setState({
       currentChoose:index
     })
-    // this.refs.src.src = this.props.ImageBrowser.imgs[index]
-    this.update(this.props.ImageBrowser.imgs[index])
+    this.update(this.state.imglists[index])
+    if (index == 0 && this.state.page == 1) {
+      this.setState({
+        isFirst:true,
+      })
+    }else if (index == 9 && (10 + this.state.page * 5) >= this.props.ImageBrowser.imgs.length) {
+      this.setState({
+        isEnd:true,
+      })
+    }else{
+      this.setState({
+        isEnd:false,
+        isFirst:false,
+      })
+    }
+  }
+
+  pageUp = ()=>{
+    if (this.state.page != 2) {
+      this.setState({
+        lastPage:false,
+        page:this.state.page - 1,
+        imglists:this.props.ImageBrowser.imgs.slice((this.state.page -1 )*5,10 + (this.state.page - 1)*5)
+      })
+      this.update(this.props.ImageBrowser.imgs.slice((this.state.page -1 )*5,10 + (this.state.page - 1)*5)[this.state.currentChoose])
+    }else{
+      this.setState({
+        page:this.state.page - 1,
+        firstPage:true,
+        lastPage:false,
+        imglists:this.props.ImageBrowser.imgs.slice(0,10) 
+      })
+      this.update(this.props.ImageBrowser.imgs.slice(0,10)[this.state.currentChoose])
+    }
+  }
+
+  pageDown = ()=>{
+    if ((10 + this.state.page * 5) > this.props.ImageBrowser.imgs.length) {
+      this.setState({
+        page:this.state.page + 1,
+        firstPage:false,
+        imglists:this.props.ImageBrowser.imgs.slice(this.state.page*5,10 + this.state.page*5)
+      })
+      this.update(this.props.ImageBrowser.imgs.slice(this.state.page*5,10 + this.state.page*5)[this.state.currentChoose])
+    }else{
+      this.setState({
+        page:this.state.page + 1,
+        lastPage:true,
+        firstPage:false,
+        imglists:this.props.ImageBrowser.imgs.slice(this.props.ImageBrowser.imgs.length - 11,this.props.ImageBrowser.imgs.length - 1) 
+      })
+    this.update(this.props.ImageBrowser.imgs.slice(this.props.ImageBrowser.imgs.length - 11,this.props.ImageBrowser.imgs.length - 1)[this.state.currentChoose])
+    }
   }
 
   update =(item)=>{
@@ -133,37 +234,28 @@ export default class ImageBrowser extends Component{
         this.refs.bigImage.src = "/originImg?from=speciality&name=" + item.workName
         var id = item.workId
       }
-      // this.props.loadingShow()
-      // this.refs.src.src = loading
           ifliked(id).then(({data})=>{
-          // this.props.loadingHide()
             if (data.status == 200) {
               this.setState({
                 isliked:data.msg
               })
             }else if (data.status==600) {
-                // this.props.dispatch({type:"AUTHOUT"})
-                // this.context.router.push('/login')
               }else{
                 this.props.tipShow({type:'error',msg:data.msg})
               }
-               // }
       })
   }
 
   addLike =()=>{
     if (this.state.request['addLike']) return
         this.state.request['addLike'] = true
-    addLike(this.props.ImageBrowser.imgs[this.state.currentChoose].match(/[\d]+/)[0]).then(({data})=>{
+    addLike(this.state.imglists[this.state.currentChoose].workId).then(({data})=>{
       this.state.request['addLike'] = false
         if (data.status == 200) {
           this.setState({
                 isliked:this.state.isliked ? 0 : 1
           })
-        }else if (data.status==600) {
-          this.props.dispatch({type:"AUTHOUT"})
-          this.context.router.push('/login')
-        }{
+        }else{
           this.props.tipShow({type:'error',msg:data.msg})
         }
     }).catch(err=>{
@@ -183,7 +275,7 @@ export default class ImageBrowser extends Component{
               <img ref="bigImage" alt=""/>
             <div>
               <div ref="photoLists" className="photoLists">
-                {!this.state.isFirst && <div className="pageUp" onClick={this.up} >&lt;</div>}
+                {!this.state.firstPage && <div className="pageUp" onClick={this.pageUp} >&lt;</div>}
                 <a className="close" onClick={this.close} >×</a>
                 <div className="imgs">
                 {this.state.imglists.map((item,index)=>{
@@ -197,7 +289,7 @@ export default class ImageBrowser extends Component{
                 })}
                 </div>
                 <button className="like" onClick={this.addLike} style={{color:this.state.isliked ? "#ff7f00" : "#fff"}}><i className="fa fa-heart"></i></button>
-                {!this.state.isEnd && <div className="pageDown" onClick={this.next} >&gt;</div>}
+                {!this.state.lastPage && <div className="pageDown" onClick={this.pageDown} >&gt;</div>}
               </div>
             </div>
             <div className="page">
