@@ -209,14 +209,13 @@ export default class photoList extends Component {
           <Share />
     </div>
     <div className="memberInfo">
-        <img src={`/originImg?from=member&name=${this.state.memberInfo.memberId}`} alt="" />
+        {this.state.memberInfo.memberId && <img src={`/originImg?from=member&name=${this.state.memberInfo.memberId}`} alt="" />}
         <div>
             <span className="lightColor">来自</span>&nbsp;<strong><Link to={`/memberBrief/${this.state.memberInfo.memberId}`}>{this.state.memberInfo.nickname}</Link>•{this.state.memberInfo.name}</strong>&nbsp;<span className="lightColor">的作品集</span> 
         </div>
         {this.state.worksData.length > 0 && <div>
-            {this.props.auth.memberId == this.state.memberInfo.memberId && <button className="btn-default operate">•••<ul><li onClick={(e)=>this.deletePhoto(e,this.state.worksData[this.state.currentLargePhoto].id,this.state.worksData[this.state.currentLargePhoto].name)}>删除</li></ul></button>}
-            <span onClick={(e)=>this.addLike(e,this.state.worksData[this.state.currentLargePhoto].id)} className={`like lightColor ${this.state.worksData[this.state.currentLargePhoto].isLiked ? 'liked' : ''}`}><i className="fa fa-heart"></i>&nbsp;{this.state.worksData[this.state.currentLargePhoto].likes}</span>&nbsp;
-            <span className="lightColor">上传时间:&nbsp;{time}&nbsp;</span>
+            <span className="lightColor">上传时间:&nbsp;{time}&nbsp;{this.props.auth.memberId == this.state.memberInfo.memberId && <button className="btn-default operate">•••<ul><li onClick={(e)=>this.deletePhoto(e,this.state.worksData[this.state.currentLargePhoto].id,this.state.worksData[this.state.currentLargePhoto].name)}>删除</li></ul></button>}</span>
+            <span className="like"><span onClick={(e)=>this.addLike(e,this.state.worksData[this.state.currentLargePhoto].id)} className={`lightColor ${this.state.worksData[this.state.currentLargePhoto].isLiked ? 'liked' : ''}`}><i className="fa fa-heart"></i>&nbsp;{this.state.worksData[this.state.currentLargePhoto].likes}</span></span>
           </div>
         }
     </div>

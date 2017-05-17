@@ -32,22 +32,28 @@
 	 		border-radius:75px;
 	 		float:left;
 	 	}
-	 	div:first-of-type{
+	 	&>div:first-of-type{
 			float:left;
 			line-height:110px;
 			height:110px;
 			padding-left:20px;
 			font-size:110%;
 	 	}
-	 	div:last-of-type{
+	 	&>div:last-of-type{
 			float:right;
 			height:110px;
-			padding-left:20px;
-			padding-top:90px;
+			line-height:110px;
+				position:relative;
 			font-size:110%;
 			.like{
+				position:absolute;
+				top:50px;
+				left:0;
+				span{
+
 				cursor:pointer;
 				font-size:150%;
+				}
 			}
 			.liked{
 				color:#ff7f00;

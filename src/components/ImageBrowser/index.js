@@ -4,7 +4,7 @@ import './ImageBrowser.scss'
 import {imgbrowser,ifliked,addLike} from './modules'
 import {connect} from 'react-redux'
 import {tipShow} from '../Tips/modules/tips'
-import loading from './asset/loading2.gif'
+import loading from './asset/loading4.gif'
 import {loadingShow,loadingHide} from '../Loading'
 
 export const imgbrowserShow = imgbrowser
@@ -76,7 +76,7 @@ export default class ImageBrowser extends Component{
         isEnd:true
       })
     };
-    this.refs.bigImage.src = loading
+    // this.refs.bigImage.src = loading
     this.update(nextProps.ImageBrowser.imgs[nextProps.ImageBrowser.currentChoose])
   }
 
@@ -86,6 +86,7 @@ export default class ImageBrowser extends Component{
   }
 
   up=()=>{
+
     if (this.state.currentChoose == 1) {
       // console.log(this.state.page)
       if (this.state.page == 1) {
@@ -119,7 +120,7 @@ export default class ImageBrowser extends Component{
         isEnd:false
       })
     }
-    this.refs.bigImage.src = loading
+
     this.setState({
       currentChoose:this.state.currentChoose - 1
     })
@@ -160,7 +161,7 @@ export default class ImageBrowser extends Component{
         isFirst:false
       })
     }
-    this.refs.bigImage.src = loading
+    // this.refs.bigImage.src = loading
 
     this.setState({
       currentChoose:this.state.currentChoose + 1
@@ -170,7 +171,7 @@ export default class ImageBrowser extends Component{
   }
 
   go =(e,index)=>{
-    this.refs.bigImage.src = loading
+    // this.refs.bigImage.src = loading
     this.setState({
       currentChoose:index
     })
@@ -230,6 +231,8 @@ export default class ImageBrowser extends Component{
   }
 
   update =(item)=>{
+      this.refs.bigImage.src = loading
+
       if (item.workName) {
         this.refs.bigImage.src = "/originImg?from=speciality&name=" + item.workName
         var id = item.workId
@@ -272,6 +275,7 @@ export default class ImageBrowser extends Component{
             <div className="page">
               {!this.state.isFirst && <button onClick={this.up} >&lt;</button>}
             </div>
+
               <img ref="bigImage" alt=""/>
             <div>
               <div ref="photoLists" className="photoLists">
