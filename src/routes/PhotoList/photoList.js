@@ -5,7 +5,7 @@ import Helmet from 'react-helmet'
 import {Link} from 'react-router'
 import {asyncConnect} from 'redux-async-connect'
 import { tipShow } from '../../components/Tips/modules/tips'
-import {getworksData,addLike,deletePhoto,getMemberInfo} from './modules'
+import {getworksData,addLike,deletePhoto,getMemberInfo,getMoreLikeMembers} from './modules'
 import Confirm,{confirmShow} from '../../components/Confirm'
 import Share from '../../components/Share'
 import loading from './asset/loading2.gif'
@@ -34,6 +34,9 @@ export default class photoList extends Component {
       worksData:[],
       averagenum:15,
       memberInfo:[],
+      page:1,
+      likeMembers:[],
+      isMemberFull:false
       // request:{}
     }
 
@@ -54,6 +57,7 @@ export default class photoList extends Component {
     this.worksData(this.props.params.worksId,this.state.averagenum).then((data)=>{
             for (var i = 0; i < data.length; i++) {
               if(data[i].id == this.props.params.worksId){
+                // console.log(data)
                   this.setState({
                       currentLargePhoto:i,
                       worksData:data
@@ -69,10 +73,7 @@ export default class photoList extends Component {
       return getworksData(this.props.params.memberSpecialityId,worksId,limits,direction).then(({data})=>{
         if (data.status == 200) {
             return data.data
-        }else if (data.status==600) {
-          this.props.dispatch({type:"AUTHOUT"})
-          this.context.router.push('/login')
-        }{
+        }else{
           this.props.tipShow({type:'error',msg:data.msg})
         }
       })
@@ -150,7 +151,10 @@ export default class photoList extends Component {
         }
         this.state.worksData.pop()
         this.state.worksData.unshift(data[0])
-        this.setState({isFull:false})
+        this.setState({
+          isFull:false,
+          isMemberFull:false
+        })
       });
 
       return
@@ -164,9 +168,12 @@ export default class photoList extends Component {
   go =(e,index)=>{
     this.refs.preImg.src = loading
     this.setState({
-      currentLargePhoto: index
+      currentLargePhoto: index,
+       isMemberFull:false
     })
   }
+
+
 
   pageDown = ()=>{
     if (this.state.currentLargePhoto == (this.state.worksData.length -1)) {
@@ -192,14 +199,54 @@ export default class photoList extends Component {
     }
     this.setState({
       currentLargePhoto: this.state.currentLargePhoto + 1,
-      isFull:false
+      isFull:false,
+      isMemberFull:false
     })
+  }
+
+  getMoreLikeMembers =(e)=>{
+    this.isShowOperate(e)
+    if(this.state.likeMembers.length == 0 && this.state.page == 1)this.addMore(this.state.page)
+  }
+
+  addMore =(p)=>{
+    getMoreLikeMembers(this.state.worksData[this.state.currentLargePhoto].id,`${this.state.averagenum*(p-1)},${this.state.averagenum}`).then(data=>{
+        if (data.status == 200) {
+          if (data.data.length < this.state.averagenum) {
+            this.setState({
+              isMemberFull:true
+            })
+          }
+          if (p==1) {
+            this.setState({
+              likeMembers:data.data
+            })
+          }else{
+            this.setState({
+              likeMembers:this.state.likeMembers.concat(data.data)
+            })
+          }
+        }else{
+          this.props.tipShow({type:"error",msg:data.msg})
+        }
+    })
+    this.setState({
+      page:this.state.page + 1
+    })
+  }
+
+  isShowOperate=(e)=>{
+    if (!e.target.getElementsByTagName('ul')[0]) return
+    if (e.target.getElementsByTagName('ul')[0].style.display=="block") {
+      e.target.getElementsByTagName('ul')[0].style.display="none"
+    }else{
+      e.target.getElementsByTagName('ul')[0].style.display="block"
+    }
   }
 
   render () {
      if (this.state.worksData.length > 0) {
-      var date = new Date(this.state.worksData[this.state.currentLargePhoto].createdAt)
-      var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
+      var time = this.state.worksData[this.state.currentLargePhoto].createdAt.DateFormat("yyyy-MM-dd hh:mm")
     }
     return (
     <div className="photoList">
@@ -214,8 +261,13 @@ export default class photoList extends Component {
             <span className="lightColor">来自</span>&nbsp;<strong><Link to={`/memberBrief/${this.state.memberInfo.memberId}`}>{this.state.memberInfo.nickname}</Link>•{this.state.memberInfo.name}</strong>&nbsp;<span className="lightColor">的作品集</span> 
         </div>
         {this.state.worksData.length > 0 && <div>
-            <span className="lightColor">上传时间:&nbsp;{time}&nbsp;{this.props.auth.memberId == this.state.memberInfo.memberId && <button className="btn-default operate">•••<ul><li onClick={(e)=>this.deletePhoto(e,this.state.worksData[this.state.currentLargePhoto].id,this.state.worksData[this.state.currentLargePhoto].name)}>删除</li></ul></button>}</span>
-            <span className="like"><span onClick={(e)=>this.addLike(e,this.state.worksData[this.state.currentLargePhoto].id)} className={`lightColor ${this.state.worksData[this.state.currentLargePhoto].isLiked ? 'liked' : ''}`}><i className="fa fa-heart"></i>&nbsp;{this.state.worksData[this.state.currentLargePhoto].likes}</span></span>
+            <span className="lightColor">上传时间:&nbsp;{time}&nbsp;{this.props.auth.memberId == this.state.memberInfo.memberId && <button onClick={this.isShowOperate} className="btn-default operate">▼<ul><li onClick={(e)=>this.deletePhoto(e,this.state.worksData[this.state.currentLargePhoto].id,this.state.worksData[this.state.currentLargePhoto].name)}>删除</li></ul></button>}</span>
+            <span className="like"><span onClick={(e)=>this.addLike(e,this.state.worksData[this.state.currentLargePhoto].id)} className={`lightColor ${this.state.worksData[this.state.currentLargePhoto].isLiked ? 'liked' : ''}`}><i className="fa fa-heart"></i>&nbsp;{this.state.worksData[this.state.currentLargePhoto].likes}</span>
+            {this.state.worksData[this.state.currentLargePhoto].likeMembers.length == 5 && <button onClick={this.getMoreLikeMembers} className="btn-default operate likeMembers">•••<ul>{this.state.likeMembers.map((item,index)=><li key={index}><Link to={`/memberBrief/${item.memberId}`}><img src={`/originImg?from=member&name=${item.memberId}`} alt="头像" /></Link></li>)}{!this.state.isMemberFull && <div className="loadingmore" onClick={()=>this.addMore(this.state.page)}>加载更多</div>}</ul></button>}
+            {this.state.worksData[this.state.currentLargePhoto].likeMembers.reverse().map((item,index)=>{
+                return <Link key={index} to={`/memberBrief/${item.memberId}`}><img src={`/originImg?from=member&name=${item.memberId}`} alt="头像" /></Link>
+            })}
+            </span>
           </div>
         }
     </div>

@@ -46,6 +46,8 @@ export default function routers(router){
 	router.get("/public/getArticleUpdates",publicController.getArticleUpdates,router.allowedMethods());
 // 查询信息
 	router.get("/public/query",publicController.query,router.allowedMethods());
+// 获取点赞用户
+	router.get("/likeMembers",publicController.likeMembers,router.allowedMethods());
 // 查询用户标签
 // router.get("/public/getMemberTag",publicController.getMemberTag,router.allowedMethods());
 // 上传头像
@@ -64,14 +66,10 @@ export default function routers(router){
 	router.post("/message",memberController.message,fileController.submitMessage,router.allowedMethods());
 // 获取历史聊天记录
 	router.get("/message",memberController.updateActive,memberController.historyChat,router.allowedMethods());
-
 // 发送群消息
 	router.post("/groupmessages",organizationController.message,fileController.submitMessage,router.allowedMethods());
 // 获取历史群消息
 	router.get("/groupmessages",organizationController.historyChat,router.allowedMethods());
-
-// 发送图片消息
-	// router.post("/member/messageImg",fileController.insertImg,fileController.messageImg,router.allowedMethods());
 // 获取最新消息
 	router.get("/recentmessage",memberController.getMessageList,router.allowedMethods());
 // 修改昵称
@@ -88,16 +86,6 @@ export default function routers(router){
 	router.get("/member/followOne",memberController.followOne,router.allowedMethods());
 // 取关
 	router.get("/member/followOutOne",memberController.followOutOne,router.allowedMethods());
-// 动态中的图片点赞功能
-	// router.get("/member/addLikeByName",memberController.addLikeByName,router.allowedMethods());
-// // 计算多少未读消息
-// 	router.get("/member/countMessage",memberController.countMessage,router.allowedMethods());
-// // 计算多少未读通知
-// 	router.get("/member/countNotice",memberController.countNotice,router.allowedMethods());
-// // 计算多少回复
-// 	router.get("/member/countReply",memberController.countReply,router.allowedMethods());
-// // 计算多少入社请求
-// 	router.get("/member/countRequest",memberController.countRequest,router.allowedMethods());
 // 上传作品
 	router.post("/member/submitPhotos",memberController.submitPhotos,fileController.uploadPhotos,router.allowedMethods());
 // 赞
@@ -164,7 +152,7 @@ export default function routers(router){
 // 提交建议与意见
 	router.post("/suggestions",memberController.suggestions,fileController.uploadSuggestionImg,router.allowedMethods());
 // 删除社团会员
-	router.delete("/organizationsMembers",organizationController.deleteMember,authController.islogin,router.allowedMethods());
+	router.delete("/organizationsMembers",authController.islogin,organizationController.deleteMember,router.allowedMethods());
 
 
 // 	后台管理部分 

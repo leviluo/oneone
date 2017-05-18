@@ -47,10 +47,10 @@ export function mergeMulti(result, host, merge) {
                       ob[merge[k]] = result[i][merge[k]]
                   }
                   result[i]['list'].push(ob)
+              }
                   for (var k = 0; k < merge.length; k++) {
                       delete result[i][merge[k]]
                   }
-              }
             items.push(result[i])
         }
     return items

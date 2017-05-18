@@ -6,7 +6,7 @@ const Controller = {
         // await next
         var result = await sqlStr("select specialities.name as childCatelogue,specialityCategory.name as parentCatelogue,specialityCategory.id as parentCatelogueId,specialities.id as childCatelogueId from specialityCategory left join specialities on specialityCategory.id = specialities.categoryId")
         // console.log(result)
-        var items = merge(result, 'parentCatelogue', ['childCatelogue', 'childCatelogueId'])
+        var items = mergeMulti(result, 'parentCatelogue', ['childCatelogue', 'childCatelogueId'])
         this.body = { status: 200, result: items }
     },
     addNewItem: async function(next) {

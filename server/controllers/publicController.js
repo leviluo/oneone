@@ -62,6 +62,8 @@ const publicController = {
       if (this.session.user && this.request.query.id) {
         if (this.request.query.direction == 1) {
         var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? and w.id <= ? order by w.id desc limit "+this.request.query.limit,[this.session.user,this.request.query.id,this.request.query.worksId])
+        
+
         }else{
           var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? and w.id >= ? limit "+this.request.query.limit,[this.session.user,this.request.query.id,this.request.query.worksId])
           if (result.length < this.request.query.limit) {
@@ -86,6 +88,10 @@ const publicController = {
       }
 
       var count = await sqlStr("select count(id) as count from works where memberSpecialityId = ?",[this.request.query.id])
+      for (let i = 0; i < result.length; i++) {
+          var items = await sqlStr("select memberId from likes where worksId = ? order by id desc limit 5",[result[i].id])
+          result[i].likeMembers = items
+      }
       this.body = {status:200,data:result,count:count[0].count}
     },
     specialities:async function(next){
@@ -193,6 +199,16 @@ const publicController = {
         var count = await sqlStr("select count(id) as count from article where title like ? ",[`%${queryStr}%`])
       }
       this.body = {status:200,data:result,count:count[0].count}
+    },
+    likeMembers:async function(next){
+      var id = this.request.query.id
+      var limit = this.request.query.limit
+      if (!id || !limit) {
+        this.body = { status: 500, msg: "缺少参数" }
+        return
+      }
+      var result = await sqlStr("select memberId from likes where worksId = ? limit "+limit,[id])
+      this.body = {status:200,data:result}
     }
 }
 export default publicController;

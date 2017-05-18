@@ -20,3 +20,7 @@ export function deletePhoto(id,name){
 export function getMemberInfo(id){
 	return axios.get(`/public/getMemberInfoWork?id=${id}`)
 }
+
+export function getMoreLikeMembers(id,limit){
+	return axios.get(`/likeMembers?id=${id}&limit=${limit}`).then(({data})=>data)
+}

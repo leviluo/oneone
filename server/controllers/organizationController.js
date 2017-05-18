@@ -576,7 +576,8 @@ const organizationController = {
             this.body = {status:500,msg:"更新通知状态失败"}
         }
     },
-    deleteMember:async function(){
+    deleteMember:async function(next){
+        await next
        var id = this.request.query.id
        var organizationsId = this.request.query.organizationsId
        if (!id || !organizationsId) {
