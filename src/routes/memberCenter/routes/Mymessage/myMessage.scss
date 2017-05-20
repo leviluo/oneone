@@ -1,5 +1,6 @@
 #message{
-	padding:20px 0;
+	padding-top:20px;
+	padding-bottom:50px;
 	.top{
 		height:30px;
 		box-sizing:content-box;
@@ -30,6 +31,12 @@
 		}
 		border-bottom:2px solid #1c86ee;
 	}
+	.noRead{
+		color: #fff;
+    background: #ff7f00;
+    padding: 1px 6px;
+    border-radius: 15px;
+	}
     a{
     	color:#37a;
 		&:hover{
@@ -47,6 +54,11 @@
 					border:1px solid #e5e5e5;
 					border-right:none;
 					overflow:auto;
+					 &::-webkit-scrollbar{
+			                    width: 10px;
+			                    height: 16px;
+			                    background-color: #f5f5f5;
+			                }
 					 /*定义滚动条的轨道，内阴影及圆角*/
 	                &::-webkit-scrollbar-track{
 	                    background-color: #fff;
@@ -169,7 +181,7 @@
 			                            background:#efefef;
 			                            display:inline-block;
 			                            border-radius:5px;
-			                            max-width: 250px
+			                            max-width: 500px
 			                        }
 			                        .fa-play{
 			                            color: #efefef;
@@ -197,7 +209,7 @@
 			                            background:#5CACEE;
 			                            display:inline-block;
 			                            border-radius:5px;
-			                            max-width: 250px
+			                            max-width: 500px
 			                        }
 			                        .fa-play{
 			                            color: #5cacee;

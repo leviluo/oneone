@@ -48,9 +48,9 @@ export function mergeMulti(result, host, merge) {
                   }
                   result[i]['list'].push(ob)
               }
-                  for (var k = 0; k < merge.length; k++) {
-                      delete result[i][merge[k]]
-                  }
+            for (var k = 0; k < merge.length; k++) {
+                delete result[i][merge[k]]
+            }
             items.push(result[i])
         }
     return items

@@ -23,6 +23,8 @@ export default class ImageBrowser extends Component{
     imgName:"",
     isFirst:false,
     isEnd:false,
+    firstPage:false,
+    lastPage:false,
     imglists:[],
     request:{},
     page:1
@@ -30,20 +32,16 @@ export default class ImageBrowser extends Component{
  
   componentDidUpdate =()=>{
     if(this.props.ImageBrowser.isShow){
-      // console.log("1111")
       this.show()
     }
   }
 
   show =()=>{
-      // console.log("000")
       var ele = findDOMNode(this)
       var scrollTop = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop
       ele.style.height = document.body.clientHeight + 'px';
       ele.style.top = scrollTop + 'px';
       ele.style.display = "block"
-      // var element = ele.getElementsByClassName('content')[0]
-      // element.style.top = scrollTop+'px'
       document.body.style.width = parseInt(window.getComputedStyle(document.body,null).width.slice(0,-2)) + 'px'
       document.body.style.overflow = "hidden"
       // 定义图片最大尺寸
@@ -61,11 +59,25 @@ export default class ImageBrowser extends Component{
 
   componentWillReceiveProps=(nextProps)=>{
 
-    this.setState({
-      currentChoose:nextProps.ImageBrowser.currentChoose,
-      imglists:nextProps.ImageBrowser.imgs.slice(0,10),
-      firstPage:true
-    })
+    if (nextProps.ImageBrowser.imgs.length > 10) {
+      this.setState({
+        currentChoose:nextProps.ImageBrowser.currentChoose,
+        imglists:nextProps.ImageBrowser.imgs.slice(0,10),
+        firstPage:true,
+        isFirst:false,
+        isEnd:false,
+        lastPage:false,
+      })
+    }else{
+      this.setState({
+        currentChoose:nextProps.ImageBrowser.currentChoose,
+        imglists:nextProps.ImageBrowser.imgs.slice(0,nextProps.ImageBrowser.imgs.length),
+        firstPage:true,
+        lastPage:true,
+        isFirst:false,
+        isEnd:false,
+      })
+    }
     if (nextProps.ImageBrowser.currentChoose == 0) {
       this.setState({
         isFirst:true
@@ -76,7 +88,6 @@ export default class ImageBrowser extends Component{
         isEnd:true
       })
     };
-    // this.refs.bigImage.src = loading
     this.update(nextProps.ImageBrowser.imgs[nextProps.ImageBrowser.currentChoose])
   }
 
@@ -128,7 +139,7 @@ export default class ImageBrowser extends Component{
   }
 
   next=()=>{
-    if (this.state.currentChoose == 9) {
+    if (this.state.currentChoose == (this.state.imglists.length - 1)) {
         if ((10 + this.state.page * 5) > this.props.ImageBrowser.imgs.length) {
         this.setState({
           page:this.state.page + 1,
@@ -148,7 +159,7 @@ export default class ImageBrowser extends Component{
       this.update(this.props.ImageBrowser.imgs.slice(this.props.ImageBrowser.imgs.length - 11,this.props.ImageBrowser.imgs.length - 1)[0])
       }
       return
-    }else if (this.state.currentChoose == 8) {
+    }else if (this.state.currentChoose == (this.state.imglists.length - 2)) {
       if ((10 + this.state.page * 5) > this.props.ImageBrowser.imgs.length) {
         this.setState({
           isEnd:true,
@@ -180,7 +191,7 @@ export default class ImageBrowser extends Component{
       this.setState({
         isFirst:true,
       })
-    }else if (index == 9 && (10 + this.state.page * 5) >= this.props.ImageBrowser.imgs.length) {
+    }else if (index == (this.state.imglists.length - 1) && (10 + this.state.page * 5) >= this.props.ImageBrowser.imgs.length) {
       this.setState({
         isEnd:true,
       })
@@ -268,7 +279,7 @@ export default class ImageBrowser extends Component{
 
 
   render(){
-    // console.log(this.state)
+    console.log(this.state.lastPage)
     return(
         <div className='ImageBrowser'>
           <div className='content'>

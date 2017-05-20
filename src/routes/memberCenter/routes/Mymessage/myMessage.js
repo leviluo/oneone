@@ -33,7 +33,7 @@ export default class myMessage extends Component {
 
   state ={
     items:[],
-    averagenum:3,
+    averagenum:10,
     tag:1,
     showEmotion:false,
     chatContent:[],
@@ -58,34 +58,38 @@ export default class myMessage extends Component {
    socket.on('message',function(data){
       var date = (new Date()).toString()
       if (this.state.items[this.state.msgIndex].memberId == data.sendFrom) { //就在当前聊天页面
-          // var time = date.DateFormat("yyyy-MM-dd hh:mm")
-          this.state.chatContent.push({
+          this.state.items[this.state.msgIndex].chatContent.push({
             time:date,
             text:data.text,
             sendTo:data.sendTo,
             sendnickname:data.sendnickname
           })
           this.setState({setHeight:true})
-      }
-
-      for (var i = 0; i < this.state.items.length; i++) { //在聊天列表里
-        if(this.state.items[i].memberId == data.sendFrom){
-          this.changeChat(i)
           return
+      }else{
+        for (var i = 0; i < this.state.items.length; i++) { //在聊天列表里
+          if(this.state.items[i].memberId == data.sendFrom){
+            // this.changeChat(i)
+            this.state.items[i].noRead = this.state.items[this.state.msgIndex].noRead ? (this.state.items[this.state.msgIndex].noRead + 1) : 1;
+            this.setState({})
+            return
+          }
         }
       }
 
+      console.log(this.state.items)
+
       this.state.items.unshift({ //没在聊天列表里添加到新列表里
-        active:1,
+        active:0,
         isSend:0,
+        noRead:1,
         memberId:data.sendFrom,
         nickname:data.sendnickname,
-        text:data.text,
         time:date
       })
-
-      this.changeChat(0)
-     
+      this.setState({
+        msgIndex:this.state.msgIndex + 1
+      })
     }.bind(this)) 
     document.addEventListener('click', this.closeEmotion, false);
     // if (this.props.messages.length > 0) {  //只有最后一条消息的尴尬
@@ -265,7 +269,7 @@ export default class myMessage extends Component {
   componentDidUpdate =()=>{
     if (!(this.state.tag == 1)) return
     if (!this.props.auth.isAuth) return   //退出页面时报错
-    if (this.state.setHeight) {
+    if (this.state.setHeight && this.state.items.length > 0) {
       var me = this
       setTimeout(()=>{
         me.refs.contentBody.scrollTop = me.refs.contentBody.scrollHeight;
@@ -340,7 +344,7 @@ export default class myMessage extends Component {
       if (data.status==200) {
           var date = new Date()
           var time = `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate() < 10 ? '0'+date.getDate() :date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`
-          this.state.chatContent.push({
+          this.state.items[this.state.msgIndex]['chatContent'].push({
             time:time,
             text:html,
             sendTo:this.state.items[this.state.msgIndex].memberId,
@@ -358,49 +362,38 @@ export default class myMessage extends Component {
     })
   }
 
-  checkHistory =(sendTo)=>{
-    if(typeof sendTo == "object")sendTo = ''
-    getHistory({chatWith:sendTo,lastUpdate:this.lastUpdate || ''}).then(({data})=>{
-
+  checkHistory =(sendTo,lastUpdate)=>{
+        this.props.loadingShow()
+    getHistory({chatWith:sendTo,lastUpdate:lastUpdate || ''}).then(({data})=>{
+        this.props.loadingHide()
         var res = data.data.reverse()
+        if (res.length < 10) {
+          this.setState({historyFull:true})
+        };
 
-        if (this.lastUpdate) {
-          this.state.chatContent = res.concat(this.state.chatContent)
-          if (data.data.length < 10) {
-            this.props.tipShow({type:"error",msg:"没有更多的消息"})
-            this.setState({historyFull:true})
-            return
-          };
-          this.setState({})
+
+        if (lastUpdate) {
+          this.state.items[this.state.msgIndex]['chatContent'] = res.concat(this.state.items[this.state.msgIndex]['chatContent'])
         }else{
-          this.setState({
-            chatContent:res
-          })
-          if (data.data.length < 10) {
-            this.setState({historyFull:true})
-            return
-          };
+          this.state.items[this.state.msgIndex]['chatContent'] = res
         }
-        
-        var sendDate = new Date(res[0].time)
-        if(res[0])this.lastUpdate = `${sendDate.getFullYear()}-${sendDate.getMonth()+1}-${sendDate.getDate()} ${sendDate.getHours()}:${sendDate.getMinutes()}:${sendDate.getSeconds()}`;
-        // if(isTop==true){
-        //   this.setHeight()
-        // }
+
+        this.setState({})
     })
   }
 
   changeChat =(index)=>{
+    this.state.items[index].noRead = null
+    this.state.items[index].active = 1
     this.setState({
       msgIndex:index,
       chatContent:[],
-      historyFull:false
-    })
-    this.lastUpdate = ""
-    this.setState({
+      historyFull:false,
       setHeight:true
     })
-    this.checkHistory(this.state.items[index].memberId)
+    if (!this.state.items[index]['chatContent']) { 
+      this.checkHistory(this.state.items[index].memberId)
+    }
   }
 
   replyText =(e)=>{
@@ -529,6 +522,8 @@ export default class myMessage extends Component {
           </div>
           <div className="content">
           {this.state.tag == 1 && <article className="chat">
+            {this.state.items.length == 0 && <div className="text-center">没有任何私信</div>}
+            {this.state.items.length > 0 && <div>
             <aside>
               <ul>
               {this.state.items.map((item,index)=>{
@@ -539,9 +534,9 @@ export default class myMessage extends Component {
               }else{
                 var isRead = item.active == '0'?'未读':'已读'
               }
-              item.text = item.text.replace(/<img(.*)>/,"[图片]")
+              // item.text = item.text.replace(/<img(.*)>/,"[图片]")
               return <li key={index} style={{background:this.state.msgIndex == index ? "#efefef" : "#fff"}} onClick={()=>this.changeChat(index)}>
-                <div><img src={`/originImg?from=member&name=${item.memberId}`} width="40" alt="头像"/><strong><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link></strong></div>
+                <div><img src={`/originImg?from=member&name=${item.memberId}`} width="40" alt="头像"/><strong><Link to={`/memberBrief/${item.memberId}`}>{item.nickname}</Link></strong>{item.noRead && <span className="noRead">{item.noRead}</span>}</div>
                 <div>
                   <ul>
                     <li><span style={{borderLeftColor:item.active == '0' ? 'green' : '#666',borderLeftWidth:'2px',borderLeftStyle:'solid',paddingLeft:"5px"}} className="lightColor">{isRead}</span><span className="lightColor pull-right smallFont">{time}</span></li>
@@ -549,14 +544,14 @@ export default class myMessage extends Component {
                 </div>
               </li>
               })}
-              <li className="text-center"><a onClick={this.addMore}>加载更多</a></li>
+              {this.state.items.length == this.state.averagenum && <li className="text-center"><a onClick={this.addMore}>加载更多</a></li>}
               </ul>
             </aside>
             <aside>
-              <div className="chatrecent" ref="contentBody">
-                  {!this.state.historyFull && <p><a onClick={()=>{this.setState({setHeight:false});this.checkHistory(this.state.items[this.state.msgIndex].memberId)}}>查看更多...</a></p>}
-                  <div className="chat" ref="chat">
-                  {this.state.chatContent.map((item,index)=>{
+              {this.state.items[this.state.msgIndex] && <div className="chatrecent" ref="contentBody">
+                  {!this.state.historyFull && <p><a onClick={()=>{this.setState({setHeight:false});this.checkHistory(this.state.items[this.state.msgIndex].memberId,this.state.items[this.state.msgIndex].chatContent[0].time)}}>查看更多...</a></p>}
+                  {this.state.items[this.state.msgIndex]['chatContent'] && <div className="chat" ref="chat">
+                  {this.state.items[this.state.msgIndex]['chatContent'].map((item,index)=>{
                     var time = item.time.DateFormat("yyyy-MM-dd hh:mm")
                      if(item.sendTo != this.props.auth.memberId){
                        return <article className="sendFrom" key={index}>
@@ -572,8 +567,8 @@ export default class myMessage extends Component {
                        </article>
                      }
                   })}
-                  </div>
-              </div>
+                  </div>}
+              </div>}
               <div className="nav">
                   <strong>
                       <a className="fa fa-smile-o" onClick={this.isEmotion}></a>
@@ -596,6 +591,7 @@ export default class myMessage extends Component {
                   </div>
               </div>
             </aside>
+            </div>}
           </article>}
           {this.state.tag == 2 && <article className="replys">
             <ul>

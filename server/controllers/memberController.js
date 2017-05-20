@@ -389,23 +389,44 @@ const memberController = {
       }
     },
     addLike: async function(){
+        var id = this.request.query.id
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
-        if (!this.request.query.id) {
+        if (!id) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var result = await sqlStr("delete from likes where memberId = ? and worksId = ?",[this.session.user,this.request.query.id])
+        var result = await sqlStr("delete from likes where memberId = ? and worksId = ?",[this.session.user,id])
         if (result.affectedRows == 1) {
             this.body = {status:200}
             return
         }else if(result.affectedRows == 0){
-            var result = await sqlStr("insert into likes set memberId = ?,worksId = ?",[this.session.user,this.request.query.id])
+            var result = await sqlStr("insert into likes set memberId = ?,worksId = ?",[this.session.user,id])
             if (result.affectedRows == 1) {
-            this.body = {status:200}
-            return
+                var info = await sqlStr("select ms.memberId,w.name from memberSpeciality as ms left join works as w on w.memberSpecialityId = ms.id where w.id = ?",[id])
+                var myinfo = await sqlStr("select nickname from member where id = ?",[this.session.user])
+                // 点赞通知
+                 var items = {type:"like",hostId:info[0].memberId,workName:info[0].name,nickname:myinfo[0].nickname,memberId:this.session.user};
+
+                var resultt = await save('Notice',items)
+                
+                if(resultt.id){
+
+                    var toSocket = queryid(info[0].memberId)
+
+                    if (toSocket) {
+                        toSocket.emit('notice',resultt);
+                    }
+
+                    this.body = {status:200}
+                    return
+                }else{
+                    this.body = {status:500,msg:"操作失败"}
+                    return
+                }
+
             }
         }
         this.body = {status:500,msg:"操作数据库失败"}
@@ -522,28 +543,6 @@ const memberController = {
             this.body ={status:500,msg:"操作失败"}
         }
     },
-    // addLikeByName:async function(){
-    //     if (!this.session.user) {
-    //         this.body = { status: 600, msg: "尚未登录" }
-    //         return
-    //     }
-    //     if (!this.request.query.name) {
-    //         this.body = { status: 500, msg: "缺少参数" }
-    //         return
-    //     }
-    //     var result = await sqlStr("delete from likes where memberId = ? and worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
-    //     if (result.affectedRows == 1) {
-    //         this.body = {status:200}
-    //         return
-    //     }else if(result.affectedRows == 0){
-    //         var result = await sqlStr("insert into likes set memberId = ?,worksId = (select id from works where name = ?)",[this.session.user,this.request.query.name])
-    //         if (result.affectedRows == 1) {
-    //         this.body = {status:200}
-    //         return
-    //         }
-    //     }
-    //     this.body = {status:500,msg:"操作数据库失败"}
-    // },
     ifliked:async function(){
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }

@@ -201,6 +201,8 @@ export default class Header extends Component{
                         return <li key={index}><div className="focusyou"><img src={`/originImg?name=${item.memberId}&from=member`} width="30" /><Link to={`/memberBrief/${item.memberId}`}><strong>{item.nickname}</strong></Link><span className="lightColor smallFont pull-right">{time}</span></div><p>关注了你</p></li>
                       case 'attendapprove':
                         return <li key={index}><div className="focusyou"><img src={`/originImg?name=${item.organizationshead}&from=organizations`} width="30" /><Link to={`/organizationsHome/${item.organizationsId}`}><strong>{item.organizationsname}</strong></Link><span className="lightColor smallFont pull-right">{time}</span></div><p>通过了你的入社请求</p></li>
+                      case 'like':
+                        return <li key={index}><div className="focusyou"><img src={`/originImg?name=${item.memberId}&from=member`} width="30" /><Link to={`/memberBrief/${item.memberId}`}><strong>{item.nickname}</strong></Link><span className="lightColor smallFont pull-right">{time}</span></div><p>赞了你的图片&nbsp;&nbsp;&nbsp;<img src={`/img?from=speciality&name=${item.workName}`} height="40" alt=""/></p></li>
                     } 
                   })}
                   <li className="text-center checkmore"><Link to="/memberCenter/myNotice">查看更多</Link></li>

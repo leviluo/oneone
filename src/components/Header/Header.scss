@@ -115,7 +115,7 @@ header{
                 margin:0;
                 z-index:5;
                 width:300px;
-                height:400px;
+                max-height:400px;
                 overflow:auto;
                 &::-webkit-scrollbar{
                     width: 10px;

@@ -66,6 +66,7 @@ var noticeSchema = new mongoose.Schema({
     nickname: { type: String, default: '' },
     organizationsname: { type: String, default: '' },
     organizationshead: { type: String, default: '' }, 
+    workName: { type: String, default: '' }, 
 })
 
 var messageSchema = new mongoose.Schema({
