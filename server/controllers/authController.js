@@ -8,7 +8,7 @@ const authController = {
         var password = this.request.body.password.trim().html2Escape()
         var code = this.request.body.code.trim().html2Escape()
         var nickname = this.request.body.nickname.trim().html2Escape()
-        var location = this.request.body.location.trim().html2Escape();
+        var location = this.request.body.location ? this.request.body.location.trim().html2Escape() : "上海市";
         var sex = this.request.body.sex;
 
         if (!/^[1][34578][0-9]{9}$/.test(phone)) {

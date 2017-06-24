@@ -19,8 +19,8 @@ const Controller = {
         //     return
         // }
 
-        var flag = itemName.inputVerify(20)
-        if (flag != true) {
+        var flag = itemName.StringLen(0,20)
+        if (flag) {
             this.body = { status: 500, msg: flag }
             return
         }
@@ -61,8 +61,8 @@ const Controller = {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
-        var flag = itemName.inputVerify(20)
-        if (flag != true) {
+        var flag = itemName.StringLen(0,20)
+        if (flag) {
             this.body = { status: 500, msg: flag }
             return
         }
@@ -98,9 +98,9 @@ const Controller = {
             return
         }
         if (type == "childCatelogue") {
-            var result = await sqlStr("delete from specialities where id = ?", [id])
+            var result = await sqlStr("delete s.*,memberSpeciality.*,works.* from specialities as s left join memberSpeciality on memberSpeciality.specialitiesId = s.id left join works on works.memberSpecialityId = memberSpeciality.id where s.id = ?",[id])
         } else {
-            var result = await sqlStr("delete specialitycategory.*,specialities.*,memberSpeciality.*,works.*,memberUpdates.* from specialitycategory left join specialities on specialities.categoryId = specialitycategory.id left join memberSpeciality on memberSpeciality.specialitiesId = specialities.id left join works on works.memberSpecialityId = memberSpeciality.id left join memberupdates on memberupdates.memberSpecialityId = memberSpeciality.id where specialitycategory.id = ?", [id])
+            var result = await sqlStr("delete specialitycategory.*,specialities.*,memberSpeciality.*,works.* from specialitycategory left join specialities on specialities.categoryId = specialitycategory.id left join memberSpeciality on memberSpeciality.specialitiesId = specialities.id left join works on works.memberSpecialityId = memberSpeciality.id where specialitycategory.id = ?", [id])
         }
         if (result.affectedRows > 0) {
             this.body = { status: 200, msg: "删除成功" }
@@ -111,3 +111,4 @@ const Controller = {
     }
 }
 export default Controller;
+
