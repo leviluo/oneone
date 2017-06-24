@@ -199,7 +199,7 @@ export default class Categories extends React.Component{
                 return <div key={index} className="itemContent">
                      <span>{item.memberId != this.props.auth.memberId && <a className="btn-default" onClick={()=>this.showChat(item.nickname,item.memberId)}>私信</a>}&nbsp;&nbsp;<Link className="btn-default" to={link}>查看名片</Link></span>
                     <img src={src} alt=""/>
-                    <div><ul><li><Link to={link}>{item.nickname}</Link>(<span className="lightColor">性别:</span>{item.sex==0 && <span>男</span>}{item.sex==1 && <span>女</span>})</li><li><p><span className="lightColor">简介:</span>{brief}</p></li><li><p><span className="lightColor">能力:</span>{item.name}</p></li><li><p><span className="lightColor">现居住地:</span>{item.address}</p></li></ul></div>
+                    <div><ul><li><Link to={link}>{item.nickname}</Link>(<span className="lightColor">性别:</span>{item.sex==0 && <span>男</span>}{item.sex==1 && <span>女</span>})</li><li><p><span className="lightColor">简介:&nbsp;</span>{brief}</p></li><li><p><span className="lightColor">能力:&nbsp;</span><span className="tag">{item.name}</span></p></li><li>{item.address && <p><span className="lightColor">现居住地:&nbsp;</span>{item.address}</p>}</li></ul></div>
                 </div>
             }
             )}

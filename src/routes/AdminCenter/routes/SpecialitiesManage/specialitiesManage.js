@@ -67,11 +67,16 @@ export default class specialitiesManage extends Component {
     var modifyItemName = ()=>{
       var childId = item.childCatelogueId
       var itemName = this.state.NewItemName.trim()
-      var flag = itemName.inputVerify(20)
-      if ( flag != true) {
+            // console.log(childId)
+      var flag = itemName.StringLen(0,20)
+            // console.log(000)
+            // console.log(flag)
+      if (flag) {
         this.props.tipShow({type:"error",msg:flag})
         return
       }
+      // console.log(childId)
+
       modifyItem({id:childId,itemName:itemName,type:"childCatelogue"}).then(({data})=>{
 
         if (data.status == 200) {
@@ -97,8 +102,9 @@ export default class specialitiesManage extends Component {
     var modifyItemName = ()=>{
       var parentId = item.parentCatelogueId
       var itemName = this.state.NewItemName.trim()
-      var flag = itemName.inputVerify(20)
-      if ( flag != true) {
+
+      var flag = itemName.StringLen(0,20)
+      if (flag) {
         this.props.tipShow({type:"error",msg:flag})
         return
       }
@@ -146,8 +152,8 @@ export default class specialitiesManage extends Component {
     var add = ()=>{  //增加子条目
       var itemName = this.state.NewItemName.trim()
       var parentId = this.state.items[index].parentCatelogueId
-      var flag = itemName.inputVerify(20)
-      if ( flag != true) {
+      var flag = itemName.StringLen(0,20)
+      if (flag) {
         this.props.tipShow({type:"error",msg:flag})
         return
       }
@@ -173,8 +179,8 @@ export default class specialitiesManage extends Component {
     var add = ()=>{  
       var itemName = this.state.NewItemName.trim()
       // var parentId = this.state.items[index].parentCatelogueId
-      var flag = itemName.inputVerify(20)
-      if ( flag != true) {
+      var flag = itemName.StringLen(0,20)
+      if (flag) {
         this.props.tipShow({type:"error",msg:flag})
         return
       }
