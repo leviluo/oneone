@@ -151,8 +151,12 @@ const publicController = {
         this.body = {status:200,data:result}
     },
     getPhotoUpdates:async function(){
+        if (this.request.query.direction == 1) {
+        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' and mu.id > ? order by id",[this.request.query.limit.split(',')[0]])
+        }else{
+          var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' order by id desc limit " + this.request.query.limit)
+        }
 
-        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' order by id desc limit " + this.request.query.limit)
         for (let i = 0; i < result.length; i++) {
             var items = await sqlStr("select s.name as specialityName,ms.id as memberSpecialityId,w.name as workName,w.id as workId from works as w left join memberSpeciality as ms on ms.id = w.memberSpecialityId left join specialities as s on s.id = ms.specialitiesId where w.updateId = ?",[result[i].id])
             result[i].list = items

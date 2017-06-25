@@ -223,6 +223,7 @@ export default class BasicInfo extends Component {
     // if(this.state.request['addSpeciatity'])return
     // this.state.request['addSpeciatity'] = true;
     this.props.loadingShow()
+    
     this.props.addSpeciatity({speciality:speciality,brief:brief,experience:experience})
     .then(({data}) => {
     this.props.loadingHide()
@@ -246,6 +247,8 @@ export default class BasicInfo extends Component {
       else{
           this.props.tipShow({type:"error",msg:data.msg})
       }
+    }).catch(err=>{
+      this.props.loadingHide()
     })
 
   }

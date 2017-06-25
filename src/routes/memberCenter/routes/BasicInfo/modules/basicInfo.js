@@ -2,6 +2,7 @@ import axios from 'axios'
 import {tipResult} from '../../../../../components/Tips/modules/tips'
 
 const REQUESTADDSPECIALITY = "REQUESTADDSPECIALITY"
+const FINISHADDSPECIALITY = "FINISHADDSPECIALITY"
 
 export function commitHeadImg(items) {
   return (dispatch, getState) => {
@@ -44,10 +45,13 @@ export function deleteSpeciality(item) {
 }
 
 export function addSpeciatity (items) {
+  // console.log(itens)
   return (dispatch, getState) => {
     if (getState().myspecialities.fetching) return
       dispatch({type:REQUESTADDSPECIALITY})
-     return axios.post('/member/addSpeciality',items)
+     return axios.post('/member/addSpeciality',items).then(data=>{
+      dispatch({type:FINISHADDSPECIALITY})
+     })
   }
 }
 
@@ -95,6 +99,9 @@ const ACTION_HANDLERS = {
   },
   [REQUESTADDSPECIALITY]: (state, action) => {
     return ({...state, fetching: true })
+  },
+  [FINISHADDSPECIALITY]: (state, action) => {
+    return ({...state, fetching: false })
   }
 }
 
