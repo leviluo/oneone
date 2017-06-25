@@ -48,7 +48,8 @@ export function addSpeciatity (items) {
   // console.log(itens)
   return (dispatch, getState) => {
     if (getState().myspecialities.fetching) return
-      dispatch({type:REQUESTADDSPECIALITY})
+      dispatch({type:REQUESTADDSPECIALITY}) 
+    
      return axios.post('/member/addSpeciality',items).then(data=>{
       dispatch({type:FINISHADDSPECIALITY})
       return data
