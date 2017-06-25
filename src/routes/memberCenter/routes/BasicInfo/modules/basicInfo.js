@@ -51,6 +51,7 @@ export function addSpeciatity (items) {
       dispatch({type:REQUESTADDSPECIALITY})
      return axios.post('/member/addSpeciality',items).then(data=>{
       dispatch({type:FINISHADDSPECIALITY})
+      return data
      })
   }
 }
