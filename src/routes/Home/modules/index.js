@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export function getupdates(limit,location){ 
-	return axios.get(`/public/getPhotoUpdates?limit=${limit}`)
+	return axios.get(`/photoUpdates?limit=${limit}`)
 }
 
 export function addLike(name){

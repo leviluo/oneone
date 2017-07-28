@@ -1,3 +1,28 @@
+import { sqlStr } from '../dbHelps/mysql'
+import jwt from 'jsonwebtoken'
+
+export async function isLogin(authorization){
+        console.log("来验证登录了le")
+            var auth = authorization
+            console.log(auth)
+            if (!auth) {
+                console.log("尚未登录")
+                return { status: 600, msg: "尚未登录" }
+            }else{
+                var result = jwt.decode(auth, "leviluo");
+                // console.log("开始去数据库验证了")
+                var veryfied = await sqlStr("select * from member where id = ? and nickname = ?",[result.memberId,result.nickname])
+                console.log("数据库验证完毕")
+                if (veryfied.length > 0) {
+                    return false
+                }else{
+                    return { status: 600, msg: "尚未登录" }
+                }
+            }
+        // }
+        return false
+}
+
 export function merge(result,host,merge){  //host标记字段，merge要合并的字段
   var items = []
   go:

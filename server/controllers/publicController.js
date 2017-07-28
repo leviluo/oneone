@@ -1,5 +1,6 @@
 import { sqlStr } from '../dbHelps/mysql'
-import {merge,mergeMulti} from './utils'
+import {merge,mergeMulti,isLogin} from './utils'
+// import authController from './authController'
 
 const publicController = {
     catelogues:async function(next){
@@ -43,13 +44,17 @@ const publicController = {
         this.body = {status:500,msg:"缺少参数"}
         return
       }
-      if (this.session.user && this.request.query.id) {
-        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? limit "+this.request.query.limit,[this.session.user,this.request.query.id])
-      }else if(this.request.query.id){
-        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes from works as w where w.memberSpecialityId = ? limit "+this.request.query.limit,[this.request.query.id])
-      }else{
-        this.body = {status:600,msg:"尚未登录"}
+      if (!this.request.query.id) {
+        this.body = {status:500,msg:"缺少参数"}
         return
+      }
+
+      if (this.session.user) { //web访问
+        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? limit "+this.request.query.limit,[this.session.user,this.request.query.id])
+      }else if(this.request.query.memberId){   //app访问
+        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes,if((select id from likes where worksId = w.id and memberId = ? limit 1) != '',1,0) as isLiked from works as w where w.memberSpecialityId = ? limit "+this.request.query.limit,[this.request.query.memberId,this.request.query.id])
+      }else{ //游客登录
+        var result = await sqlStr("select w.id,w.name,w.createdAt,(select count(id) from likes where worksId = w.id) as likes from works as w where w.memberSpecialityId = ? limit "+this.request.query.limit,[this.request.query.id])
       }
       var count = await sqlStr("select count(id) as count from works where memberSpecialityId = ?",[this.request.query.id])
       this.body = {status:200,data:result,count:count[0].count}
@@ -96,9 +101,9 @@ const publicController = {
     },
     specialities:async function(next){
         if (this.request.query.id) {
-        var result = await sqlStr("select m.brief,m.experience,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',8) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId  where memberId = ?;",[this.request.query.id])
+        var result = await sqlStr("select m.brief,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',8) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId where memberId = ?;",[this.request.query.id])
         }else if (this.session.user) {
-        var result = await sqlStr("select m.brief,m.experience,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',6) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId  where memberId = ?",[this.session.user])
+        var result = await sqlStr("select m.brief,m.id,m.memberId,substring_index((select GROUP_CONCAT(name order by createdAt desc) from works where memberSpecialityId = m.id),',',6) as work,s.name as speciality from memberSpeciality as m left join specialities as s on s.id = m.specialitiesId where memberId = ?",[this.session.user])
         }else{
             this.body = { status: 600, msg: "尚未登录" }
             return
@@ -129,7 +134,17 @@ const publicController = {
       var result = await sqlStr("select m.nickname,m.brief,m.id from follows as f left join member as m on m.id = f.memberId where f.followId = ? limit "+this.request.query.limit,[this.request.query.id])
       this.body = {status:200,data:result}
     },
-    getMyUpdates:async function(){
+    getMyUpdates:async function(next){
+
+        // if (this.request.header["authorization"] !== undefined) { //来自app
+        //   var flag = await isLogin(this.request.header["authorization"])
+        // }
+        
+        // if (flag) {
+        //   this.body = flag
+        //   return
+        // }
+
         var id = this.request.query.id
         var limit = this.request.query.limit
         if (!id || !limit) {
@@ -137,7 +152,12 @@ const publicController = {
             return
         }
 
-        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.memberId = ? order by id desc limit " + limit,[id])
+        // var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.memberId = ? order by id desc limit " + limit,[id])
+        if (this.request.query.direction == 1) {
+        var result = await sqlStr("select mu.id,mu.type,date_format(mu.createAt,'%Y-%c-%d %h:%i') as createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' and mu.memberId = ? and mu.id > ? order by id desc",[id,this.request.query.limit.split(',')[0]])
+        }else{
+          var result = await sqlStr("select mu.id,mu.type,date_format(mu.createAt,'%Y-%c-%d %h:%i') as createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' and mu.memberId = ? order by id desc limit " + this.request.query.limit,[id])
+        }
         for (let i = 0; i < result.length; i++) {
           if (result[i].type == "article") {
             var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
@@ -147,14 +167,13 @@ const publicController = {
             result[i].list = items
           }
         }
-
         this.body = {status:200,data:result}
     },
     getPhotoUpdates:async function(){
         if (this.request.query.direction == 1) {
-        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' and mu.id > ? order by id",[this.request.query.limit.split(',')[0]])
+        var result = await sqlStr("select mu.id,mu.type,date_format(mu.createAt,'%Y-%c-%d %h:%i') as createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' and mu.id > ? order by id desc",[this.request.query.limit.split(',')[0]])
         }else{
-          var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' order by id desc limit " + this.request.query.limit)
+          var result = await sqlStr("select mu.id,mu.type,date_format(mu.createAt,'%Y-%c-%d %h:%i') as createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'image' order by id desc limit " + this.request.query.limit)
         }
 
         for (let i = 0; i < result.length; i++) {
@@ -166,8 +185,11 @@ const publicController = {
 
     },
     getArticleUpdates:async function(){
-
-        var result = await sqlStr("select mu.id,mu.type,mu.createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'article' order by id desc limit " + this.request.query.limit)
+        if (this.request.query.direction == 1) {
+            var result = await sqlStr("select mu.id,mu.type,date_format(mu.createAt,'%Y-%c-%d %h:%i') as createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'article' and mu.id > ? order by id desc",[this.request.query.limit.split(',')[0]])
+        }else{
+            var result = await sqlStr("select mu.id,mu.type,date_format(mu.createAt,'%Y-%c-%d %h:%i') as createAt,mu.memberId,m.nickname from memberupdates as mu left join member as m on m.id = mu.memberId where mu.type = 'article' order by id desc limit " + this.request.query.limit)
+        }
 
         for (let i = 0; i < result.length; i++) {
             var items = await sqlStr("select a.title,a.id as articleId,if(a.type = 0,'活动','咨询') as titleType,o.name as organizationsName,a.organizationsId from article as a left join organizations as o on o.id = a.organizationsId where a.updateId = ?",[result[i].id])
@@ -213,6 +235,16 @@ const publicController = {
       }
       var result = await sqlStr("select memberId from likes where worksId = ? limit "+limit,[id])
       this.body = {status:200,data:result}
+    },
+    newestMem:async function(){  //获取最新的会员
+      var result = await sqlStr("select id,nickname from member order by id desc limit 10")
+      this.body = {status:200,data:result}
+      return
+    },
+    newestOrganization:async function() { //获取最新的社团
+      var result = await sqlStr("select id,name from organizations order by id desc limit 10")
+      this.body = {status:200,data:result}
+      return
     }
 }
 export default publicController;

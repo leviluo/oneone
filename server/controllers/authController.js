@@ -1,6 +1,7 @@
 import { insert,sqlStr } from '../dbHelps/mysql'
-var crypto = require('crypto'); //加载crypto库
+import jwt from 'jsonwebtoken'
 
+var crypto = require('crypto'); //加载crypto库
 
 const authController = {
     register: async function(next) {
@@ -48,6 +49,14 @@ const authController = {
         
     },
     login: async function(next) {
+        console.log(this.request)
+
+        console.log(this.request.body)
+
+        if (!this.request.body.password) {
+            this.body = { status: 500, msg: "参数错误" }
+            return;
+        }
 
         var password = this.request.body.password.trim()
 
@@ -59,19 +68,27 @@ const authController = {
         var decipher = crypto.createHash('md5',"leviluo");
 
         if (!this.request.body.type) {    //普通
+            if (!this.request.body.phone) {
+                this.body = { status: 500, msg: "参数错误" }
+                return;
+            }
+
             var phone = this.request.body.phone.trim()
 
             if (!/^[1][34578][0-9]{9}$/.test(this.request.body.phone)) {
                 this.body = { status: 500, msg: "手机号格式不正确" }
                 return;
             };
-
+            // console.log(phone)
+            // console.log(decipher.update(password).digest('hex'))
             var result = await sqlStr("select * from member where phone = ? and password = ? ", [phone,decipher.update(password).digest('hex')])
             // var result = await sqlStr("select * from admin where account = ? and password = ? ", [account,decipher.update(password).digest('hex')])
-
+            console.log(result)
             if (result.length > 0) {
                 this.session.user = result[0].id
-                this.body = { status: 200, nickname: result[0].nickname,memberId:result[0].id}
+                var token = jwt.sign({memberId:result[0].id,nickname:result[0].nickname}, "leviluo");
+                console.log(token)
+                this.body = { status: 200, data:{nickname: result[0].nickname,memberId:result[0].id,token:token}}
                 return
             } else {
                 this.body = { status: 500, msg: "用户或密码错误" }
@@ -127,13 +144,11 @@ const authController = {
         }
     },
     islogin:async function(next) {
-        // console.log("0000")
         if (!this.session.user) {
             this.body = { status: 600, msg: "尚未登录" }
             return
         }
         await next
-        // console.log("1111")
     },
     loginOut:async function(next){
         this.session = null;

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export function getworksData(id,limit){
-	return axios.get(`/public/getWorks?id=${id}&limit=${limit}`)
+	return axios.get(`/works?id=${id}&limit=${limit}`)
 }
 
 export function addLike(id){

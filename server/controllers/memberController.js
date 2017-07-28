@@ -10,7 +10,7 @@ const memberController = {
         await next
 
         var brief = this.request.body.brief.trim().html2Escape()
-        var experience = this.request.body.experience.trim().html2Escape()
+        // var experience = this.request.body.experience.trim().html2Escape()
         var speciality = this.request.body.speciality.trim().html2Escape()
 
         if (!this.session.user) {
@@ -18,7 +18,7 @@ const memberController = {
             return
         }
 
-        if (!speciality || !brief || !experience ) {
+        if (!speciality || !brief) {
         	this.body = { status: 500, msg: "缺少参数" }
             return
         }
@@ -40,7 +40,7 @@ const memberController = {
             return
         }
 
-        var result = await sqlStr("insert into memberSpeciality set brief = ?,experience = ?,memberId=?,specialitiesId=(select id from specialities where name= ?)",[brief,experience,this.session.user,speciality])
+        var result = await sqlStr("insert into memberSpeciality set brief = ?,memberId=?,specialitiesId=(select id from specialities where name= ?)",[brief,this.session.user,speciality])
         if (result.affectedRows == 1 ) {
             this.body = { status: 200,msg:"插入成功",result:{insertId:result.insertId}}
             return
@@ -225,7 +225,7 @@ const memberController = {
         await next
 
         var brief = this.request.body.brief.trim().html2Escape()
-        var experience = this.request.body.experience.trim().html2Escape()
+        // var experience = this.request.body.experience.trim().html2Escape()
         var speciality = this.request.body.speciality.trim().html2Escape()
 
         if (!this.session.user) {
@@ -233,7 +233,7 @@ const memberController = {
             return
         }
 
-        if (!this.request.body.speciality || !brief || !experience ) {
+        if (!this.request.body.speciality || !brief) {
             this.body = { status: 500, msg: "缺少参数" }
             return
         }
@@ -244,7 +244,7 @@ const memberController = {
             return
         }
 
-        var result = await sqlStr("update memberSpeciality set brief = ?,experience=? where specialitiesId = (select id from specialities where name = ?) and memberId = ?",[brief,experience,speciality,this.session.user])
+        var result = await sqlStr("update memberSpeciality set brief = ? where specialitiesId = (select id from specialities where name = ?) and memberId = ?",[brief,speciality,this.session.user])
         
         if (result.affectedRows == 1) {
         this.body = {status:200}

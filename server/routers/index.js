@@ -27,11 +27,11 @@ export default function routers(router){
 // 新增专业
 	router.post("/member/addSpeciality",memberController.addSpeciality,router.allowedMethods());
 // 我的更新
-	router.get("/public/getMyUpdates",publicController.getMyUpdates,router.allowedMethods());
+	router.get("/myUpdates",publicController.getMyUpdates,router.allowedMethods());
 // 获取所有的专业信息
 	router.get("/public/specialities",publicController.specialities,router.allowedMethods());
 // 获取作品
-	router.get("/public/getWorks",publicController.getWorks,router.allowedMethods());
+	router.get("/works",publicController.getWorks,router.allowedMethods());
 // 获取作品
 	router.get("/public/getWorksFrom",publicController.getWorksFrom,router.allowedMethods());
 // 获取关注
@@ -41,7 +41,7 @@ export default function routers(router){
 // 获取作品页面的会员信息
 	router.get("/public/getMemberInfoWork",publicController.getMemberInfoWork,router.allowedMethods());
 // 根据地理位置获取所有的图片动态
-	router.get("/public/getPhotoUpdates",publicController.getPhotoUpdates,router.allowedMethods());
+	router.get("/photoUpdates",publicController.getPhotoUpdates,router.allowedMethods());
 // 根据地理位置获取所有的文章动态
 	router.get("/public/getArticleUpdates",publicController.getArticleUpdates,router.allowedMethods());
 // 查询信息
@@ -153,14 +153,12 @@ export default function routers(router){
 	router.post("/suggestions",memberController.suggestions,fileController.uploadSuggestionImg,router.allowedMethods());
 // 删除社团会员
 	router.delete("/organizationsMembers",authController.islogin,organizationController.deleteMember,router.allowedMethods());
-
-
+// 获取最新会员
+	router.get("/newestMem",publicController.newestMem,router.allowedMethods()); 
+// 获取最新社团
+	router.get("/newestOrganization",publicController.newestOrganization,router.allowedMethods()); 
 // 	后台管理部分 
-	router.post("/login",authController.login,router.allowedMethods());
 
-	router.get("/auth",authController.auth,router.allowedMethods());
-
-	router.get("/loginOut",authController.loginOut,router.allowedMethods());
 	// 获取所有专业
 	router.get("/specialities",authController.islogin,specialitiesController.getItem,router.allowedMethods());
 	// 新增

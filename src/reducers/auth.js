@@ -63,7 +63,7 @@ export function login(items,history) {
       dispatch({type:FINISHLOGIN})
       if (data.status == 200) {
           // localStorage.setItem("nickname",data.nickname)
-          dispatch(authIn(data.nickname,data.memberId));
+          dispatch(authIn(data.data.nickname,data.data.memberId));
           if (items.type) {
             history.push('/admincenter')
           }else{

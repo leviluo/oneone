@@ -2,6 +2,8 @@ var multiparty = require('multiparty')
 var fs  = require('fs')
 import { sqlStr } from '../dbHelps/mysql'
 import config from '../config'
+var sizeOf = require('image-size');
+
 
 var gm = require('gm').subClass({imageMagick: true});
 var qr = require('qr-image')
@@ -25,12 +27,16 @@ function getOriginImage(name,url){
    }) 
 }
 
-function getThumbImage(name,url){
+function getThumbImage(query,url){
     return new Promise(function(reslove,reject){
-        fs.exists(`${url}thumbs/${name}.jpg`, function (exists) {
+        let width = query.width ? query.width : 200
+        // let imageName = query.name.match(/(.*)_(.*)@(.*)/)
+        let imageName = query.name.split(/[_@]/)
+        let height = width*imageName[3]/imageName[2]
+        let thumbName = `${url}thumbs/${imageName[1]}_${width}@${height}.jpg`        
+        fs.exists(thumbName, function (exists) {
                     if (exists) {
-                        var file = `${url}thumbs/${name}.jpg` 
-                        fs.readFile(file, "binary", function(error, file) {
+                        fs.readFile(thumbName, "binary", function(error, file) {
                         // console.log("0000")
                             if (error) {
                                 reject(error)
@@ -39,17 +45,16 @@ function getThumbImage(name,url){
                             }
                         });
                     }else{
-                        fs.exists(`${url}${name}.jpg`, function (exists) {
+                        fs.exists(`${url}${query.name}.jpg`, function (exists) {
                             if (exists) {
-                                gm(`${url}${name}.jpg`)
-                                .resize(180, 180)
+                                gm(`${url}${query.name}.jpg`)
+                                .resize(width,height)
                                 .flatten() //透明PNG透明
-                                .write(`${url}thumbs/${name}.jpg`, function(err){
+                                .write(thumbName, function(err){
                                   if (err) {
                                     reject(err);
                                   }
-                                  var file = `${url}thumbs/${name}.jpg`
-                                  fs.readFile(file, "binary", function(error, file) {
+                                  fs.readFile(thumbName, "binary", function(error, file) {
                                     // console.log("11111")
                                         if (error) {
                                             reject(error)
@@ -130,13 +135,13 @@ function uploadImgs(ob,name,url){
                 } else {    
                         fields.names=[]
                         // console.log(files)
-
                         if (files.file) {
                             for (var i = 0; i < files.file.length; i++) {
                                 var inputFile = files.file[i]
+                                var dimensions = sizeOf(inputFile.path);
                                 var uploadedPath = inputFile.path;
-                                var name = ss + Date.parse(new Date())+ i
-                                var dstPath = url + name + '.jpg';
+                                var name = `${ss}${Date.parse(new Date()) + i}_${dimensions.width}@${dimensions.height}`
+                                var dstPath = `${url}${name}.jpg`;
                                 fields.names.push(name)
                                //重命名为真实文件名
                                 fs.rename(uploadedPath, dstPath, function(err) {
@@ -196,7 +201,7 @@ const fileController = {
         //     var result = await getThumbImage(this.request.query.name,config.articleImgDir);
         //     break
         // }
-        var result = await getThumbImage(this.request.query.name,config[this.request.query.from + 'ImgDir']);
+        var result = await getThumbImage(this.request.query,config[this.request.query.from + 'ImgDir']);
         this.res.writeHead(200, { "Content-Type": "image/png" });
         this.res.write(result, "binary");
         this.res.end();
