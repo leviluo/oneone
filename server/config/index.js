@@ -5,5 +5,6 @@ const config = {
 	organizationImgDir:'./server/upload/organizationImages/',
 	articleImgDir:'./server/upload/articleImages/',
 	suggestionImgDir:'./server/upload/suggestionImages/',
+	videoDir:'./server/upload/videos/',
 }
 export default config

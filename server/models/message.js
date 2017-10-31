@@ -53,52 +53,102 @@ import mongoose from 'mongoose'
 //     sex: Boolean,
 // })
 
-var noticeSchema = new mongoose.Schema({
+// var noticeSchema = new mongoose.Schema({
+//     status: { type: Number, default: 0 },
+//     type: { type: String, default: '' },
+//     createdate: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     hostId: { type: Number, default: 0 },
+//     memberId: { type: Number, default: 0 },           
+//     nickname: { type: String, default: '' },
+//     comment: { type: String, default: '' },
+//     workname: { type: String, default: '' },
+//     updatesId: { type: Number, default: 0 }, 
+//     commentsId:{ type: Number, default: 0 }, 
+// })
+
+var focusSchema = new mongoose.Schema({
     status: { type: Number, default: 0 },
-    type: { type: String, default: '' },
+    // type: { type: String, default: '' },
     createdate: {
         type: Date,
         default: Date.now
     },
-    hostId: { type: Number, default: 0 },      //你是谁
-    memberId: { type: Number, default: 0 },      
-    organizationsId: { type: Number, default: 0 },      
+    hostId: { type: Number, default: 0 },
+    memberId: { type: Number, default: 0 },           
     nickname: { type: String, default: '' },
-    organizationsname: { type: String, default: '' },
-    organizationshead: { type: String, default: '' }, 
-    workName: { type: String, default: '' }, 
+    // comment: { type: String, default: '' },
+    // workname: { type: String, default: '' },
+    // updatesId: { type: Number, default: 0 }, 
+    // commentsId:{ type: Number, default: 0 }, 
 })
 
-var messageSchema = new mongoose.Schema({
+var replySchema = new mongoose.Schema({
     status: { type: Number, default: 0 },
-    type: { type: String, default: '' },
+    // type: { type: String, default: '' },
     createdate: {
         type: Date,
         default: Date.now
     },
-    hostId: { type: Number, default: 0 },  //   你是谁
-    memberId: { type: Number, default: 0 },      
-    organizationsId: { type: Number, default: 0 },      
+    hostId: { type: Number, default: 0 },
+    memberId: { type: Number, default: 0 },           
     nickname: { type: String, default: '' },
-    articleId: { type: Number, default: 0 },
+    comment: { type: String, default: '' },
+    // workname: { type: String, default: '' },
+    updatesId: { type: Number, default: 0 }, 
+    commentsId:{ type: Number, default: 0 }, 
 })
 
-var articleSchema = new mongoose.Schema({
-    articleId: { type: Number, default: 0 },
-    content: { type: String, default: '' }
+var likeSchema = new mongoose.Schema({
+    status: { type: Number, default: 0 },
+    // type: { type: String, default: '' },
+    createdate: {
+        type: Date,
+        default: Date.now
+    },
+    hostId: { type: Number, default: 0 },
+    memberId: { type: Number, default: 0 },           
+    nickname: { type: String, default: '' },
+    // comment: { type: String, default: '' },
+    workname: { type: String, default: '' },
+    updatesId: { type: Number, default: 0 }, 
+    // commentsId:{ type: Number, default: 0 }, 
 })
 
-var suggestionSchema = new mongoose.Schema({
-    contact: { type: String, default: '' },
-    content: { type: String, default: '' }
-})
+// var messageSchema = new mongoose.Schema({
+//     status: { type: Number, default: 0 },
+//     type: { type: String, default: '' },
+//     createdate: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     hostId: { type: Number, default: 0 },  //   你是谁
+//     memberId: { type: Number, default: 0 },      
+//     organizationsId: { type: Number, default: 0 },      
+//     nickname: { type: String, default: '' },
+//     articleId: { type: Number, default: 0 },
+// })
+
+// var articleSchema = new mongoose.Schema({
+//     articleId: { type: Number, default: 0 },
+//     content: { type: String, default: '' }
+// })
+
+// var suggestionSchema = new mongoose.Schema({
+//     contact: { type: String, default: '' },
+//     content: { type: String, default: '' }
+// })
 
 // var News = mongoose.model('News', NewsSchema);
 // mongoose.model('User', UserSchema);
-mongoose.model('Message', messageSchema);
-mongoose.model('Notice', noticeSchema);
-mongoose.model('Article', articleSchema);
-mongoose.model('Suggestion', suggestionSchema);
+// mongoose.model('Message', messageSchema);
+mongoose.model('Focus', focusSchema);
+mongoose.model('Like', likeSchema);
+mongoose.model('Reply', replySchema);
+// mongoose.model('Article', articleSchema);
+// mongoose.model('Suggestion', suggestionSchema);
 
 console.log("加载mongo模型")
 

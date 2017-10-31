@@ -49,9 +49,6 @@ const authController = {
         
     },
     login: async function(next) {
-        console.log(this.request)
-
-        console.log(this.request.body)
 
         if (!this.request.body.password) {
             this.body = { status: 500, msg: "参数错误" }
@@ -83,11 +80,11 @@ const authController = {
             // console.log(decipher.update(password).digest('hex'))
             var result = await sqlStr("select * from member where phone = ? and password = ? ", [phone,decipher.update(password).digest('hex')])
             // var result = await sqlStr("select * from admin where account = ? and password = ? ", [account,decipher.update(password).digest('hex')])
-            console.log(result)
+            // console.log(result)
             if (result.length > 0) {
                 this.session.user = result[0].id
                 var token = jwt.sign({memberId:result[0].id,nickname:result[0].nickname}, "leviluo");
-                console.log(token)
+                // console.log(token)
                 this.body = { status: 200, data:{nickname: result[0].nickname,memberId:result[0].id,token:token}}
                 return
             } else {
@@ -145,10 +142,21 @@ const authController = {
     },
     islogin:async function(next) {
         if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
+            var auth = this.request.header["authorization"]
+            if (auth) {
+                var result = jwt.decode(auth, "leviluo");
+                // console.log("开始去数据库验证了")
+                var veryfied = await sqlStr("select * from member where id = ? and nickname = ?",[result.memberId,result.nickname])
+                // console.log("数据库验证完毕")
+                if (veryfied.length > 0) {
+                    this.session.user = result.memberId
+                    await next
+                }
+            }else{
+                this.body = { status: 600, msg: "尚未登录" }
+                return
+            }
         }
-        await next
     },
     loginOut:async function(next){
         this.session = null;

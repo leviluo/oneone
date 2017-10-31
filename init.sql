@@ -16,6 +16,13 @@ CREATE TABLE `member` (
   PRIMARY KEY  (`id`)
 );
 
+CREATE TABLE `extraInfo` (         
+  `id` int unsigned auto_increment,
+  `memberId` int unsigned not null default 0,
+  `price` int unsigned not null default 0,
+  PRIMARY KEY  (`id`)
+);
+
 CREATE TABLE `admin` (         
   `id` int unsigned auto_increment,
   `account` varchar(20) DEFAULT '',
@@ -40,6 +47,7 @@ CREATE TABLE `memberupdates` (
   -- `articleId` int unsigned not null default 0,
   -- `memberSpecialityId` int unsigned not null default 0,
   -- `works` varchar(300) not null default '',
+  `text` varchar(140) not null DEFAULT '',
   `type` varchar(15) not null default '',
   `createAt` datetime not null default now(),
   PRIMARY KEY  (`id`)
@@ -78,7 +86,7 @@ CREATE TABLE `works` (
 
 CREATE TABLE `likes` (  
   `id` int unsigned auto_increment,
-  `worksId` int unsigned not null default 0,
+  `updatesId` int unsigned not null default 0,
   `memberId` int unsigned not null default 0,
   PRIMARY KEY  (`id`)
 );
@@ -130,13 +138,40 @@ CREATE TABLE `article`(
 
 CREATE TABLE `comments` (  
   `id` int unsigned auto_increment,
-  `articleId` int unsigned not null default 0,
+  `updatesId` int unsigned not null default 0,
   `memberId` int unsigned not null default 0,
   `comment` varchar(1000) not null default '',
   `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已读',
   `createdAt` datetime not null DEFAULT now() COMMENT '//',
   PRIMARY KEY  (`id`)
 );
+
+-- CREATE TABLE `commentNotice` (  
+--   `id` int unsigned auto_increment,
+--   `memberId` int unsigned not null default 0,
+--   `commentsId` varchar(1000) not null default '',
+--   `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已读',
+--   `createdAt` datetime not null DEFAULT now() COMMENT '//',
+--   PRIMARY KEY  (`id`)
+-- );
+
+-- CREATE TABLE `likeNotice` (  
+--   `id` int unsigned auto_increment,
+--   `memberId` int unsigned not null default 0,
+--   `updatesId` varchar(1000) not null default '',
+--   `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已读',
+--   `createdAt` datetime not null DEFAULT now() COMMENT '//',
+--   PRIMARY KEY  (`id`)
+-- );
+
+-- CREATE TABLE `focusNotice` (  
+--   `id` int unsigned auto_increment,
+--   `memberId` int unsigned not null default 0,
+--   `updatesId` varchar(1000) not null default '',
+--   `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已读',
+--   `createdAt` datetime not null DEFAULT now() COMMENT '//',
+--   PRIMARY KEY  (`id`)
+-- );
  
 CREATE TABLE `reReply` (  
   `id` int unsigned auto_increment,
