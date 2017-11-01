@@ -96,7 +96,7 @@ var replySchema = new mongoose.Schema({
     memberId: { type: Number, default: 0 },           
     nickname: { type: String, default: '' },
     comment: { type: String, default: '' },
-    // workname: { type: String, default: '' },
+    workname: { type: String, default: '' },
     updatesId: { type: Number, default: 0 }, 
     commentsId:{ type: Number, default: 0 }, 
 })

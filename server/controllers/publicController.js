@@ -142,9 +142,9 @@ const publicController = {
         var resultt = await sqlStr("insert into reReply set commentsId = (select id from comments where memberId = ? and updatesId=? order by id desc limit 1),replyTo = ?",[this.session.user,updatesId,this.request.body.replyToId])
         if (result.affectedRows == 1 && resultt.affectedRows == 1) {
               // 通知回复
-              var info = await sqlStr("select m.id from member as m left join comments as c on c.memberId = m.id where c.id = ?",[this.request.body.replyToId])
+              var info = await sqlStr("select m.id,w.name from member as m left join comments as c on c.memberId = m.id left join works as w on w.updateId = c.updatesId where c.id = ? limit 1",[this.request.body.replyToId])
 
-              var items = {hostId:info[0].id,memberId:this.session.user,nickname:myinfo[0].nickname,updatesId:updatesId,comment:comment,commentsId:result.insertId};
+              var items = {hostId:info[0].id,memberId:this.session.user,nickname:myinfo[0].nickname,updatesId:updatesId,workname:info[0].name,comment:comment,commentsId:result.insertId};
 
                 var resultt = await save('Reply',items)
                 
@@ -167,9 +167,9 @@ const publicController = {
       }else{
         if (result.affectedRows == 1) {
              // 通知评论
-            var info = await sqlStr("select m.id from member as m left join memberupdates as mu on mu.memberId = m.id where mu.id = ?",[updatesId])
+            var info = await sqlStr("select m.id,w.name from member as m left join memberupdates as mu on mu.memberId = m.id left join works as w on w.updateId = mu.id where mu.id = ? limit 1",[updatesId])
 
-            var items = {hostId:info[0].id,memberId:this.session.user,nickname:myinfo[0].nickname,updatesId:updatesId,comment:comment,commentsId:result.insertId};
+            var items = {hostId:info[0].id,memberId:this.session.user,nickname:myinfo[0].nickname,updatesId:updatesId,workname:info[0].name,comment:comment,commentsId:result.insertId};
 
                 var resultt = await save('Reply',items)
                 
@@ -404,7 +404,7 @@ const publicController = {
       this.body = {status:200,data:result}
       return
     }
-}
+    }
 export default publicController;
 
 

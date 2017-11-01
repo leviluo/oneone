@@ -40,6 +40,14 @@ export default function routers(router){
 	router.get("/fans",publicController.getFans,router.allowedMethods());
 // 获取好友
 	router.get("/friends",publicController.getFriends,router.allowedMethods());
+// 未读消息数
+	router.get("/noReadMessages",memberController.noReadMessages,router.allowedMethods());
+// 获取评论通知
+	router.get("/notices",memberController.notices,router.allowedMethods());
+// // 获取赞通知
+// 	router.get("/likenotice",memberController.likenotice,router.allowedMethods());
+// // 获取关注通知
+// 	router.get("/focusnotice",memberController.focusnotice,router.allowedMethods());
 	// 是否关注
 	// router.get("/isFocus",memberController.isFocus,router.allowedMethods());
 	// 是否好友

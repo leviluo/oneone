@@ -77,7 +77,7 @@ export function aggregate(data,options){
 	var options = options ? options : {}
 	var model = mongoose.model(data);
 	return new Promise((reslove,reject)=>{
-		model.aggregate([{$group:options}]).exec(function(err, docs) {
+		model.aggregate(options).exec(function(err, docs) {
 			if (err) reject(err);
             reslove(docs)
 		})

@@ -706,6 +706,45 @@ const memberController = {
             }
         }
         // console.log(this.request.body)
-    }
+    },
+    noReadMessages:async function(){
+       if (!this.session.user) {
+                this.body = { status: 600, msg: "尚未登录" }
+                return
+            }
+        var countLike = await aggregate("Like",[{$match:{hostId:{$eq:this.session.user},status:{$eq:0}}},{$group:{_id:"$hostId",total:{$sum:1}}}])
+        var countFocus = await aggregate("Focus",[{$match:{hostId:{$eq:this.session.user},status:{$eq:0}}},{$group:{_id:"$hostId",total:{$sum:1}}}])
+        var countReply = await aggregate("Reply",[{$match:{hostId:{$eq:this.session.user},status:{$eq:0}}},{$group:{_id:"$hostId",total:{$sum:1}}}])
+        this.body = {status:200,data:{countLike:countLike[0].total,countReply:countReply[0].total,countFocus:countFocus[0].total}}
+      
+    },
+    notices:async function(){
+        if (!this.session.user) {
+                this.body = { status: 600, msg: "尚未登录" }
+                return
+            }
+        var type = this.request.query.type
+        var p = this.request.query.p
+        var limit = this.request.query.limit
+        if (!type || !p || !limit) {
+                this.body = { status: 600, msg: "缺少参数" }
+                return
+            }
+        if (type == "focus") {
+            var result = await findLimit("Focus",{hostId:this.session.user,status:0},{sort:{'_id':-1},p:p,limit:parseInt(limit)})
+            var updates = await update("Focus",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+        }else if(type == "reply"){
+            var result = await findLimit("Reply",{hostId:this.session.user,status:0},{sort:{'_id':-1},p:p,limit:parseInt(limit)})
+            var updates = await update("Reply",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+        }else{
+            var result = await findLimit("Like",{hostId:this.session.user,status:0},{sort:{'_id':-1},p:p,limit:parseInt(limit)})
+            var updates = await update("Like",{hostId:this.session.user,status:0},{$set:{status:1}},{multi:true})
+        }
+        if(updates.ok){
+            this.body = {status:200,data:result}
+        }else{
+            this.body = {status:500,msg:"更新通知状态失败"}
+        }
+    },
 }
 export default memberController;
