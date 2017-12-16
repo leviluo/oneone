@@ -69,66 +69,112 @@ import mongoose from 'mongoose'
 //     commentsId:{ type: Number, default: 0 }, 
 // })
 
-var focusSchema = new mongoose.Schema({
-    status: { type: Number, default: 0 },
-    // type: { type: String, default: '' },
-    createdate: {
-        type: Date,
-        default: Date.now
-    },
-    hostId: { type: Number, default: 0 },
-    memberId: { type: Number, default: 0 },           
-    nickname: { type: String, default: '' },
-    // comment: { type: String, default: '' },
-    // workname: { type: String, default: '' },
-    // updatesId: { type: Number, default: 0 }, 
-    // commentsId:{ type: Number, default: 0 }, 
-})
+// var focusSchema = new mongoose.Schema({
+//     status: { type: Number, default: 0 },
+//     ntype: { type: String, default: 'focus' },
+//     createdate: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     hostId: { type: Number, default: 0 },
+//     memberId: { type: Number, default: 0 },           
+//     nickname: { type: String, default: '' },
+//     head: { type: String, default: '' },
+//     // comment: { type: String, default: '' },
+//     // workname: { type: String, default: '' },
+//     // updatesId: { type: Number, default: 0 }, 
+//     // commentsId:{ type: Number, default: 0 }, 
+// })
 
-var replySchema = new mongoose.Schema({
-    status: { type: Number, default: 0 },
+// var replySchema = new mongoose.Schema({
+//     status: { type: Number, default: 0 },
+//     // type: { type: String, default: '' },
+//     ntype: { type: String, default: 'reply' },
+//     createdate: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     head: { type: String, default: '' },
+//     hostId: { type: Number, default: 0 },
+//     memberId: { type: Number, default: 0 },           
+//     nickname: { type: String, default: '' },
+//     comment: { type: String, default: '' },
+//     workname: { type: String, default: '' },
+//     type: { type: String, default: '' },
+//     updatesId: { type: Number, default: 0 }, 
+//     commentsId:{ type: Number, default: 0 }, 
+// })
+
+// var likeSchema = new mongoose.Schema({
+//     status: { type: Number, default: 0 },
+//     ntype: { type: String, default: 'like' },
+//     // type: { type: String, default: '' },
+//     createdate: {
+//         type: Date,
+//         default: Date.now
+//     },
+//     hostId: { type: Number, default: 0 },
+//     memberId: { type: Number, default: 0 },           
+//     nickname: { type: String, default: '' },
+//     head: { type: String, default: '' },
+//     type: { type: String, default: '' },
+//     // comment: { type: String, default: '' },
+//     workname: { type: String, default: '' },
+//     updatesId: { type: Number, default: 0 }, 
+//     // commentsId:{ type: Number, default: 0 }, 
+// })
+
+var noticeSchema = new mongoose.Schema({
+    // status: { type: Number, default: 0 },
+    ntype: { type: String, default: '' },
     // type: { type: String, default: '' },
-    createdate: {
+    time: {
         type: Date,
         default: Date.now
     },
     hostId: { type: Number, default: 0 },
     memberId: { type: Number, default: 0 },           
     nickname: { type: String, default: '' },
+    head: { type: String, default: '' },
+    type: { type: String, default: '' },
     comment: { type: String, default: '' },
     workname: { type: String, default: '' },
     updatesId: { type: Number, default: 0 }, 
     commentsId:{ type: Number, default: 0 }, 
 })
 
-var likeSchema = new mongoose.Schema({
-    status: { type: Number, default: 0 },
-    // type: { type: String, default: '' },
-    createdate: {
-        type: Date,
-        default: Date.now
-    },
-    hostId: { type: Number, default: 0 },
-    memberId: { type: Number, default: 0 },           
-    nickname: { type: String, default: '' },
-    // comment: { type: String, default: '' },
-    workname: { type: String, default: '' },
-    updatesId: { type: Number, default: 0 }, 
-    // commentsId:{ type: Number, default: 0 }, 
+var messageSchema = new mongoose.Schema({
+    // status: { type: Number, default: 0 },
+    ntype: { type: String, default: 'msg' },
+    id: { type: Number, default: 0 },
+    teamId: { type: Number, default: 0 },  
+    hostId: { type: Number, default: 0 },  
+    sendTo: { type: Number, default: 0 },            
+    sendFrom: { type: Number, default: 0 },            
+    time: { type: Date },
+    sendTonickname: { type: String, default: '' },
+    sendnickname: { type: String, default: '' },
+    sendFromHead: { type: String, default: '' }, 
+    text: { type: String, default: '' },
+    type: { type: String, default: '' },
+    sendTohead: { type: String, default: '' },
 })
 
-// var messageSchema = new mongoose.Schema({
+
+// var groupmessageSchema = new mongoose.Schema({
 //     status: { type: Number, default: 0 },
+//     // type: { type: String, default: '' },
+//     ntype: { type: String, default: 'groupmsg' },
+//     id: { type: Number, default: 0 },
+//     teamId: { type: Number, default: 0 },
+//     // hostId: { type: Number, default: 0 }, 
+//     hostId: { type: Number, default: 0 },            
+//     sendFrom: { type: Number, default: 0 },            
+//     time: { type: Date },
+//     sendnickname: { type: String, default: '' },
+//     sendFromHead: { type: String, default: '' },
+//     text: { type: String, default: '' },
 //     type: { type: String, default: '' },
-//     createdate: {
-//         type: Date,
-//         default: Date.now
-//     },
-//     hostId: { type: Number, default: 0 },  //   你是谁
-//     memberId: { type: Number, default: 0 },      
-//     organizationsId: { type: Number, default: 0 },      
-//     nickname: { type: String, default: '' },
-//     articleId: { type: Number, default: 0 },
 // })
 
 // var articleSchema = new mongoose.Schema({
@@ -143,10 +189,13 @@ var likeSchema = new mongoose.Schema({
 
 // var News = mongoose.model('News', NewsSchema);
 // mongoose.model('User', UserSchema);
-// mongoose.model('Message', messageSchema);
-mongoose.model('Focus', focusSchema);
-mongoose.model('Like', likeSchema);
-mongoose.model('Reply', replySchema);
+mongoose.model('msg', messageSchema);
+mongoose.model('notice', noticeSchema);
+
+// mongoose.model('GroupMsg', groupmessageSchema);
+// mongoose.model('Focus', focusSchema);
+// mongoose.model('Like', likeSchema);
+// mongoose.model('Reply', replySchema);
 // mongoose.model('Article', articleSchema);
 // mongoose.model('Suggestion', suggestionSchema);
 

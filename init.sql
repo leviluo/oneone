@@ -41,6 +41,16 @@ CREATE TABLE `follows` (
   PRIMARY KEY  (`id`)
 );
 
+
+CREATE TABLE `blacklist` (  
+  `id` int unsigned auto_increment,
+  `memberId` int unsigned not null default 0,
+  `blackId` int unsigned not null default 0,
+  `createAt` datetime not null default now(),
+  PRIMARY KEY  (`id`)
+);
+
+
 CREATE TABLE `memberupdates` (  
   `id` int unsigned auto_increment,
   `memberId` int unsigned not null default 0,
@@ -91,9 +101,19 @@ CREATE TABLE `likes` (
   PRIMARY KEY  (`id`)
 );
 
-CREATE TABLE `organizations` (  
+-- CREATE TABLE `organizations` (  
+--   `id` int unsigned auto_increment,
+--   `categoryId` int unsigned not null default 0,
+--   `name` varchar(40) not null default '',
+--   `brief` varchar(1000) not null default '',
+--   `time` datetime not null default NOW(),
+--   `head` varchar(80) not null default '',
+--   `createById` int unsigned not null default 0,
+--   PRIMARY KEY  (`id`)
+-- );
+
+CREATE TABLE `team` (  
   `id` int unsigned auto_increment,
-  `categoryId` int unsigned not null default 0,
   `name` varchar(40) not null default '',
   `brief` varchar(1000) not null default '',
   `time` datetime not null default NOW(),
@@ -102,38 +122,56 @@ CREATE TABLE `organizations` (
   PRIMARY KEY  (`id`)
 );
 
-CREATE TABLE `memberOrganizations` (  
+CREATE TABLE `memberTeam` (  
   `id` int unsigned auto_increment,
   `memberId` int unsigned not null default 0,
-  `organizationsId` int unsigned not null default 0,
+  `teamId` int unsigned not null default 0,
   PRIMARY KEY  (`id`)
 );
 
-
-CREATE TABLE `organizationsRequest` (  
+CREATE TABLE `report` (  
   `id` int unsigned auto_increment,
-  `memberId` int unsigned not null default 0,
-  `organizationsId` int unsigned not null default 0,
-  `createdAt` datetime not null DEFAULT now() COMMENT '//',
-  `verified` varchar(300) not null default '',
-  `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
+  `hostId` int unsigned not null default 0, --举报人
+  `memberId` int unsigned not null default 0, --举报用户
+  `updatesId` int unsigned not null default 0, --举报信息
+  `teamId` int unsigned not null default 0, --举报群
+  `text` char not null default "", -- 举报原因
+  `type` varchar(10) not null DEFAULT '', -- "member","updates","team"
   PRIMARY KEY  (`id`)
 );
 
+-- CREATE TABLE `memberOrganizations` (  
+--   `id` int unsigned auto_increment,
+--   `memberId` int unsigned not null default 0,
+--   `organizationsId` int unsigned not null default 0,
+--   PRIMARY KEY  (`id`)
+-- );
 
-CREATE TABLE `article`(  
-  `id` int unsigned auto_increment,
-  `organizationsId` int unsigned not null default 0,
-  `memberId` int unsigned not null default 0,
-  `updateId` int unsigned not null default 0,
-  `title` varchar(50) not null DEFAULT '' COMMENT '//标题',
-  -- `content` text not null,
-  `type` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:普通,1:活动,2:公告,3:咨询',
-  -- `attachedImgs` varchar(300) not null default '',
-  `createdAt` datetime not null DEFAULT now() COMMENT '//',
-  `updatedAt` datetime not null DEFAULT now() COMMENT '//',
-  PRIMARY KEY  (`id`)
-);
+
+-- CREATE TABLE `organizationsRequest` (  
+--   `id` int unsigned auto_increment,
+--   `memberId` int unsigned not null default 0,
+--   `organizationsId` int unsigned not null default 0,
+--   `createdAt` datetime not null DEFAULT now() COMMENT '//',
+--   `verified` varchar(300) not null default '',
+--   `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
+--   PRIMARY KEY  (`id`)
+-- );
+
+
+-- CREATE TABLE `article`(  
+--   `id` int unsigned auto_increment,
+--   `organizationsId` int unsigned not null default 0,
+--   `memberId` int unsigned not null default 0,
+--   `updateId` int unsigned not null default 0,
+--   `title` varchar(50) not null DEFAULT '' COMMENT '//标题',
+--   -- `content` text not null,
+--   `type` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:普通,1:活动,2:公告,3:咨询',
+--   -- `attachedImgs` varchar(300) not null default '',
+--   `createdAt` datetime not null DEFAULT now() COMMENT '//',
+--   `updatedAt` datetime not null DEFAULT now() COMMENT '//',
+--   PRIMARY KEY  (`id`)
+-- );
 
 
 CREATE TABLE `comments` (  
@@ -185,8 +223,10 @@ CREATE TABLE `message` (
   `id` int unsigned auto_increment,
   `fromMember` int unsigned not null default 0,
   `toMember` int unsigned not null default 0,
+  -- `type` char(1) not null default 0,
+  `type` varchar(10) not null DEFAULT '',
   `active` char(1) not null default 0,
-  `text` varchar(1000) not null default '',
+  `text` varchar(300) not null default '',
   `time` datetime not null default NOW(),
   PRIMARY KEY  (`id`)
 );
@@ -194,7 +234,7 @@ CREATE TABLE `message` (
 CREATE TABLE `groupmessage` (  
   `id` int unsigned auto_increment,
   `fromMember` int unsigned not null default 0,
-  `organizationsId` int unsigned not null default 0,
+  `teamId` int unsigned not null default 0,
   `text` varchar(1000) not null default '',
   `time` datetime not null default NOW(),
   PRIMARY KEY  (`id`)

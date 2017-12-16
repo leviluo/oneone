@@ -85,7 +85,7 @@ const authController = {
                 this.session.user = result[0].id
                 var token = jwt.sign({memberId:result[0].id,nickname:result[0].nickname}, "leviluo");
                 // console.log(token)
-                this.body = { status: 200, data:{nickname: result[0].nickname,memberId:result[0].id,token:token}}
+                this.body = { status: 200, data:{nickname: result[0].nickname,head: result[0].head,memberId:result[0].id,token:token}}
                 return
             } else {
                 this.body = { status: 500, msg: "用户或密码错误" }
@@ -157,6 +157,59 @@ const authController = {
                 return
             }
         }
+    },
+    // isAuth:async function(that) {
+    //     if (!that.session.user) {
+    //         var auth = that.request.header["authorization"]
+    //         if (auth) {
+    //             var result = jwt.decode(auth, "leviluo");
+    //             console.log("开始去数据库验证了")
+    //             var veryfied = await sqlStr("select * from member where id = ? and nickname = ?",[result.memberId,result.nickname])
+    //             console.log("数据库验证完毕")
+    //             if (veryfied.length > 0) {
+    //                 that.session.user = result.memberId
+    //                 return true
+    //                 // await next
+    //             }
+    //         }else{
+    //             return false
+    //             // that.body = { status: 600, msg: "尚未登录" }
+    //             // return
+    //         }
+    //     }else{
+    //         return true
+    //     }
+    // },
+    isAuth:async function(next) {
+        // var that = this
+        // console.log("1-1")
+        if (!this.session.user) {
+            var auth = this.request.header["authorization"]
+            if (auth) {
+                var result = jwt.decode(auth, "leviluo");
+                // console.log("开始去数据库验证了")
+                var veryfied = await sqlStr("select * from member where id = ? and nickname = ?",[result.memberId,result.nickname])
+                // console.log("数据库验证完毕")
+                if (veryfied.length > 0) {
+                    this.session.user = result.memberId
+                    next
+                }
+            }else{
+                this.body = { status: 600, msg: "尚未登录" }
+                return
+            }
+        }else{
+            next
+        }
+    },
+    isBlack:async function(next) {
+        await next
+        var result = await sqlStr("select * from blacklist where blackId = ? and memberId = ?",[this.session.user,id])
+        if(result.length > 0){
+            this.body = { status: 600, msg: "因系统设置,您不能进行此操作" }
+            return
+        }
+        next
     },
     loginOut:async function(next){
         this.session = null;

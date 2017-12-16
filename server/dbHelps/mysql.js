@@ -5,14 +5,15 @@ var options = {
     'port': dbOptions.db_port,
     'database': dbOptions.db_name,
     'user': dbOptions.db_user,
-    'password': dbOptions.db_passwd
+    'password': dbOptions.db_passwd,
+    'timezone':'0800'
 }
 
 var mysql = require('mysql');
 var pool = mysql.createPool(options);
 
 //内部对mysql的封装，执行sql语句
-function execQuery(sql, values, callback) {
+export default function execQuery(sql, values, callback) {
     var errinfo;
     pool.getConnection(function(err, connection) {
         if (err) {

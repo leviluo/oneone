@@ -50,6 +50,20 @@ String.prototype.DateFormat = function (fmt) { //author: meizz
     return fmt;
 }
 
+Date.prototype.myFormat = function(){
+    var date = this
+    // var o = {
+    //     "M+": date.getMonth() + 1, //月份 
+    //     "d+": date.getDate(), //日 
+    //     "h+": date.getHours(), //小时 
+    //     "m+": date.getMinutes(), //分 
+    //     "s+": date.getSeconds(), //秒 
+    //     "q+": Math.floor((date.getMonth() + 3) / 3), //季度 
+    //     "S": date.getMilliseconds() //毫秒 
+    // };
+    return `${date.getFullYear()}-${(date.getMonth()+1)< 10 ? '0'+(date.getMonth()+1) :(date.getMonth()+1) }-${date.getDate()} ${date.getHours()}:${date.getMinutes() < 10 ? '0'+date.getMinutes():date.getMinutes()}`;
+}
+
 String.prototype.html2Escape = function() {   //普通字符转换成转意符
    return this.replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});
 }

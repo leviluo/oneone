@@ -89,11 +89,11 @@ export function parseRange(str, size) {
         var str = str.substr(6, str.length)
     }
     var range = str.split("-");
-    console.log(range)
+    // console.log(range)
     var start = parseInt(range[0], 10)
     var end = parseInt(range[1], 10) || size - 1
-    console.log(start)
-    console.log(end)
+    // console.log(start)
+    // console.log(end)
 
     // Case: -100
     if (isNaN(start)) {

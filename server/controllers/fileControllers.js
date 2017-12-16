@@ -5,6 +5,7 @@ import config from '../config'
 var sizeOf = require('image-size');
 import {parseRange} from "./utils"
 import authController from '../controllers/authController'
+import memberController from '../controllers/memberController'
 
 var gm = require('gm').subClass({imageMagick: true});
 var qr = require('qr-image')
@@ -34,7 +35,8 @@ function getThumbImage(query,url){
         let width = query.width ? query.width : 200
         let imageName = query.name.split(/[_@]+/)
         let height = width*imageName[2]/imageName[1]
-        let thumbName = `${url}thumbs/${imageName[0]}_${width}@${height}.jpg`        
+        let thumbName = `${url}thumbs/${imageName[0]}_${width}@${height}.jpg`  
+        console.log(thumbName) 
         fs.exists(thumbName, function (exists) {
                     if (exists) {
                         fs.readFile(thumbName, "binary", function(error, file) {
@@ -101,7 +103,7 @@ function deleteImgs(name,url){
     })
 }
 
-function uploadOneImg(ob,user,url){
+function uploadOneImg(ob,url){
     return new Promise(function(resolve,reject){
           var form = new multiparty.Form({ uploadDir: url });
             //上传完成后处理
@@ -110,9 +112,11 @@ function uploadOneImg(ob,user,url){
                     reject(err)
                 } else {
                         var inputFile = files.file[0];
-                        console.log(inputFile)
+                        // console.log(inputFile)
                         var uploadedPath = inputFile.path;
-                        var dstPath = url + user + '.jpg';
+                        var name = Date.parse(new Date())
+                        var dstPath = `${url}${name}.jpg`;
+                        fields.names = [name]
                        //重命名为真实文件名
                         fs.rename(uploadedPath, dstPath, function(err) {
                             if (err) {
@@ -163,8 +167,11 @@ function uploadImgs(ob,name,url){
           var form = new multiparty.Form({ uploadDir: url });
             //上传完成后处理
             var ss = name
+            // console.log("33333")
             form.parse(ob, function(err, fields, files) {
+                // console.log("44444")
                 if (err) {
+                    // console.log(err)
                     reject(err)
                 } else {    
                         fields.names=[]
@@ -176,10 +183,9 @@ function uploadImgs(ob,name,url){
                                 var uploadedPath = inputFile.path;
                                 var name = `${ss}${Date.parse(new Date()) + i}_${dimensions.width}@${dimensions.height}`
                                 var dstPath = `${url}${name}.jpg`;
-                                console.log(name)
-                                console.log(dstPath)
                                 fields.names.push(name)
-                                fields.type = "image"
+                                // fields.type = "image"
+                                // console.log(dstPath)
                                //重命名为真实文件名
                                 fs.rename(uploadedPath, dstPath, function(err) {
                                     if (err) {
@@ -195,41 +201,41 @@ function uploadImgs(ob,name,url){
     })
 }
 
-function UploadMessageImage(ob,name,url,type){
-    return new Promise(function(resolve,reject){
-          var form = new multiparty.Form({ uploadDir: url });
-            //上传完成后处理
-            form.parse(ob, function(err, fields, files) {
-                if (err) {
-                    reject(err)
-                } else {    
-                        for(var key in files){
-                            var inputFile = files[key][0]
-                            var uploadedPath = inputFile.path;
-                            var filename = Date.parse(new Date()) + key.toString().slice(2)
-                            var dstPath = url + filename + '.jpg';
-                            var reg = new RegExp(key)
+// function UploadMessageImage(ob,name,url,type){
+//     return new Promise(function(resolve,reject){
+//           var form = new multiparty.Form({ uploadDir: url });
+//             //上传完成后处理
+//             form.parse(ob, function(err, fields, files) {
+//                 if (err) {
+//                     reject(err)
+//                 } else {    
+//                         for(var key in files){
+//                             var inputFile = files[key][0]
+//                             var uploadedPath = inputFile.path;
+//                             var filename = Date.parse(new Date()) + key.toString().slice(2)
+//                             var dstPath = url + filename + '.jpg';
+//                             var reg = new RegExp(key)
 
-                            fields.text[0] = fields.text[0].replace(reg,`<img src="/img?from=${type}&name=${filename}" />`)
-                           //重命名为真实文件名
-                            fs.rename(uploadedPath, dstPath, function(err) {
-                                if (err) {
-                                    reject({status:500,type:err})
-                                } else {
-                                }   
-                            })
-                        }
-                        resolve({status:200,msg:fields})
-                }
-            })
-    })
-}
+//                             fields.text[0] = fields.text[0].replace(reg,`<img src="/img?from=${type}&name=${filename}" />`)
+//                            //重命名为真实文件名
+//                             fs.rename(uploadedPath, dstPath, function(err) {
+//                                 if (err) {
+//                                     reject({status:500,type:err})
+//                                 } else {
+//                                 }   
+//                             })
+//                         }
+//                         resolve({status:200,msg:fields})
+//                 }
+//             })
+//     })
+// }
 
 const fileController = {
     loadImg:async function(next){
         // switch(this.request.query.from){
         // case 'chat':
-        //     var result = await getThumbImage(this.request.query.name,config.messageImgDir);
+        //     var result = await getThumbImage(this.request.query.name,config.chatImgDir);
         //     break
         // case 'speciality':
         //     var result = await getThumbImage(this.request.query.name,config.specialityImgDir);
@@ -246,7 +252,7 @@ const fileController = {
     loadOriginImg:async function(next){
         switch(this.request.query.from){
         case 'chat':
-            var result = await getFile(this.request.query.name+'.jpg',config.messageImgDir);
+            var result = await getFile(this.request.query.name+'.jpg',config.chatImgDir);
             break
         case 'speciality':
             var result = await getFile(this.request.query.name+'.jpg',config.specialityImgDir);
@@ -291,33 +297,17 @@ const fileController = {
             break;
         }
     },
-    qrCode:async function(){
-        var qr_svg = qr.imageSync(this.request.query.text, { type: 'png' });
-        this.res.writeHead(200, { "Content-Type": "image/png" });
-        this.res.write(qr_svg, "binary");
-        this.res.end();
-    },
+    // qrCode:async function(){
+    //     var qr_svg = qr.imageSync(this.request.query.text, { type: 'png' });
+    //     this.res.writeHead(200, { "Content-Type": "image/png" });
+    //     this.res.write(qr_svg, "binary");
+    //     this.res.end();
+    // },
     uploadHeadImg:async function(next){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
+        await next
         var id = this.session.user
         // var id = await sqlStr("select id from member where phone = ?",[user])
-        var result = await uploadOneImg(this.req,id,config.headDir)
-        if (result.status == 200 ) {
-            this.body = {status:200}
-            return
-        }
-    },
-    uploadHeadImg:async function(next){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var id = this.session.user
-        // var id = await sqlStr("select id from member where phone = ?",[user])
-        var result = await uploadOneImg(this.req,id,config.headDir)
+        var result = await uploadOneImg(this.req,config.headDir)
         if (result.status != 200 ) {
             this.body = {status:500,msg:'上传失败'}
             return
@@ -326,10 +316,11 @@ const fileController = {
         next
     },
     uploadVideo:async function(next){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
+        // if (!this.session.user) {
+        //     this.body = { status: 600, msg: "尚未登录" }
+        //     return
+        // }
+        await next
         var id = this.session.user
         // var id = await sqlStr("select id from member where phone = ?",[user])
         var result = await uploadOneVideo(this.req,id,config.videoDir)
@@ -339,114 +330,105 @@ const fileController = {
         }
         this.request.body = result.msg
     },
-    uploadPhotos:async function(){  //可上传多张图片
-        var me = this
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var name = this.session.user
-        console.log("uploadPhotos...")
-        console.log(name)
-        // authController.islogin(this).then(async function(result){
-        //     console.log(result)
-        //     if (typeof result == "object"){
-        //         this.body = result
-        //         return 
-        //     }else{
-                var result = await uploadImgs(me.req,name,config.specialityImgDir)
-                console.log("result",result)
-                // me.request.body.imgUrl = name
+    uploadPhotos:async function(next){  //可上传多张图片
+        await next
+                var result = await uploadImgs(this.req,this.session.user,config.specialityImgDir)
+                // console.log("result",result)
+                // this.request.body.imgUrl = name
                 if (result.status != 200) {
-                    me.body = {status:500,msg:'上传失败'}
+                    this.body = {status:500,msg:'上传失败'}
                     return
                 }
-                console.log("result.msg",result.msg)
-                me.request.body = result.msg
-            // }
-        // })
-        
-        // return result.msg
+                // console.log("result.msg",result.msg)
+                this.request.body = result.msg
+                this.request.body.type = "image"
+                next
     },
-    uploadOrganizationImg:async function(next){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var name = this.session.user
-        var result = await uploadImgs(this.req,name,config.organizationImgDir)
+    // uploadOrganizationImg:async function(next){
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     var name = this.session.user
+    //     var result = await uploadImgs(this.req,name,config.organizationImgDir)
 
-        if (result.status != 200) {
-            this.body = {status:500,msg:'上传失败'}
-            return
-        }
+    //     if (result.status != 200) {
+    //         this.body = {status:500,msg:'上传失败'}
+    //         return
+    //     }
 
-        this.request.body = result.msg
-    },
-    submitMessage:async function(){
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var name = this.session.user
-        var result = await UploadMessageImage(this.req,name,config.messageImgDir,'chat')
-        if (result.status != 200) {
-            this.body = {status:500,msg:'上传失败'}
-            return
-        }
-        this.request.body.text = result.msg.text[0]
-        this.request.body.sendTo = result.msg.sendTo[0]
-    },
-    uploadArticleImg:async function(next){   //上传文章时
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var name = this.session.user
-        var result = await UploadMessageImage(this.req,name,config.articleImgDir,'article')
-
-        if (result.status != 200) {
-            this.body = {status:500,msg:'上传失败'}
-            return
-        }
-        this.request.body = result.msg
-    },
-    uploadSuggestionImg:async function(next){   //上传文章时
-        if (!this.session.user) {
-            this.body = { status: 600, msg: "尚未登录" }
-            return
-        }
-        var name = this.session.user
-        var result = await UploadMessageImage(this.req,name,config.suggestionImgDir,'suggestion')
-
-        if (result.status != 200) {
-            this.body = {status:500,msg:'上传失败'}
-            return
-        }
-        this.request.body = result.msg
-    },
-    deletePhoto:async function(next){
-        var result = await deleteImgs([this.request.query.name],config.specialityImgDir)
-        if(!result){
-            this.body = {status:500,mag:"删除失败"}
-            return
-        }
-        next
-    },
-    deletePhotos:async function(next){
+    //     this.request.body = result.msg
+    // },
+    submitMessage:async function(next){
         await next
-        console.log(this.request.body.deletImgs)
-        if (this.request.body.deletImgs.length > 0) {
-        console.log("000")
-        var result = await deleteImgs(this.request.body.deletImgs,config.articleImgDir)
-        if(!result){
-            this.body = {status:500,mag:"删除失败"}
-            return
-        }
+        // if (!this.request.body.type) {
+            var name = this.session.user
+            var result = await uploadImgs(this.req,name,config.chatImgDir)
+            if (result.status != 200) {
+                this.body = {status:500,msg:'上传失败'}
+                return
+            }
+            this.request.body = result.msg
+            this.request.body.text = this.request.body.text !== undefined ? this.request.body.text :result.msg.names[0]
+            this.request.body.sendTo = result.msg.sendTo[0]
+            this.request.body.type = result.msg.type[0]
+            next
+        // }else{
+        //     next
+        // }
+        // this.request.body.text = result.msg.text[0]
+        // this.request.body.sendTo = result.msg.sendTo[0]
+    },
+    // uploadArticleImg:async function(next){   //上传文章时
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     var name = this.session.user
+    //     var result = await UploadMessageImage(this.req,name,config.articleImgDir,'article')
 
-        }
-        next
-    }
+    //     if (result.status != 200) {
+    //         this.body = {status:500,msg:'上传失败'}
+    //         return
+    //     }
+    //     this.request.body = result.msg
+    // },
+    // uploadSuggestionImg:async function(next){   //上传文章时
+    //     if (!this.session.user) {
+    //         this.body = { status: 600, msg: "尚未登录" }
+    //         return
+    //     }
+    //     var name = this.session.user
+    //     var result = await UploadMessageImage(this.req,name,config.suggestionImgDir,'suggestion')
+
+    //     if (result.status != 200) {
+    //         this.body = {status:500,msg:'上传失败'}
+    //         return
+    //     }
+    //     this.request.body = result.msg
+    // },
+    // deletePhoto:async function(next){
+    //     var result = await deleteImgs([this.request.query.name],config.specialityImgDir)
+    //     if(!result){
+    //         this.body = {status:500,mag:"删除失败"}
+    //         return
+    //     }
+    //     next
+    // },
+    // deletePhotos:async function(next){
+    //     await next
+    //     // console.log(this.request.body.deletImgs)
+    //     if (this.request.body.deletImgs.length > 0) {
+    //     // console.log("000")
+    //     var result = await deleteImgs(this.request.body.deletImgs,config.articleImgDir)
+    //     if(!result){
+    //         this.body = {status:500,mag:"删除失败"}
+    //         return
+    //     }
+
+    //     }
+    //     next
+    // }
 }
 
 export default fileController
