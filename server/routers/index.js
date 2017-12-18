@@ -124,8 +124,12 @@ export default function routers(router){
 	router.delete("/quitteam",teamController.quitTeam,authController.isAuth,router.allowedMethods());
 // 解散该群
 	router.delete("/team",teamController.deleteTeam,authController.isAuth,router.allowedMethods());
-// 组信息
-	// router.get("/groupmessage",teamController.historyChat,authController.isAuth,router.allowedMethods());
+// 修改群简介
+	router.put("/team",teamController.modifyTeam,authController.isAuth,router.allowedMethods());
+// 邀约好友
+	router.post("/invitemember",teamController.inviteMember,authController.isAuth,router.allowedMethods());
+// 组邀请操作
+	router.post("/teamreq",teamController.teamReq,authController.isAuth,router.allowedMethods());
 // 发送群消息
 	router.post("/groupmessage",teamController.message,fileController.submitMessage,authController.isAuth,router.allowedMethods());
 // 设置黑名单

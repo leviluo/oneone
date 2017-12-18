@@ -167,7 +167,7 @@ chat.disconnect = function(socket) {
 	var that = this;
 
 	socket.on('disconnect', function(){
-		console.log("chat 断开链接了")
+		console.log(socket.name+"chat 断开链接了")
 
 		delete that.onlines[socket.name]
 

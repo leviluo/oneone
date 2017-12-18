@@ -135,19 +135,20 @@ var noticeSchema = new mongoose.Schema({
     hostId: { type: Number, default: 0 },
     memberId: { type: Number, default: 0 },           
     nickname: { type: String, default: '' },
+    teamname: { type: String, default: '' },
     head: { type: String, default: '' },
     type: { type: String, default: '' },
     comment: { type: String, default: '' },
     workname: { type: String, default: '' },
     updatesId: { type: Number, default: 0 }, 
     commentsId:{ type: Number, default: 0 }, 
+    teamId: { type: Number, default: 0 }
 })
 
 var messageSchema = new mongoose.Schema({
     // status: { type: Number, default: 0 },
     ntype: { type: String, default: 'msg' },
     id: { type: Number, default: 0 },
-    teamId: { type: Number, default: 0 },  
     hostId: { type: Number, default: 0 },  
     sendTo: { type: Number, default: 0 },            
     sendFrom: { type: Number, default: 0 },            

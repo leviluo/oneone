@@ -137,6 +137,17 @@ CREATE TABLE `report` (
   `teamId` int unsigned not null default 0, --举报群
   `text` char not null default "", -- 举报原因
   `type` varchar(10) not null DEFAULT '', -- "member","updates","team"
+  `time` datetime not null default NOW()
+  PRIMARY KEY  (`id`)
+);
+
+CREATE TABLE `invites` (  
+  `id` int unsigned auto_increment,
+  `hostId` int unsigned not null default 0, --邀请人
+  `memberId` int unsigned not null default 0, --被邀请人
+  `teamId` int unsigned not null default 0, 
+  `time` datetime not null default NOW(),
+  `status` tinyint(1) unsigned not null DEFAULT 0 COMMENT '//0:未读,1:已通过',
   PRIMARY KEY  (`id`)
 );
 

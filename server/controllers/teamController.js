@@ -174,6 +174,93 @@ const teamController = {
         return
       }
       this.body = {status:600,msg:"操作失败"}
+    },
+    modifyTeam:async function(next){
+      await next 
+      var text = this.request.query.text 
+      var id = this.request.query.id 
+      if (!id) {
+        this.body = { status: 600,msg:'缺少参数'}
+        return
+      }
+      if (text.length > 300) {
+        this.body = {status:600,msg:"文本超出了限制"}
+        return 
+      }
+      var result = await sqlStr("update team set brief = ? where id = ?",[text,id])
+      // console.log(result)
+      if (result.affectedRows == 1) {
+        this.body = {status:200,data:"ok"}
+        return
+      }
+      this.body = {status:500,msg:"操作失败"}
+    },
+    inviteMember:async function(next){
+      await next 
+      var teamId = this.request.body.teamId 
+      var memberId = this.request.body.memberId 
+      if (!teamId || !memberId) {
+        this.body = { status: 600,msg:'缺少参数'}
+        return
+      }
+      // var result = await find("notice",{ntype:"req",type:"teamInvites",teamId:teamId,hostId:memberId})
+      var result = await sqlStr("select * from invites where teamId = ? and memberId = ? and status = 0",[teamId,memberId])
+
+      if (result.length > 0) {
+        this.body = {status:600,msg:"他／她已经被邀请啦"}
+        return
+      }
+
+      var isM = await sqlStr("select * from memberTeam where teamId = ? and memberId = ?",[teamId,memberId])
+
+      if (isM.length > 0) {
+        this.body = {status:600,msg:"他／她已经是群成员了"}
+        return
+      }
+
+      var result = await sqlStr("insert into invites set hostId = ?,memberId = ?,teamId = ?",[this.session.user,memberId,teamId])
+      if (result.affectedRows != 1) {
+        // this.body = {status:200,data:"ok"}
+        this.body = {status:600,data:"操作失败"}
+        return
+      }
+
+      var myinfo = await sqlStr("select head,nickname from member where id = ?",[this.session.user])
+      var teaminfo = await sqlStr("select name from team where id = ?",[teamId])
+      var items = {hostId:parseInt(memberId),teamId:parseInt(teamId),time:new Date().myFormat(),ntype:"req",nickname:myinfo[0].nickname,head:myinfo[0].head,comment:`邀请你加入群${teaminfo[0].name}`,type:"teamInvites"};
+
+      var toSocket = queryid(memberId)
+
+      if (toSocket) {
+          toSocket.emit('notice',items);
+          console.log("邀请通知")
+      }else{
+          var resultt = await save('notice',items)
+      }
+      this.body = {status:200,data:"ok"}
+    },
+    teamReq:async function(next){
+      await next 
+      var status = this.request.body.status
+      var memberId = this.session.user
+      var teamId = this.request.body.teamId
+      if (!status || !memberId || !teamId) {
+        this.body = { status: 600,msg:'缺少参数'}
+        return
+      }
+      var result = await sqlStr("delete from invites where memberId = ? and teamId = ?",[memberId,teamId])
+      if (status == 1) {
+        var updates = await sqlStr("insert into memberTeam set memberId = ?,teamId = ?",[memberId,teamId])
+        if (updates.affectedRows == 1 && result.affectedRows == 1) {
+          this.body = {status:200,data:"ok"}
+          return
+        }
+      }
+      if (result.affectedRows == 1) {
+        this.body = {status:200,data:"ok"}
+        return
+      }
+        this.body = {status:500,msg:"操作失败"}
     }
 }
 export default teamController;

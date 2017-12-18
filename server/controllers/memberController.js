@@ -130,7 +130,6 @@ const memberController = {
             // if (resultt.id) {
                 // 在线发送socket消息
                 var toSocket = queryid(chatWith)
-                // console.log(toSocket)
                 result[0].ntype = "msg"
                 result[0].hostId = result[0].sendTo
                 queryid(this.session.user).emit('notice',result[0]);
@@ -492,7 +491,7 @@ const memberController = {
                 var myinfo = await sqlStr("select nickname,head from member where id = ?",[this.session.user])
                 if (info[0].memberId != this.session.user){
 
-                // // 点赞通知
+             // 点赞通知
                  var items = {hostId:info[0].memberId,time:new Date().myFormat(),type:info[0].type,updatesId:parseInt(id),nickname:myinfo[0].nickname,head:myinfo[0].head,memberId:this.session.user,workname:info[0].name};
 
                     
@@ -871,6 +870,7 @@ const memberController = {
     getFriends: async function(next){
       await next
       var id = this.request.query.id
+        var teamId = this.request.query.teamId
         var limit = this.request.query.limit
         var p = this.request.query.p
         if (!id || !limit || !p) {
@@ -878,7 +878,11 @@ const memberController = {
             return 
         }
         var limits = `${(p-1)*limit},${limit}`
-      var result = await sqlStr("select m.nickname,m.brief,m.id,m.head from follows as f left join member as m on m.id = f.memberId where f.followId = ? and (select count(*) from follows as ff where ff.memberId = ? and f.memberId = ff.followId) > 0 limit "+limits,[id,id])
+        if (teamId) {
+            var result = await sqlStr("select m.nickname,m.brief,m.id,m.head from follows as f left join member as m on m.id = f.memberId where f.followId = ? and (select count(*) from follows as ff where ff.memberId = ? and f.memberId = ff.followId) > 0 and m.id not in (select memberId from memberTeam where teamId = ?) limit "+limits,[id,id,teamId])
+        }else{
+            var result = await sqlStr("select m.nickname,m.brief,m.id,m.head from follows as f left join member as m on m.id = f.memberId where f.followId = ? and (select count(*) from follows as ff where ff.memberId = ? and f.memberId = ff.followId) > 0 limit "+limits,[id,id])
+        }
       this.body = {status:200,data:result}
     },
     comments:async function(next){
