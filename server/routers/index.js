@@ -29,9 +29,11 @@ export default function routers(router){
 // 我的更新
 	router.get("/myUpdates",publicController.getMyUpdates,authController.isAuth,router.allowedMethods());
 // 获取所有的专业信息
-	router.get("/specialities",publicController.specialities,authController.isAuth,router.allowedMethods());
+	router.get("/specialities",memberController.specialities,authController.isAuth,router.allowedMethods());
+// 修改专业简介
+	router.put("/specialitiesBrief",memberController.modifySpecialities,authController.isAuth,router.allowedMethods());
 // 获取作品
-	// router.get("/works",publicController.getWorks,router.allowedMethods());
+	router.get("/works",publicController.getWorks,router.allowedMethods());
 // 获取作品
 	// router.get("/public/getWorksFrom",publicController.getWorksFrom,router.allowedMethods());
 // 获取赞过的
@@ -42,6 +44,8 @@ export default function routers(router){
 	router.get("/fans",memberController.getFans,authController.isAuth,router.allowedMethods());
 // 获取好友
 	router.get("/friends",memberController.getFriends,authController.isAuth,router.allowedMethods());
+// 发现有趣
+	router.get("/trends",publicController.getTrends,authController.isAuth,router.allowedMethods());
 // 未读消息数
 	// router.get("/noReadMessages",memberController.noReadMessages,authController.isAuth,router.allowedMethods());
 // 获取评论通知

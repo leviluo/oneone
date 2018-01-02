@@ -53,10 +53,11 @@ CREATE TABLE `blacklist` (
 
 CREATE TABLE `memberupdates` (  
   `id` int unsigned auto_increment,
-  `memberId` int unsigned not null default 0,
+  -- `memberId` int unsigned not null default 0,
   -- `articleId` int unsigned not null default 0,
   -- `memberSpecialityId` int unsigned not null default 0,
   -- `works` varchar(300) not null default '',
+  `memberSpecialityId` int unsigned not null default 0,
   `text` varchar(140) not null DEFAULT '',
   `type` varchar(15) not null default '',
   `createAt` datetime not null default now(),
@@ -87,7 +88,7 @@ CREATE TABLE `memberSpeciality` (
 
 CREATE TABLE `works` (  
   `id` int unsigned auto_increment,
-  `memberSpecialityId` int unsigned not null default 0,
+  -- `memberSpecialityId` int unsigned not null default 0,
   `name` char(30) not null default '',
   `createdAt` datetime not null DEFAULT now(),
   `updateId` int unsigned not null default 0,
